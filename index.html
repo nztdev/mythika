@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MYTHIKA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;700&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#080810;--ink2:#0f0f1a;--ink3:#16162a;
+  --paper:#f0ecdf;--gold:#c9a84c;--gold2:#e8c96a;--gold3:#fff6d0;
+  --silver:#9ba8b5;--green:#4ade80;--red:#ef4444;--blue:#60a5fa;
+  --r5:5px;--r10:10px;--r16:16px;--r24:24px;
+  --fd:'Cinzel Decorative',serif;--fc:'Cinzel',serif;
+  --fb:'Zen Kaku Gothic New',sans-serif;--fm:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:var(--fb);background:var(--ink);color:var(--paper);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;}
+button{font-family:var(--fb);cursor:pointer;border:none;background:none;}
+input,select{font-family:var(--fb);}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,.3);border-radius:2px;}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+/* ── SCREENS ── */
+.screen{display:none;flex-direction:column;min-height:100vh;position:relative;z-index:1;}
+.screen.active{display:flex;}
+
+/* ── TOP NAV ── */
+.topnav{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.1rem;flex-shrink:0;border-bottom:1px solid rgba(201,168,76,.18);background:rgba(8,8,16,.97);backdrop-filter:blur(14px);position:sticky;top:0;z-index:50;}
+.tn-brand{font-family:var(--fd);font-size:1rem;letter-spacing:.14em;color:var(--gold);text-shadow:0 0 18px rgba(201,168,76,.45);}
+.tn-tabs{display:flex;gap:2px;background:rgba(255,255,255,.05);border-radius:20px;padding:3px;}
+.tn-tab{padding:4px 10px;border-radius:17px;font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(240,236,223,.32);transition:all .2s;}
+.tn-tab.active{background:var(--gold);color:var(--ink);}
+.tn-gems{font-size:.72rem;font-weight:700;color:var(--gold2);font-family:var(--fm);display:flex;align-items:center;gap:3px;}
+
+/* ══════════ HOME ══════════ */
+#screen-home{background:radial-gradient(ellipse 80% 55% at 50% -5%,rgba(201,168,76,.13) 0%,transparent 65%),radial-gradient(ellipse 50% 45% at 85% 90%,rgba(100,40,160,.18) 0%,transparent 55%),var(--ink);}
+.home-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.75rem 1.5rem;gap:1.4rem;text-align:center;}
+.home-sigil{width:90px;height:90px;animation:sigilGlow 4s ease-in-out infinite;}
+@keyframes sigilGlow{0%,100%{filter:drop-shadow(0 0 10px rgba(201,168,76,.45));}50%{filter:drop-shadow(0 0 28px rgba(201,168,76,.95));}}
+.home-title{font-family:var(--fd);font-size:clamp(2.2rem,9vw,3.5rem);letter-spacing:.15em;line-height:1;text-shadow:0 0 50px rgba(201,168,76,.25);}
+.home-title span{color:var(--gold);}
+.home-sub{font-size:.75rem;color:rgba(240,236,223,.4);letter-spacing:.12em;text-transform:uppercase;font-family:var(--fc);margin-top:.3rem;}
+.home-stats{display:flex;gap:2rem;font-family:var(--fm);font-size:.7rem;color:rgba(240,236,223,.48);}
+.hstat strong{display:block;font-size:1.2rem;color:var(--gold2);font-family:var(--fd);letter-spacing:.04em;line-height:1.2;}
+.home-actions{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:290px;}
+.btn-summon{position:relative;overflow:hidden;background:linear-gradient(135deg,#b8932e,#e8c96a,#b8932e);color:var(--ink);font-family:var(--fd);font-size:.88rem;letter-spacing:.12em;padding:14px 24px;border-radius:var(--r5);box-shadow:0 0 28px rgba(201,168,76,.32),inset 0 1px 0 rgba(255,255,255,.28);transition:all .25s;}
+.btn-summon::before{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 38%,rgba(255,255,255,.3) 50%,transparent 62%);transform:translateX(-120%);transition:transform .55s;}
+.btn-summon:hover::before{transform:translateX(120%);}
+.btn-summon:hover{transform:translateY(-2px);box-shadow:0 6px 36px rgba(201,168,76,.5);}
+.btn-summon:active{transform:scale(.98);}
+.btn-summon .cost{display:block;font-size:.56rem;font-family:var(--fm);letter-spacing:.04em;opacity:.65;margin-top:3px;}
+.btn-multi{background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.28);color:var(--gold);font-family:var(--fc);font-size:.8rem;letter-spacing:.1em;padding:10px 18px;border-radius:var(--r5);transition:all .2s;}
+.btn-multi:hover{background:rgba(201,168,76,.09);border-color:var(--gold);}
+.btn-free{font-size:.68rem;color:rgba(240,236,223,.36);font-family:var(--fm);letter-spacing:.04em;padding:7px;transition:all .2s;}
+.btn-free.ready{color:var(--green);animation:fp 2s ease-in-out infinite;}
+@keyframes fp{0%,100%{opacity:.65}50%{opacity:1}}
+.btn-battle-home{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#fca5a5;font-family:var(--fc);font-size:.8rem;letter-spacing:.1em;padding:10px 18px;border-radius:var(--r5);transition:all .2s;}
+.btn-battle-home:hover{background:rgba(239,68,68,.2);}
+
+/* ══════════ DRAW REVEAL ══════════ */
+#screen-draw{background:radial-gradient(ellipse 90% 70% at 50% 40%,rgba(201,168,76,.07) 0%,transparent 65%),var(--ink);align-items:center;}
+.draw-stage{width:100%;max-width:420px;padding:1.1rem;display:flex;flex-direction:column;align-items:center;gap:1.1rem;}
+.draw-hint{font-size:.65rem;color:rgba(240,236,223,.3);font-family:var(--fc);letter-spacing:.1em;text-transform:uppercase;}
+.card-wrap{perspective:900px;width:230px;height:345px;cursor:pointer;flex-shrink:0;}
+.card-inner{width:100%;height:100%;transform-style:preserve-3d;transition:transform .82s cubic-bezier(.4,0,.2,1);position:relative;}
+.card-inner.flipped{transform:rotateY(180deg);}
+.card-face{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;}
+.card-back{background:linear-gradient(145deg,#12102a,#0a0818,#12102a);border:1.5px solid rgba(201,168,76,.38);display:flex;align-items:center;justify-content:center;box-shadow:0 0 36px rgba(201,168,76,.12),inset 0 0 36px rgba(0,0,0,.5);}
+.card-front{transform:rotateY(180deg);border:1.5px solid rgba(201,168,76,.4);display:flex;flex-direction:column;}
+.card-shimmer{position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:14px;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);transform:translateX(-150%);}
+.card-shimmer.run{animation:shimRun .65s ease forwards;}
+@keyframes shimRun{from{transform:translateX(-150%)}to{transform:translateX(150%)}}
+.card-art{width:100%;flex:1;overflow:hidden;background:#06060f;position:relative;}
+.card-art img{width:100%;height:100%;object-fit:cover;display:block;}
+.card-art svg,.card-art-svg{width:100%;height:100%;}
+.card-art-loading{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.6rem;color:rgba(201,168,76,.4);font-size:.65rem;font-family:var(--fm);letter-spacing:.08em;}
+.spin-ring{width:26px;height:26px;border:2px solid rgba(201,168,76,.18);border-top-color:var(--gold);border-radius:50%;animation:spin .85s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.card-footer{padding:7px 9px 9px;background:linear-gradient(to bottom,rgba(8,8,16,.75),rgba(8,8,16,.97));flex-shrink:0;}
+.card-name-txt{font-family:var(--fd);font-size:.65rem;letter-spacing:.09em;color:var(--gold);line-height:1.2;margin-bottom:1px;}
+.card-origin-txt{font-size:.54rem;color:rgba(240,236,223,.34);font-family:var(--fc);letter-spacing:.05em;}
+.card-stars{display:flex;gap:2px;margin-top:4px;}
+.rstar{font-size:.65rem;}
+.r1 .rstar{color:var(--silver)}.r2 .rstar{color:#4cc9f0}.r3 .rstar{color:var(--gold)}.r4 .rstar{color:#c77dff}.r5 .rstar{color:#ff6b6b;text-shadow:0 0 7px rgba(255,107,107,.7);}
+.card-front.r1{border-color:rgba(155,168,181,.35);}
+.card-front.r2{border-color:rgba(76,201,240,.45);box-shadow:0 0 28px rgba(76,201,240,.14);}
+.card-front.r3{border-color:rgba(201,168,76,.55);box-shadow:0 0 36px rgba(201,168,76,.18);}
+.card-front.r4{border-color:rgba(199,125,255,.55);box-shadow:0 0 44px rgba(199,125,255,.22);}
+.card-front.r5{border-color:rgba(255,107,107,.65);box-shadow:0 0 55px rgba(255,107,107,.28),0 0 90px rgba(255,107,107,.1);}
+.draw-info{width:100%;text-align:center;opacity:0;animation:fadeUp .5s ease forwards;animation-delay:.85s;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.draw-new-badge{display:inline-block;background:var(--gold);color:var(--ink);font-size:.54rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:.45rem;font-family:var(--fm);}
+.draw-char-name{font-family:var(--fd);font-size:1.15rem;letter-spacing:.1em;margin-bottom:.2rem;}
+.draw-char-title{font-size:.72rem;color:var(--gold);font-family:var(--fc);letter-spacing:.07em;margin-bottom:.6rem;}
+.draw-lore{font-size:.75rem;line-height:1.78;color:rgba(240,236,223,.58);font-style:italic;max-width:310px;margin:0 auto;}
+.draw-actions{display:flex;gap:.65rem;margin-top:1rem;justify-content:center;flex-wrap:wrap;}
+.btn-again{background:linear-gradient(135deg,#b8932e,#e8c96a);color:var(--ink);font-family:var(--fd);font-size:.72rem;letter-spacing:.1em;padding:10px 18px;border-radius:var(--r5);transition:all .2s;}
+.btn-again:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(201,168,76,.38);}
+.btn-sec{background:rgba(255,255,255,.06);border:1px solid rgba(201,168,76,.28);color:var(--gold);font-family:var(--fc);font-size:.72rem;letter-spacing:.07em;padding:10px 16px;border-radius:var(--r5);transition:all .2s;}
+.btn-sec:hover{background:rgba(201,168,76,.09);}
+.multi-wrap{width:100%;max-width:420px;padding:1.1rem;margin:0 auto;}
+.multi-header{text-align:center;margin-bottom:.8rem;}
+.multi-title{font-family:var(--fd);font-size:.9rem;letter-spacing:.1em;color:var(--gold);}
+.multi-hint{font-size:.65rem;color:rgba(240,236,223,.33);font-family:var(--fc);margin-top:2px;}
+.multi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.mgc{border-radius:10px;overflow:hidden;border:1px solid rgba(201,168,76,.22);background:var(--ink2);cursor:pointer;transition:transform .2s;opacity:0;transform:scale(.72);animation:mPop .42s cubic-bezier(.34,1.56,.64,1) forwards;}
+.mgc:hover{transform:scale(1.04);}
+@keyframes mPop{to{opacity:1;transform:scale(1)}}
+.mgc .card-art{height:100px;}
+.mgc .card-footer{padding:4px 6px 6px;}
+.mgc .card-name-txt{font-size:.54rem;}
+.mgc .rstar{font-size:.5rem;}
+.multi-actions{display:flex;gap:.65rem;margin-top:.9rem;justify-content:center;}
+.particles{position:fixed;inset:0;pointer-events:none;z-index:100;}
+.pt{position:absolute;border-radius:50%;pointer-events:none;animation:ptFly var(--d) ease-out forwards;opacity:0;}
+@keyframes ptFly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}}
+
+/* ══════════ DEX ══════════ */
+#screen-dex{background:var(--ink);}
+.dex-header{padding:1rem 1.1rem .7rem;text-align:center;border-bottom:1px solid rgba(201,168,76,.12);}
+.dex-title{font-family:var(--fd);font-size:1.05rem;letter-spacing:.12em;color:var(--gold);}
+.dex-prog-txt{font-size:.65rem;color:rgba(240,236,223,.36);font-family:var(--fm);letter-spacing:.05em;margin-top:.35rem;}
+.dex-bar{height:2px;background:rgba(255,255,255,.07);border-radius:2px;max-width:190px;margin:.4rem auto 0;overflow:hidden;}
+.dex-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .8s ease;}
+.dex-filters{display:flex;gap:5px;overflow-x:auto;padding:.75rem 1.1rem .4rem;-webkit-overflow-scrolling:touch;}
+.dex-filters::-webkit-scrollbar{display:none;}
+.df{flex-shrink:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:4px 12px;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(240,236,223,.4);transition:all .18s;}
+.df.active{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+.dex-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:.75rem 1.1rem 4rem;}
+.dex-card{border-radius:10px;overflow:hidden;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:all .2s;aspect-ratio:2/3;display:flex;flex-direction:column;position:relative;}
+.dex-card:hover{transform:translateY(-3px);border-color:rgba(201,168,76,.35);}
+.dex-card.locked{filter:brightness(.2);}
+.lock-ico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;opacity:.22;z-index:2;}
+.dex-art{flex:1;overflow:hidden;background:#06060f;}
+.dex-art img{width:100%;height:100%;object-fit:cover;display:block;}
+.dex-art svg{width:100%;height:100%;}
+.dex-foot{padding:4px 5px 6px;background:rgba(8,8,16,.92);}
+.dex-name{font-family:var(--fd);font-size:.5rem;color:var(--gold);letter-spacing:.06em;line-height:1.2;margin-bottom:2px;}
+.dex-rstars{display:flex;gap:1px;}
+.dex-rstars .rstar{font-size:.48rem;}
+
+/* ══════════ DETAIL SHEET ══════════ */
+.det-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.9);backdrop-filter:blur(14px);align-items:flex-end;justify-content:center;}
+.det-overlay.show{display:flex;animation:dFadeIn .28s ease;}
+@keyframes dFadeIn{from{opacity:0}to{opacity:1}}
+.det-sheet{background:linear-gradient(to bottom,rgba(18,14,32,.99),rgba(8,8,16,.99));border:1px solid rgba(201,168,76,.18);border-radius:22px 22px 0 0;width:100%;max-width:460px;max-height:91vh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:dSlideUp .34s cubic-bezier(.32,1,.56,1);padding-bottom:1.75rem;}
+@keyframes dSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.det-handle{width:34px;height:4px;background:rgba(255,255,255,.12);border-radius:2px;margin:11px auto;}
+.det-art{width:100%;height:250px;overflow:hidden;}
+.det-art img{width:100%;height:100%;object-fit:cover;display:block;}
+.det-art svg{width:100%;height:100%;}
+.det-rbar{height:3px;width:100%;}
+.det-body{padding:1rem 1.3rem;}
+.det-name{font-family:var(--fd);font-size:1.15rem;letter-spacing:.09em;margin-bottom:2px;}
+.det-title{font-size:.72rem;color:var(--gold);font-family:var(--fc);letter-spacing:.07em;margin-bottom:.6rem;}
+.det-stars{display:flex;gap:3px;margin-bottom:.8rem;}
+.det-stars .rstar{font-size:.9rem;}
+.det-sec{margin-bottom:.8rem;}
+.det-sec h4{font-size:.56rem;font-weight:700;letter-spacing:.14em;color:rgba(240,236,223,.28);text-transform:uppercase;margin-bottom:.32rem;font-family:var(--fc);}
+.det-lore{font-size:.78rem;line-height:1.82;color:rgba(240,236,223,.7);font-style:italic;}
+.det-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.det-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 10px;}
+.det-stat .sv{font-family:var(--fd);font-size:1rem;color:var(--gold2);letter-spacing:.04em;}
+.det-stat .sk{font-size:.56rem;color:rgba(240,236,223,.32);letter-spacing:.08em;text-transform:uppercase;font-family:var(--fm);}
+.det-abilities{display:flex;flex-direction:column;gap:5px;}
+.det-ab{background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.12);border-radius:8px;padding:7px 10px;}
+.det-ab .an{font-size:.68rem;font-weight:700;color:var(--gold);font-family:var(--fc);margin-bottom:2px;}
+.det-ab .ad{font-size:.68rem;color:rgba(240,236,223,.56);line-height:1.5;}
+.det-origin{display:inline-flex;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:4px 11px;font-size:.63rem;color:rgba(240,236,223,.52);font-family:var(--fc);letter-spacing:.05em;margin-top:.35rem;}
+.det-close{width:100%;padding:11px;background:rgba(201,168,76,.09);border:1px solid rgba(201,168,76,.22);border-radius:var(--r10);color:var(--gold);font-family:var(--fc);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;margin-top:1rem;transition:all .2s;}
+.det-close:hover{background:rgba(201,168,76,.18);}
+.det-battle-btn{width:100%;padding:11px;background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.3);border-radius:var(--r10);color:#fca5a5;font-family:var(--fc);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;margin-top:.5rem;transition:all .2s;}
+.det-battle-btn:hover{background:rgba(239,68,68,.24);}
+
+/* ══════════ BATTLE ══════════ */
+#screen-battle{background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(239,68,68,.1) 0%,transparent 65%),var(--ink);}
+.battle-select{flex:1;display:flex;flex-direction:column;padding:1rem 1.1rem;gap:.75rem;}
+.battle-select h2{font-family:var(--fd);font-size:1rem;letter-spacing:.1em;color:var(--gold);text-align:center;}
+.battle-select p{font-size:.72rem;color:rgba(240,236,223,.45);text-align:center;font-family:var(--fc);}
+.squad-slots{display:flex;gap:.65rem;justify-content:center;margin:.25rem 0;}
+.squad-slot{width:80px;height:110px;border-radius:10px;border:1.5px dashed rgba(201,168,76,.28);background:rgba(255,255,255,.03);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;overflow:hidden;position:relative;flex-shrink:0;}
+.squad-slot.filled{border-style:solid;border-color:rgba(201,168,76,.45);}
+.squad-slot:hover{border-color:rgba(201,168,76,.6);}
+.squad-slot .slot-empty{font-size:1.5rem;opacity:.25;}
+.squad-slot img{width:100%;height:70px;object-fit:cover;display:block;}
+.squad-slot svg{width:100%;height:70px;}
+.squad-slot .slot-name{font-family:var(--fd);font-size:.44rem;color:var(--gold);letter-spacing:.06em;padding:3px 4px;text-align:center;line-height:1.2;background:rgba(8,8,16,.9);width:100%;}
+.squad-slot .slot-remove{position:absolute;top:2px;right:3px;font-size:.6rem;color:rgba(240,236,223,.4);background:rgba(0,0,0,.5);border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;}
+.pick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:320px;padding-bottom:.5rem;}
+.pick-card{border-radius:8px;overflow:hidden;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:all .18s;aspect-ratio:2/3;display:flex;flex-direction:column;position:relative;}
+.pick-card:hover{transform:scale(1.04);border-color:rgba(201,168,76,.4);}
+.pick-card.chosen{border-color:rgba(201,168,76,.7);box-shadow:0 0 10px rgba(201,168,76,.3);}
+.pick-card.chosen::after{content:'✓';position:absolute;top:3px;right:4px;font-size:.6rem;color:var(--gold);font-weight:700;}
+.pick-art{flex:1;overflow:hidden;background:#06060f;}
+.pick-art img{width:100%;height:100%;object-fit:cover;display:block;}
+.pick-art svg{width:100%;height:100%;}
+.pick-foot{padding:3px 4px 5px;background:rgba(8,8,16,.92);}
+.pick-name{font-family:var(--fd);font-size:.45rem;color:var(--gold);line-height:1.2;}
+.pick-rstars .rstar{font-size:.44rem;}
+.battle-start-btn{background:linear-gradient(135deg,#b91c1c,#ef4444);color:white;font-family:var(--fd);font-size:.9rem;letter-spacing:.12em;padding:13px 24px;border-radius:var(--r5);box-shadow:0 0 28px rgba(239,68,68,.3);transition:all .25s;margin-top:.25rem;}
+.battle-start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 36px rgba(239,68,68,.5);}
+.battle-start-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+
+/* BATTLE ARENA */
+.battle-arena{flex:1;display:flex;flex-direction:column;padding:.75rem 1rem;gap:.65rem;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.arena-label{font-size:.58rem;font-weight:700;letter-spacing:.12em;color:rgba(240,236,223,.3);text-transform:uppercase;display:flex;align-items:center;gap:6px;font-family:var(--fc);}
+.arena-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08);}
+.combatants{display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap;}
+.combatant{width:90px;border-radius:10px;overflow:hidden;border:1.5px solid rgba(255,255,255,.1);background:var(--ink2);flex-shrink:0;position:relative;cursor:pointer;transition:all .2s;}
+.combatant:hover{transform:translateY(-3px);}
+.combatant.active-fighter{border-color:var(--gold);box-shadow:0 0 14px rgba(201,168,76,.35);}
+.combatant.defeated{filter:grayscale(1) brightness(.4);cursor:default;}
+.combatant.targeted{border-color:var(--red);box-shadow:0 0 14px rgba(239,68,68,.4);animation:targetPulse .4s ease infinite alternate;}
+@keyframes targetPulse{from{box-shadow:0 0 8px rgba(239,68,68,.3)}to{box-shadow:0 0 20px rgba(239,68,68,.6)}}
+.combatant img{width:100%;height:65px;object-fit:cover;display:block;}
+.combatant svg{width:100%;height:65px;}
+.c-name{font-family:var(--fd);font-size:.42rem;color:var(--paper);letter-spacing:.05em;padding:3px 4px;text-align:center;line-height:1.2;background:rgba(8,8,16,.85);}
+.c-hpbar{height:4px;background:rgba(255,255,255,.1);margin:0 4px 4px;}
+.c-hpfill{height:100%;border-radius:2px;transition:width .4s ease;}
+.c-hpfill.p{background:var(--green);}
+.c-hpfill.e{background:var(--red);}
+.c-hp-txt{font-size:.46rem;font-family:var(--fm);text-align:center;color:rgba(240,236,223,.5);padding-bottom:4px;}
+
+/* Battle log */
+.battle-log{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:var(--r10);padding:.65rem;min-height:80px;max-height:140px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.blog-entry{font-size:.7rem;line-height:1.55;padding:2px 0;font-family:var(--fm);color:rgba(240,236,223,.55);border-bottom:1px solid rgba(255,255,255,.04);}
+.blog-entry.player{color:#86efac;}.blog-entry.enemy{color:#fca5a5;}.blog-entry.sys{color:var(--gold2);}
+
+/* Battle actions */
+.battle-actions{display:flex;gap:.55rem;flex-wrap:wrap;padding:.65rem 1rem;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0;background:var(--ink);}
+.battle-actions .btn{flex:1;min-width:80px;font-size:.72rem;padding:9px 10px;border-radius:var(--r5);}
+.btn-atk{background:linear-gradient(135deg,#7f1d1d,#ef4444);color:white;}
+.btn-atk:hover{filter:brightness(1.15);}
+.btn-skill{background:rgba(124,92,252,.2);border:1px solid rgba(124,92,252,.4);color:#c4b5fd;}
+.btn-skill:hover{background:rgba(124,92,252,.32);}
+.btn-retreat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(240,236,223,.5);}
+.btn-retreat:hover{background:rgba(255,255,255,.1);}
+.btn-nextturn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:rgba(240,236,223,.7);}
+.turn-indicator{text-align:center;font-size:.65rem;font-family:var(--fc);letter-spacing:.08em;color:rgba(240,236,223,.4);padding:.3rem 0;}
+
+/* Floating damage number */
+.dmg-float{position:fixed;z-index:999;pointer-events:none;font-family:var(--fd);font-size:1.4rem;font-weight:700;animation:dmgAnim .9s ease forwards;}
+@keyframes dmgAnim{0%{opacity:1;transform:translateY(0) scale(1);}60%{opacity:1;}100%{opacity:0;transform:translateY(-55px) scale(.7);}}
+
+/* ══════════ RESPONSIVE ══════════ */
+@media(min-width:480px){
+  .multi-grid{grid-template-columns:repeat(5,1fr);}
+  .mgc .card-art{height:90px;}
+  .dex-grid{grid-template-columns:repeat(4,1fr);}
+  .pick-grid{grid-template-columns:repeat(5,1fr);}
+}
+@media(min-width:640px){
+  .dex-grid{grid-template-columns:repeat(5,1fr);}
+  .card-wrap{width:248px;height:372px;}
+}
+</style>
+</head>
+<body>
+<div class="particles" id="pts"></div>
+
+<!-- ═══════ HOME ═══════ -->
+<div class="screen active" id="screen-home">
+  <nav class="topnav">
+    <div class="tn-brand">MYTHIKA</div>
+    <div class="tn-tabs">
+      <button class="tn-tab active" onclick="Nav.go('home')">Summon</button>
+      <button class="tn-tab" onclick="Nav.go('dex')">Dex</button>
+      <button class="tn-tab" onclick="Nav.go('battle')">Battle</button>
+    </div>
+    <div class="tn-gems">💎<span id="gc-home">120</span></div>
+  </nav>
+  <div class="home-body">
+    <svg class="home-sigil" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="46" stroke="rgba(201,168,76,.28)" stroke-width=".8"/>
+      <circle cx="50" cy="50" r="36" stroke="rgba(201,168,76,.14)" stroke-width=".5" stroke-dasharray="5 4"/>
+      <polygon points="50,10 61,36 90,36 67,54 76,80 50,62 24,80 33,54 10,36 39,36" fill="none" stroke="rgba(201,168,76,.55)" stroke-width="1.1"/>
+      <circle cx="50" cy="50" r="5.5" fill="rgba(201,168,76,.82)"/>
+      <circle cx="50" cy="50" r="11" stroke="rgba(201,168,76,.35)" stroke-width=".8" fill="none"/>
+      <g fill="rgba(201,168,76,.55)"><circle cx="50" cy="12" r="2.2"/><circle cx="86" cy="35" r="2.2"/><circle cx="73" cy="78" r="2.2"/><circle cx="27" cy="78" r="2.2"/><circle cx="14" cy="35" r="2.2"/></g>
+    </svg>
+    <div>
+      <div class="home-title">MYTH<span>IKA</span></div>
+      <div class="home-sub">Chronicles of the Eternal</div>
+    </div>
+    <div class="home-stats">
+      <div class="hstat"><strong id="stat-n">0</strong>Collected</div>
+      <div class="hstat"><strong id="stat-t">36</strong>Total</div>
+      <div class="hstat"><strong id="stat-p">0%</strong>Complete</div>
+    </div>
+    <div class="home-actions">
+      <button class="btn-summon" onclick="Draw.single()">✦ SUMMON ONE ✦<span class="cost">💎 10 gems</span></button>
+      <button class="btn-multi" onclick="Draw.multi()">✦ SUMMON ×10 ✦ &nbsp;💎 90</button>
+      <button class="btn-battle-home" onclick="Nav.go('battle')">⚔ BATTLE ⚔</button>
+      <button class="btn-free" id="free-btn" onclick="Draw.free()">Free summon · refreshes daily</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ DRAW REVEAL ═══════ -->
+<div class="screen" id="screen-draw">
+  <nav class="topnav">
+    <button style="font-size:.75rem;font-family:var(--fc);letter-spacing:.06em;color:rgba(240,236,223,.42);" onclick="Nav.go('home')">← Back</button>
+    <div class="tn-brand">MYTHIKA</div>
+    <div class="tn-gems">💎<span id="gc-draw">120</span></div>
+  </nav>
+  <div id="single-wrap" style="display:none;flex-direction:column;align-items:center;width:100%;">
+    <div class="draw-stage">
+      <div class="draw-hint">Tap the seal to reveal your spirit</div>
+      <div class="card-wrap" id="card-wrap" onclick="Draw.flip()">
+        <div class="card-inner" id="card-inner">
+          <div class="card-face card-back">
+            <svg viewBox="0 0 230 345" xmlns="http://www.w3.org/2000/svg">
+              <defs><pattern id="g" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0L0 0 0 22" fill="none" stroke="rgba(201,168,76,.07)" stroke-width=".5"/></pattern></defs>
+              <rect width="230" height="345" fill="url(#g)"/>
+              <circle cx="115" cy="172" r="82" stroke="rgba(201,168,76,.18)" stroke-width=".8" fill="none"/>
+              <circle cx="115" cy="172" r="62" stroke="rgba(201,168,76,.1)" stroke-width=".5" fill="none" stroke-dasharray="7 5"/>
+              <polygon points="115,100 134,154 192,154 146,188 163,242 115,207 67,242 84,188 38,154 96,154" fill="none" stroke="rgba(201,168,76,.32)" stroke-width=".9"/>
+              <circle cx="115" cy="172" r="9" fill="rgba(201,168,76,.55)"/>
+              <text x="115" y="320" text-anchor="middle" fill="rgba(201,168,76,.35)" font-family="Cinzel Decorative,serif" font-size="10" letter-spacing="9">MYTHIKA</text>
+            </svg>
+          </div>
+          <div class="card-face card-front" id="card-front">
+            <div class="card-shimmer" id="card-shim"></div>
+            <div class="card-art" id="card-art"><div class="card-art-loading"><div class="spin-ring"></div><span>Channelling...</span></div></div>
+            <div class="card-footer">
+              <div class="card-name-txt" id="card-name">—</div>
+              <div class="card-origin-txt" id="card-origin">—</div>
+              <div class="card-stars" id="card-stars"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="draw-info" id="draw-info" style="display:none;">
+        <div class="draw-new-badge" id="new-badge" style="display:none;">✦ New Spirit! ✦</div>
+        <div class="draw-char-name" id="info-name">—</div>
+        <div class="draw-char-title" id="info-title">—</div>
+        <div class="draw-lore" id="info-lore">—</div>
+        <div class="draw-actions">
+          <button class="btn-again" onclick="Draw.single()">Draw Again</button>
+          <button class="btn-sec" onclick="Nav.go('dex')">View Dex</button>
+          <button class="btn-sec" onclick="Nav.go('battle')" style="border-color:rgba(239,68,68,.35);color:#fca5a5;">⚔ Battle</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="multi-wrap" style="display:none;width:100%;">
+    <div class="multi-wrap">
+      <div class="multi-header">
+        <div class="multi-title">10 Spirits Summoned</div>
+        <div class="multi-hint">Tap any card to learn their lore</div>
+      </div>
+      <div class="multi-grid" id="multi-grid"></div>
+      <div class="multi-actions">
+        <button class="btn-again" onclick="Draw.multi()">Summon ×10 Again</button>
+        <button class="btn-sec" onclick="Nav.go('dex')">View Dex</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ DEX ═══════ -->
+<div class="screen" id="screen-dex">
+  <nav class="topnav">
+    <div class="tn-brand">MYTHIKA</div>
+    <div class="tn-tabs">
+      <button class="tn-tab" onclick="Nav.go('home')">Summon</button>
+      <button class="tn-tab active" onclick="Nav.go('dex')">Dex</button>
+      <button class="tn-tab" onclick="Nav.go('battle')">Battle</button>
+    </div>
+    <div class="tn-gems">💎<span id="gc-dex">120</span></div>
+  </nav>
+  <div class="dex-header">
+    <div class="dex-title">Chronicle Dex</div>
+    <div class="dex-prog-txt" id="dex-prog">0 / 36 spirits chronicled</div>
+    <div class="dex-bar"><div class="dex-bar-fill" id="dex-fill" style="width:0%"></div></div>
+  </div>
+  <div class="dex-filters">
+    <button class="df active" onclick="Dex.filter('all',this)">All</button>
+    <button class="df" onclick="Dex.filter('5',this)">★★★★★</button>
+    <button class="df" onclick="Dex.filter('4',this)">★★★★</button>
+    <button class="df" onclick="Dex.filter('3',this)">★★★</button>
+    <button class="df" onclick="Dex.filter('unlocked',this)">Unlocked</button>
+    <button class="df" onclick="Dex.filter('locked',this)">Locked</button>
+  </div>
+  <div class="dex-grid" id="dex-grid"></div>
+</div>
+
+<!-- ═══════ BATTLE ═══════ -->
+<div class="screen" id="screen-battle">
+  <nav class="topnav">
+    <div class="tn-brand">MYTHIKA</div>
+    <div class="tn-tabs">
+      <button class="tn-tab" onclick="Nav.go('home')">Summon</button>
+      <button class="tn-tab" onclick="Nav.go('dex')">Dex</button>
+      <button class="tn-tab active" onclick="Nav.go('battle')">Battle</button>
+    </div>
+    <div class="tn-gems">💎<span id="gc-battle">120</span></div>
+  </nav>
+  <!-- Select phase -->
+  <div class="battle-select" id="battle-select">
+    <h2>Assemble Your Squad</h2>
+    <p>Choose 3 spirits from your collection to fight</p>
+    <div class="squad-slots" id="squad-slots">
+      <div class="squad-slot" id="slot-0" onclick="Battle.removeSlot(0)"><div class="slot-empty">+</div></div>
+      <div class="squad-slot" id="slot-1" onclick="Battle.removeSlot(1)"><div class="slot-empty">+</div></div>
+      <div class="squad-slot" id="slot-2" onclick="Battle.removeSlot(2)"><div class="slot-empty">+</div></div>
+    </div>
+    <div class="pick-grid" id="pick-grid"></div>
+    <button class="battle-start-btn" id="battle-start-btn" onclick="Battle.start()" disabled>⚔ Begin Battle</button>
+  </div>
+  <!-- Arena phase -->
+  <div id="battle-arena" style="display:none;flex-direction:column;height:100%;">
+    <div class="battle-arena">
+      <div class="arena-label">Enemy</div>
+      <div class="combatants" id="enemy-fighters"></div>
+      <div class="turn-indicator" id="turn-ind">Your turn</div>
+      <div class="combatants" id="player-fighters"></div>
+      <div class="arena-label">Your Squad</div>
+      <div class="battle-log" id="battle-log"></div>
+    </div>
+    <div class="battle-actions" id="battle-actions">
+      <button class="btn btn-atk" onclick="Battle.playerAttack()">⚔ Attack</button>
+      <button class="btn btn-skill" onclick="Battle.playerSkill()">✦ Skill</button>
+      <button class="btn btn-nextturn" onclick="Battle.endPlayerTurn()">→ End Turn</button>
+      <button class="btn btn-retreat" onclick="Battle.retreat()">✕ Retreat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail sheet -->
+<div class="det-overlay" id="det-overlay" onclick="if(event.target===this)Detail.close()">
+  <div class="det-sheet">
+    <div class="det-handle"></div>
+    <div class="det-art" id="det-art"></div>
+    <div class="det-rbar" id="det-rbar"></div>
+    <div class="det-body">
+      <div class="det-name" id="det-name">—</div>
+      <div class="det-title" id="det-title">—</div>
+      <div class="det-stars" id="det-stars"></div>
+      <div class="det-sec"><h4>Lore</h4><div class="det-lore" id="det-lore">—</div></div>
+      <div class="det-sec"><h4>Attributes</h4><div class="det-stats" id="det-stats"></div></div>
+      <div class="det-sec"><h4>Abilities</h4><div class="det-abilities" id="det-abs"></div></div>
+      <div class="det-origin" id="det-origin">—</div>
+      <button class="det-battle-btn" id="det-battle-btn">⚔ Add to Battle Squad</button>
+      <button class="det-close" onclick="Detail.close()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function LS(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}}
+function LSset(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+/* ════════════════════════════════════
+   ROSTER — 36 iconic characters
+════════════════════════════════════ */
+const ROSTER=[
+  // ── 5★ LEGENDS ──
+  {id:'king_arthur',name:'King Arthur',title:'The Once and Future King',rarity:5,origin:'Arthurian Legend · Britain',
+   lore:'He drew the sword from the stone not through strength but through destiny — a boy who became the template for every righteous king who followed. He waits still, they say, to return when Britain needs him most.',
+   element:'Solar',archetype:'Sovereign',stats:{Power:90,Speed:75,Wisdom:88,Fortune:92},
+   abilities:[{name:'Excalibur',desc:'Strikes with divine light — deals double damage to shadow-type enemies.'},{name:'Round Table',desc:'Rallies all allies; each gains full HP restoration once per battle.'}],
+   palette:['#d4af37','#1e3a5f','#f0ecdf'],img:'art/king_arthur.jpg'},
+  {id:'hercules',name:'Hercules',title:'Son of Zeus, Champion of Twelve Labours',rarity:5,origin:'Greek Mythology',
+   lore:'He strangled serpents in his crib, slew the Nemean Lion barehanded, and held up the sky on his shoulders to give Atlas a brief rest. His power was never the question. His wisdom always was.',
+   element:'Earth',archetype:'Berserker',stats:{Power:99,Speed:70,Wisdom:60,Fortune:78},
+   abilities:[{name:'Twelve Labours',desc:'Unstoppable charge — attacks all enemies simultaneously.'},{name:'Lion Skin',desc:'Immune to physical damage for 1 turn.'}],
+   palette:['#92400e','#d4af37','#f0ecdf'],img:'art/hercules.jpg'},
+  {id:'achilles',name:'Achilles',title:'The Invincible Warrior of Troy',rarity:5,origin:'Greek Mythology / Iliad',
+   lore:'Nearly immortal, dipped in the River Styx by his divine mother — every part of him impervious except the heel she held. He chose a short glorious life over a long forgotten one. Troy remembers.',
+   element:'Wind',archetype:'Warrior',stats:{Power:97,Speed:99,Wisdom:65,Fortune:55},
+   abilities:[{name:'Wrath of Peleus',desc:'Enters a berserker state — attack doubles for 3 turns but cannot retreat.'},{name:'Divine Armour',desc:'Reduces all incoming damage by 80% for 1 turn.'}],
+   palette:['#d4af37','#dc2626','#f0ecdf'],img:'art/achilles.jpg'},
+  {id:'sun_wukong',name:'Sun Wukong',title:'The Eternal Pilgrim King',rarity:5,origin:'Journey to the West · China',
+   lore:'Born from cosmic stone, crowned king of ten-thousand monkeys, and brazen enough to crash the Jade Emperor\'s Peach Banquet. His legend is not of victory alone — it is of a spirit so restless even Heaven could not cage it.',
+   element:'Storm',archetype:'Trickster',stats:{Power:94,Speed:99,Wisdom:72,Fortune:85},
+   abilities:[{name:'72 Transformations',desc:'Shifts form mid-battle; each transformation grants a new ability.'},{name:'Ruyi Jingu Bang',desc:'Staff expands from needle to pillar — bypasses all armour.'}],
+   palette:['#f59e0b','#dc2626','#1e40af'],img:'art/sun_wukong.jpg'},
+  {id:'thor',name:'Thor',title:'God of Thunder, Son of Odin',rarity:5,origin:'Norse Mythology',
+   lore:'Mjolnir returns to his hand like a boomerang of divine wrath. He drinks oceans, arm-wrestles old age itself, and dies in glory against the World Serpent at Ragnarök — only to be reborn when the new world rises.',
+   element:'Lightning',archetype:'Guardian',stats:{Power:96,Speed:82,Wisdom:68,Fortune:80},
+   abilities:[{name:'Mjolnir Strike',desc:'Lightning hammer throw — stuns the target for 1 turn.'},{name:'God of Thunder',desc:'Calls a storm that deals 6 lightning damage to all enemies.'}],
+   palette:['#60a5fa','#1e293b','#d4af37'],img:'art/thor.jpg'},
+  {id:'cleopatra',name:'Cleopatra VII',title:'Empress of the Serpent Throne',rarity:5,origin:'Ptolemaic Egypt · 69–30 BCE',
+   lore:'She spoke nine languages, ruled the wealthiest kingdom alive, and bent Rome\'s greatest generals through pure wit. Reborn in Mythika as an Arcane Empress whose golden asp staff channels the undivided power of the Nile.',
+   element:'Arcane',archetype:'Sovereign',stats:{Power:71,Speed:68,Wisdom:99,Fortune:95},
+   abilities:[{name:'Nile\'s Blessing',desc:'Floods the field with golden mana — doubles resource gain for 3 turns.'},{name:'Asp of Ra',desc:'Afflicts one enemy: their buffs become debuffs.'}],
+   palette:['#d4af37','#1a3a2a','#8b0000'],img:'art/cleopatra.jpg'},
+  // ── 4★ HEROES ──
+  {id:'merlin',name:'Merlin',title:'Architect of the Once and Future',rarity:4,origin:'Arthurian Legend · Britain',
+   lore:'He lived backwards through time, which is why he always seemed to know what was coming. It wasn\'t prophecy — it was memory. He has already seen how every story ends.',
+   element:'Arcane',archetype:'Sage',stats:{Power:70,Speed:55,Wisdom:97,Fortune:76},
+   abilities:[{name:'Retrograde Vision',desc:'View and rearrange the bottom 5 cards of your deck freely.'},{name:'Avalon Seal',desc:'Imprisons one enemy card for 2 turns.'}],
+   palette:['#1e3a5f','#6b21a8','#d4af37'],img:'art/merlin.jpg'},
+  {id:'loki',name:'Loki',title:'Trickster of Asgard, Father of Monsters',rarity:4,origin:'Norse Mythology',
+   lore:'He shape-shifts, lies, schemes, and occasionally saves the day through methods nobody approved of in advance. Every Norse catastrophe has his fingerprints on it. So does every solution.',
+   element:'Arcane',archetype:'Trickster',stats:{Power:68,Speed:92,Wisdom:88,Fortune:72},
+   abilities:[{name:'Shapeshifter',desc:'Copies the last ability used by any card on the field.'},{name:'Silver Tongue',desc:'Converts one enemy to fight for your side for 2 turns.'}],
+   palette:['#1a5c1a','#0f172a','#c77dff'],img:'art/loki.jpg'},
+  {id:'anubis',name:'Anubis',title:'Weigher of Souls, Lord of the Dead',rarity:4,origin:'Egyptian Mythology',
+   lore:'He waits at the threshold with a feather and a set of scales. Every soul that dies passes through his hall. He is not cruel — merely absolute. The scales do not lie.',
+   element:'Spirit',archetype:'Oracle',stats:{Power:78,Speed:65,Wisdom:95,Fortune:88},
+   abilities:[{name:'Feather of Ma\'at',desc:'Instantly defeats any enemy with less than 20% HP remaining.'},{name:'Death Rite',desc:'Heals your team for 15% of all damage dealt this turn.'}],
+   palette:['#1c1917','#d4af37','#0f4c2f'],img:'art/anubis.jpg'},
+  {id:'medusa',name:'Medusa',title:'The Gorgon Whose Gaze Ends Worlds',rarity:4,origin:'Greek Mythology',
+   lore:'She was turned into a monster as punishment for being victimised — and then punished again for being a monster. In Mythika, the injustice is the power. Her gaze has learned to be selective.',
+   element:'Arcane',archetype:'Wildcard',stats:{Power:82,Speed:74,Wisdom:80,Fortune:68},
+   abilities:[{name:'Petrifying Gaze',desc:'Freezes one enemy in stone — they cannot move for 2 turns.'},{name:'Serpent Mane',desc:'Each serpent strikes randomly — deals 1–8 damage three times.'}],
+   palette:['#14532d','#7c2d12','#4f46e5'],img:'art/medusa.jpg'},
+  {id:'dracula',name:'Dracula',title:'Prince of Darkness, Lord of Vampires',rarity:4,origin:'Bram Stoker / Transylvanian Legend',
+   lore:'He was Vlad Dracula before he was a vampire — a warlord who impaled thousands. In Stoker\'s hands he became something even more terrifying: elegant, patient, and certain you would come to him.',
+   element:'Spirit',archetype:'Sovereign',stats:{Power:85,Speed:88,Wisdom:85,Fortune:70},
+   abilities:[{name:'Blood Drain',desc:'Steals 8 HP from the target and adds it to your own.'},{name:'Children of the Night',desc:'Summons a bat swarm — each bat deals 2 damage.'}],
+   palette:['#1c1917','#7c2d12','#4f46e5'],img:'art/dracula.jpg'},
+  {id:'robin_hood',name:'Robin Hood',title:'Outlaw of Sherwood, Arrow of the People',rarity:4,origin:'English Folklore · 13th century',
+   lore:'He stole from the rich not because it was legal but because it was right — and in the gap between those two things he found his entire life\'s work. The forest remembers every arrow.',
+   element:'Wind',archetype:'Rogue',stats:{Power:78,Speed:95,Wisdom:80,Fortune:90},
+   abilities:[{name:'Perfect Shot',desc:'Guaranteed critical hit — deals 150% normal damage.'},{name:'Merry Band',desc:'Calls allies from the forest — summons 2 random support cards.'}],
+   palette:['#14532d','#92400e','#d4af37'],img:'art/robin_hood.jpg'},
+  {id:'odysseus',name:'Odysseus',title:'The Wiliest Man in Greece',rarity:4,origin:'Greek Mythology / Odyssey',
+   lore:'He won the Trojan War with a wooden horse, survived a Cyclops, Sirens, Scylla, and Charybdis, and still took ten years to get home because the gods kept arguing about him. He never stopped thinking.',
+   element:'Wind',archetype:'Strategist',stats:{Power:76,Speed:80,Wisdom:97,Fortune:82},
+   abilities:[{name:'Trojan Stratagem',desc:'Hides a trap — the next enemy action triggers 12 bonus damage.'},{name:'Sailor\'s Cunning',desc:'Negates the next 2 harmful effects targeting your side.'}],
+   palette:['#1e3a5f','#d4af37','#92400e'],img:'art/odysseus.jpg'},
+  {id:'alexander',name:'Alexander the Great',title:'Conqueror of the Known World',rarity:4,origin:'Macedon · 356–323 BCE',
+   lore:'He conquered Persia at 22, Egypt at 23, and kept going east until his generals mutinied. He named twenty cities after himself. He wept, they say, because there were no more worlds to conquer.',
+   element:'Fire',archetype:'Strategist',stats:{Power:92,Speed:86,Wisdom:90,Fortune:75},
+   abilities:[{name:'Phalanx Formation',desc:'All allies gain a shield absorbing 8 damage this turn.'},{name:'World Conqueror',desc:'Deals bonus damage equal to 10% of the enemy\'s max HP.'}],
+   palette:['#d4af37','#1e3a5f','#dc2626'],img:'art/alexander.jpg'},
+  // ── 3★ SPIRITS ──
+  {id:'beowulf',name:'Beowulf',title:'Slayer of Grendel, Hero of the Geats',rarity:3,origin:'Old English Poem · ~700 CE',
+   lore:'He swam through monster-infested waters for sport, ripped Grendel\'s arm off bare-handed just to prove a point, fought a dragon in old age and won — while dying. He set an impossible standard for heroism.',
+   element:'Earth',archetype:'Warrior',stats:{Power:93,Speed:72,Wisdom:65,Fortune:70},
+   abilities:[{name:'Grendel\'s Bane',desc:'Ignores enemy armour entirely — deals full raw damage.'},{name:'Last Stand',desc:'When HP drops below 25%, attack doubles until battle ends.'}],
+   palette:['#1c1917','#92400e','#d4af37'],img:'art/beowulf.jpg'},
+  {id:'sinbad',name:'Sinbad the Sailor',title:'Navigator of the Impossible Voyage',rarity:3,origin:'One Thousand and One Nights · Persia',
+   lore:'Seven voyages. Each one more impossible than the last — giant rocs, diamond valleys, magnetic mountains, a city of the dead. He survived them all and came home rich every time. Luck, skill, or something else entirely.',
+   element:'Water',archetype:'Explorer',stats:{Power:74,Speed:86,Wisdom:80,Fortune:95},
+   abilities:[{name:'Seventh Voyage',desc:'A random extremely powerful event occurs — for better or worse.'},{name:'Trade Wind',desc:'Draw 2 cards and gain 5 gems.'}],
+   palette:['#1e3a5f','#d4af37','#0f4c2f'],img:'art/sinbad.jpg'},
+  {id:'momotaro',name:'Momotaro',title:'Peach Boy, Demon Island Conqueror',rarity:3,origin:'Japanese Folklore',
+   lore:'Born from a giant peach floating down a river, he grew up to lead a dog, a monkey, and a pheasant against an island of oni demons — and won. In Japan he is the archetype of pure-hearted heroism.',
+   element:'Solar',archetype:'Hero',stats:{Power:82,Speed:84,Wisdom:72,Fortune:88},
+   abilities:[{name:'Kinbi Dango',desc:'Shares millet dumplings — all allies regain 10 HP.'},{name:'Animal Companions',desc:'Dog, monkey, and pheasant each strike for 4 damage.'}],
+   palette:['#f59e0b','#dc2626','#f0ecdf'],img:'art/momotaro.jpg'},
+  {id:'joan_arc',name:'Joan of Arc',title:'The Maid of Burning Heaven',rarity:3,origin:'France · 1412–1431',
+   lore:'She heard voices at thirteen, led an army at seventeen, and was burned at nineteen. Five hundred years later they are still arguing about her. That is a kind of immortality.',
+   element:'Solar',archetype:'Warrior',stats:{Power:86,Speed:78,Wisdom:74,Fortune:68},
+   abilities:[{name:'Divine Standard',desc:'Rallies all allies — each gains +4 attack for 2 turns.'},{name:'Martyr\'s Flame',desc:'On defeat, deals 15 damage to all enemies.'}],
+   palette:['#1d4ed8','#dc2626','#fbbf24'],img:'art/joan_arc.jpg'},
+  {id:'sherlock',name:'Sherlock Holmes',title:'The World\'s Only Consulting Detective',rarity:3,origin:'Arthur Conan Doyle · 1887',
+   lore:'He sees what others overlook — every stain, every posture, every hesitation a chapter in a story others haven\'t begun reading. Elementary, he says, meaning: obvious, once you are him.',
+   element:'Arcane',archetype:'Scholar',stats:{Power:60,Speed:78,Wisdom:99,Fortune:82},
+   abilities:[{name:'Deduction',desc:'Reveals enemy\'s full strategy — view their entire hand and deck order.'},{name:'The Game is Afoot',desc:'Dodges the next 2 attacks with perfect precision.'}],
+   palette:['#1e293b','#d4af37','#e0e7ff'],img:'art/sherlock.jpg'},
+  {id:'frankenstein',name:'Frankenstein\'s Monster',title:'The Created Who Outgrew His Creator',rarity:3,origin:'Mary Shelley · 1818',
+   lore:'He was built from corpses and lightning, then abandoned because his creator couldn\'t bear what he\'d made. He taught himself language, philosophy, and grief. He asked for a companion. The answer was no. The answer was a mistake.',
+   element:'Lightning',archetype:'Wildcard',stats:{Power:88,Speed:55,Wisdom:72,Fortune:45},
+   abilities:[{name:'Galvanic Rage',desc:'Absorbs lightning damage and converts it to healing.'},{name:'Prometheus Unbound',desc:'Breaks all status effects and immunity buffs on all combatants.'}],
+   palette:['#1f2937','#4ade80','#6b7280'],img:'art/frankenstein.jpg'},
+  {id:'blackbeard',name:'Blackbeard',title:'Terror of the Golden Age of Piracy',rarity:3,origin:'Edward Teach · England/Caribbean · 1680–1718',
+   lore:'He lit slow-burning fuses in his beard before battle so he\'d enter the fight wreathed in smoke like a demon from hell. It worked. Nobody asked whether the legend was slightly larger than the man.',
+   element:'Fire',archetype:'Berserker',stats:{Power:88,Speed:80,Wisdom:62,Fortune:74},
+   abilities:[{name:'Smoking Beard',desc:'Terrorises all enemies — they lose 2 attack each for 3 turns.'},{name:'Broadside Cannon',desc:'Deals 10 damage to one target; 5 splash to adjacent cards.'}],
+   palette:['#1c1917','#dc2626','#d4af37'],img:'art/blackbeard.jpg'},
+  {id:'spartacus',name:'Spartacus',title:'Gladiator Who Made Rome Flinch',rarity:3,origin:'Thrace / Rome · 111–71 BCE',
+   lore:'A Thracian slave who led the largest slave revolt in Roman history, defeated legion after legion, and was only stopped because the Senate sent every general they had at once. Rome never forgot the fear.',
+   element:'Fire',archetype:'Warrior',stats:{Power:94,Speed:82,Wisdom:74,Fortune:65},
+   abilities:[{name:'Slave\'s Revolt',desc:'All enemy combatants lose 20% HP simultaneously.'},{name:'Arena Fighter',desc:'Gains +3 attack for each defeat he has survived.'}],
+   palette:['#7c2d12','#1c1917','#d4af37'],img:'art/spartacus.jpg'},
+  {id:'gilgamesh',name:'Gilgamesh',title:'The Two-Thirds God',rarity:3,origin:'Sumer · c.2100 BCE',
+   lore:'The oldest recorded hero sought immortality after losing his closest friend, crossed the waters of death, and returned empty-handed. He then had the story inscribed on stone — because that is what lasts.',
+   element:'Earth',archetype:'Hero',stats:{Power:91,Speed:74,Wisdom:72,Fortune:66},
+   abilities:[{name:'Gate of Babylon',desc:'Launches a volley of ancient weapons — deals 2 damage per card in hand.'},{name:'Wall of Uruk',desc:'Absorbs the next 12 damage received.'}],
+   palette:['#d4af37','#7c2d12','#1c1917'],img:'art/gilgamesh.jpg'},
+  {id:'mulan',name:'Hua Mulan',title:'The Blade Without Name',rarity:3,origin:'Northern Wei Dynasty · China',
+   lore:'She took her father\'s armour and fought twelve years under false stars. In Mythika, Mulan wields two blades that have never once been swung for glory — only for the people she loves.',
+   element:'Wind',archetype:'Warrior',stats:{Power:92,Speed:97,Wisdom:88,Fortune:79},
+   abilities:[{name:'Twin Crescent Strike',desc:'Dual blade attack that ignores enemy defensive equipment.'},{name:'Iron Will',desc:'Once per battle, survives a killing blow with 1 HP.'}],
+   palette:['#dc2626','#1c1917','#fbbf24'],img:'art/mulan.jpg'},
+  // ── 2★ WANDERERS ──
+  {id:'zorro',name:'Zorro',title:'The Fox Who Brands Tyrants',rarity:2,origin:'Johnston McCulley · California · 1919',
+   lore:'He rides at night, leaves a Z carved into every injustice, and by morning is back in his hacienda being boringly aristocratic. The disguise is perfect because nobody believes a nobleman would bother.',
+   element:'Wind',archetype:'Rogue',stats:{Power:80,Speed:94,Wisdom:75,Fortune:83},
+   abilities:[{name:'The Mark of Zorro',desc:'Brands an enemy — they take 5 extra damage from all sources.'}],
+   palette:['#1c1917','#dc2626','#d4af37'],img:'art/zorro.jpg'},
+  {id:'tarzan',name:'Tarzan',title:'Lord of the Jungle, Man Raised by Apes',rarity:2,origin:'Edgar Rice Burroughs · 1912',
+   lore:'Raised by great apes after his aristocratic parents died in the African jungle, he became something neither man nor beast — and more powerful for it. He learned English from books before he heard it spoken.',
+   element:'Earth',archetype:'Warrior',stats:{Power:88,Speed:90,Wisdom:58,Fortune:72},
+   abilities:[{name:'Jungle Law',desc:'Summons the jungle — all enemies take 3 poison damage per turn for 3 turns.'}],
+   palette:['#14532d','#92400e','#f0ecdf'],img:'art/tarzan.jpg'},
+  {id:'peter_pan',name:'Peter Pan',title:'The Boy Who Never Grew Up',rarity:2,origin:'J.M. Barrie · 1902',
+   lore:'He lives in Neverland where nobody ages, time doesn\'t stick, and every adventure resets at dawn. This sounds wonderful until you realise he has no idea what he\'s missing. He chose not to know.',
+   element:'Wind',archetype:'Trickster',stats:{Power:65,Speed:98,Wisdom:40,Fortune:85},
+   abilities:[{name:'Pixie Dust',desc:'Grants flight to all allies — they dodge the next attack each.'}],
+   palette:['#14532d','#d4af37','#60a5fa'],img:'art/peter_pan.jpg'},
+  {id:'dorian_gray',name:'Dorian Gray',title:'The Portrait That Carries All Sin',rarity:2,origin:'Oscar Wilde · 1890',
+   lore:'He sold his aging to a portrait and lived without consequence — every cruelty absorbed by the canvas, his face perpetually young. The debt, when it came due, was catastrophic. Beauty is not innocence.',
+   element:'Arcane',archetype:'Wildcard',stats:{Power:60,Speed:75,Wisdom:80,Fortune:85},
+   abilities:[{name:'The Portrait',desc:'Transfers all debuffs and status effects from yourself to the enemy.'}],
+   palette:['#4f46e5','#fdf4ff','#0f172a'],img:'art/dorian_gray.jpg'},
+  {id:'billy_kid',name:'Billy the Kid',title:'The Outlaw No Law Could Hold',rarity:2,origin:'American West · 1859–1881',
+   lore:'He killed his first man at seventeen, escaped from jail twice, and was dead by twenty-one. Pat Garrett shot him in the dark. New Mexico still argues about whether he was a villain or a legend. Both, probably.',
+   element:'Fire',archetype:'Rogue',stats:{Power:78,Speed:97,Wisdom:55,Fortune:70},
+   abilities:[{name:'Quick Draw',desc:'Attacks first this round regardless of speed — deals 9 damage.'}],
+   palette:['#92400e','#1c1917','#d4af37'],img:'art/billy_kid.jpg'},
+  {id:'sun_tzu',name:'Sun Tzu',title:'Strategist of the Empty Form',rarity:2,origin:'Eastern Zhou · China · 544–496 BCE',
+   lore:'The supreme art of war is to subdue the enemy without fighting. He never described what to do when the enemy also read the book. He didn\'t need to.',
+   element:'Wind',archetype:'Strategist',stats:{Power:65,Speed:72,Wisdom:99,Fortune:80},
+   abilities:[{name:'Empty Form',desc:'Dodge the next attack with perfect certainty and counter for 6 damage.'}],
+   palette:['#0f4c2f','#fef3c7','#7c2d12'],img:'art/sun_tzu.jpg'},
+  {id:'archimedes',name:'Archimedes',title:'The Mathematician Who Moved the World',rarity:2,origin:'Syracuse · 287–212 BCE',
+   lore:'Give me a lever long enough and a fulcrum to place it on, he said, and I shall move the world. He also burned a Roman fleet with mirrors. He was killed by a soldier while drawing mathematics in the sand.',
+   element:'Arcane',archetype:'Creator',stats:{Power:55,Speed:58,Wisdom:99,Fortune:72},
+   abilities:[{name:'The Lever',desc:'Amplifies the next attack — deals triple damage.'}],
+   palette:['#1e3a5f','#d4af37','#e0f2fe'],img:'art/archimedes.jpg'},
+  {id:'ching_shih',name:'Ching Shih',title:'Red Flag Queen of Ten Thousand Ships',rarity:2,origin:'China · 1775–1844',
+   lore:'She commanded 1800 ships and 80,000 sailors — then negotiated a peaceful retirement and lived to old age. History\'s most successful pirate and its most graceful exit.',
+   element:'Water',archetype:'Sovereign',stats:{Power:82,Speed:86,Wisdom:90,Fortune:95},
+   abilities:[{name:'Red Flag Fleet',desc:'Deals 2 damage for each card in your discard pile.'}],
+   palette:['#dc2626','#1c1917','#d4af37'],img:'art/ching_shih.jpg'},
+  // ── 1★ ECHOES ──
+  {id:'echo_squire',name:'Squire of the Realm',title:'Bearer of Another\'s Shield',rarity:1,origin:'Archetype',
+   lore:'Every legend starts somewhere. Usually carrying someone else\'s luggage.',
+   element:'Earth',archetype:'Guardian',stats:{Power:35,Speed:42,Wisdom:38,Fortune:50},
+   abilities:[{name:'Shield Bearer',desc:'Takes a hit meant for another ally.'}],palette:['#6b7280','#d1d5db','#1f2937'],img:'art/echo_squire.jpg'},
+  {id:'echo_oracle',name:'Wandering Oracle',title:'Speaker of Uncomfortable Truths',rarity:1,origin:'Archetype',
+   lore:'She sees what is coming. That doesn\'t make it easier to watch.',
+   element:'Arcane',archetype:'Oracle',stats:{Power:28,Speed:40,Wisdom:88,Fortune:72},
+   abilities:[{name:'Prophecy',desc:'Reveal the top card of the enemy\'s deck.'}],palette:['#4f46e5','#fdf4ff','#0f172a'],img:'art/echo_oracle.jpg'},
+  {id:'echo_pirate',name:'Sea Rogue',title:'Sailor of Uncertain Allegiance',rarity:1,origin:'Archetype',
+   lore:'Loyal to whoever is winning, until suddenly they aren\'t.',
+   element:'Water',archetype:'Rogue',stats:{Power:42,Speed:72,Wisdom:45,Fortune:68},
+   abilities:[{name:'Broadside',desc:'Deals 5 damage; 50% chance to deal 5 to yourself too.'}],palette:['#1e3a5f','#d4af37','#7c2d12'],img:'art/echo_pirate.jpg'},
+  {id:'echo_smith',name:'The Blacksmith',title:'Forger of Legends\' Weapons',rarity:1,origin:'Archetype',
+   lore:'He made the sword Achilles carried. Nobody remembers his name.',
+   element:'Fire',archetype:'Creator',stats:{Power:50,Speed:30,Wisdom:65,Fortune:60},
+   abilities:[{name:'Forge',desc:'Give one ally +3 attack permanently.'}],palette:['#92400e','#1c1917','#d4af37'],img:'art/echo_smith.jpg'},
+  {id:'echo_bard',name:'Wandering Bard',title:'Singer of Forgotten Roads',rarity:1,origin:'Archetype',
+   lore:'All stories begin with someone willing to walk to the next village and tell what they saw.',
+   element:'Wind',archetype:'Bard',stats:{Power:25,Speed:50,Wisdom:60,Fortune:65},
+   abilities:[{name:'Epic Verse',desc:'Draw 1 card; deal 2 damage to the weakest enemy.'}],palette:['#9ca3af','#fef9ee','#374151'],img:'art/echo_bard.jpg'},
+  {id:'echo_monk',name:'Wandering Monk',title:'Seeker of the Middle Path',rarity:1,origin:'Archetype',
+   lore:'Enlightenment is just suffering that has found its context.',
+   element:'Earth',archetype:'Scholar',stats:{Power:30,Speed:38,Wisdom:80,Fortune:58},
+   abilities:[{name:'Meditate',desc:'Heal 6 HP; skip your next attack.'}],palette:['#78350f','#fef9ee','#1e3a5f'],img:'art/echo_monk.jpg'},
+];
+
+/* ════════════════════════════════════
+   IMAGE SYSTEM
+   Each card has an img path. We try to load it;
+   if it fails (404 / missing), show the SVG fallback.
+   Art folder: ./art/<id>.jpg  (populate from any image gen tool)
+════════════════════════════════════ */
+const Art={
+  BASE_URL: '', // Set to CDN base URL if hosting remotely, e.g. 'https://cdn.example.com/mythika/'
+  url(card){return (this.BASE_URL||'') + (card.img||`art/${card.id}.jpg`);},
+  html(card,w,h){
+    // Returns an <img> with fallback to SVG
+    const url=this.url(card);
+    const fb=this.fallback(card);
+    return `<img src="${url}" alt="${card.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" style="width:100%;height:${h||'100%'};object-fit:cover;display:block;"><div style="display:none;width:100%;height:${h||'100%'};">${fb}</div>`;
+  },
+  fallback(card){
+    const p=card.palette;
+    const elE={Storm:'⚡',Arcane:'✦',Lightning:'⚡',Wind:'🌀',Solar:'☀',Water:'💧',Earth:'⛰',Fire:'🔥',Spirit:'👁',Divine:'✺'}[card.element]||'✦';
+    const rc={1:'#9ba8b5',2:'#4cc9f0',3:'#c9a84c',4:'#c77dff',5:'#ff6b6b'}[card.rarity];
+    const sid=card.id.replace(/[^a-z0-9]/g,'');
+    return`<svg viewBox="0 0 240 300" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="bg${sid}" cx="50%" cy="38%" r="72%"><stop offset="0%" stop-color="${p[0]}" stop-opacity=".28"/><stop offset="100%" stop-color="#06060f"/></radialGradient>
+<radialGradient id="gl${sid}" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="${p[0]}" stop-opacity=".5"/><stop offset="100%" stop-color="${p[0]}" stop-opacity="0"/></radialGradient>
+<linearGradient id="bd${sid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${p[0]}" stop-opacity=".82"/><stop offset="100%" stop-color="${p[2]||p[1]}" stop-opacity=".55"/></linearGradient>
+</defs>
+<rect width="240" height="300" fill="url(#bg${sid})"/>
+<circle cx="120" cy="115" r="92" fill="none" stroke="${p[0]}" stroke-opacity=".1" stroke-width=".8"/>
+<circle cx="120" cy="115" r="70" fill="none" stroke="${p[0]}" stroke-opacity=".14" stroke-width=".5" stroke-dasharray="8 5"/>
+<ellipse cx="120" cy="118" rx="40" ry="52" fill="url(#bd${sid})"/>
+<ellipse cx="120" cy="82" rx="25" ry="29" fill="${p[0]}" fill-opacity=".72"/>
+<ellipse cx="109" cy="79" rx="6.5" ry="4.5" fill="${p[2]||'#fff'}" fill-opacity=".92"/>
+<ellipse cx="131" cy="79" rx="6.5" ry="4.5" fill="${p[2]||'#fff'}" fill-opacity=".92"/>
+<ellipse cx="110" cy="79" rx="3.8" ry="3.8" fill="${p[1]||'#111'}"/>
+<ellipse cx="132" cy="79" rx="3.8" ry="3.8" fill="${p[1]||'#111'}"/>
+<circle cx="111" cy="77.5" r="1.4" fill="white" fill-opacity=".9"/>
+<circle cx="133" cy="77.5" r="1.4" fill="white" fill-opacity=".9"/>
+<circle cx="120" cy="118" r="60" fill="url(#gl${sid})" opacity=".5"/>
+<text x="120" y="192" text-anchor="middle" font-size="30" opacity=".5">${elE}</text>
+<rect x="40" y="228" width="160" height="1.5" fill="${rc}" fill-opacity=".3" rx="1"/>
+<text x="120" y="248" text-anchor="middle" font-size="8.5" fill="${rc}" opacity=".7" font-family="serif">${'★'.repeat(card.rarity)}${'☆'.repeat(5-card.rarity)}</text>
+<text x="120" y="264" text-anchor="middle" font-size="6.5" fill="${p[0]}" opacity=".4" font-family="Cinzel,serif" letter-spacing="3">${(card.element||'').toUpperCase()}</text>
+</svg>`;
+  }
+};
+
+/* ════════════════════════════════════
+   STATE
+════════════════════════════════════ */
+const State={
+  gems:    LS('mk_gems',120),
+  unlocked:LS('mk_unlocked',[]),
+  lastFree:LS('mk_lastFree',0),
+  wins:    LS('mk_wins',0),
+  save(){LSset('mk_gems',this.gems);LSset('mk_unlocked',this.unlocked);LSset('mk_lastFree',this.lastFree);LSset('mk_wins',this.wins);},
+  unlock(id){if(!this.unlocked.includes(id)){this.unlocked.push(id);this.save();return true;}return false;},
+  freeReady(){return Date.now()-this.lastFree>23*60*60*1000;}
+};
+
+/* helpers */
+function allGems(){['gc-home','gc-draw','gc-dex','gc-battle'].forEach(id=>{const e=$(id);if(e)e.textContent=State.gems;});}
+function homeStats(){
+  const n=State.unlocked.length,t=ROSTER.length;
+  $('stat-n').textContent=n;$('stat-t').textContent=t;$('stat-p').textContent=Math.floor(n/t*100)+'%';
+  const fb=$('free-btn');fb.className='btn-free'+(State.freeReady()?' ready':'');
+  fb.textContent=State.freeReady()?'✦ Free summon ready!':'Free summon · refreshes daily';
+}
+function starsHTML(r,size){
+  const c={1:'#9ba8b5',2:'#4cc9f0',3:'#c9a84c',4:'#c77dff',5:'#ff6b6b'}[r];
+  return Array.from({length:5},(_,i)=>`<span class="rstar" style="color:${i<r?c:'rgba(255,255,255,.14)'}">${i<r?'★':'☆'}</span>`).join('');
+}
+function rarBar(r){const c={1:'#9ba8b5',2:'#4cc9f0',3:'#c9a84c',4:'#c77dff',5:'#ff6b6b'}[r];return`background:linear-gradient(90deg,${c}cc,${c}33)`;}
+function pickCard(){
+  const w={1:38,2:26,3:22,4:10,5:4};
+  const pool=[];ROSTER.forEach(c=>{for(let i=0;i<w[c.rarity];i++)pool.push(c);});
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+/* particles */
+const rcols={1:'#9ba8b5',2:'#4cc9f0',3:'#c9a84c',4:'#c77dff',5:'#ff6b6b'};
+function burst(x,y,rarity){
+  const col=rcols[rarity]||'#c9a84c';const n=rarity*7+4;const box=$('pts');
+  for(let i=0;i<n;i++){
+    const ang=Math.random()*Math.PI*2,d=55+Math.random()*130;
+    const p=document.createElement('div');p.className='pt';
+    p.style.cssText=`left:${x}px;top:${y}px;width:${2+Math.random()*5}px;height:${2+Math.random()*5}px;background:${col};--tx:${Math.cos(ang)*d}px;--ty:${Math.sin(ang)*d}px;--d:${.5+Math.random()*.8}s;animation-delay:${Math.random()*.15}s;`;
+    box.appendChild(p);setTimeout(()=>p.remove(),1400);
+  }
+}
+function floatDmg(x,y,dmg,col){
+  const el=document.createElement('div');el.className='dmg-float';
+  el.textContent=(dmg>0?'-':'')+Math.abs(dmg);
+  el.style.cssText=`left:${x-20}px;top:${y-20}px;color:${col||'#ff6b6b'};`;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),950);
+}
+
+/* ════════════════════════════════════
+   NAV
+════════════════════════════════════ */
+const Nav={
+  go(name){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    $('screen-'+name).classList.add('active');
+    window.scrollTo(0,0);allGems();
+    if(name==='home')homeStats();
+    if(name==='dex')Dex.render();
+    if(name==='battle')Battle.initSelect();
+  }
+};
+
+/* ════════════════════════════════════
+   DRAW
+════════════════════════════════════ */
+const Draw={
+  pending:null,flipped:false,
+  _show(card){
+    this.pending=card;this.flipped=false;
+    $('single-wrap').style.cssText='display:flex;flex-direction:column;align-items:center;width:100%;';
+    $('multi-wrap').style.display='none';
+    Nav.go('draw');
+    $('card-inner').classList.remove('flipped');
+    const di=$('draw-info');di.style.display='none';di.style.animation='none';
+    $('new-badge').style.display='none';
+    $('card-art').innerHTML='<div class="card-art-loading"><div class="spin-ring"></div><span>Channelling...</span></div>';
+    $('card-front').className='card-face card-front r'+card.rarity;
+    $('card-name').textContent=card.name;
+    $('card-origin').textContent=card.origin;
+    $('card-stars').innerHTML=starsHTML(card.rarity);
+    // preload art
+    const img=new Image();img.onload=()=>{$('card-art').innerHTML=Art.html(card,'100%','100%');};
+    img.onerror=()=>{$('card-art').innerHTML=Art.fallback(card);};
+    img.src=Art.url(card);
+  },
+  single(){if(State.gems<10){alert('Need 10 💎');return;}State.gems-=10;State.save();allGems();this._show(pickCard());},
+  free(){
+    if(!State.freeReady()){alert('Free summon not ready yet!');return;}
+    State.lastFree=Date.now();State.save();this._show(pickCard());homeStats();
+  },
+  async multi(){
+    if(State.gems<90){alert('Need 90 💎');return;}
+    State.gems-=90;State.save();allGems();
+    const cards=Array.from({length:10},()=>pickCard());
+    $('single-wrap').style.display='none';$('multi-wrap').style.display='block';
+    Nav.go('draw');
+    const grid=$('multi-grid');grid.innerHTML='';
+    for(let i=0;i<10;i++){
+      const card=cards[i];const isNew=State.unlock(card.id);
+      const div=document.createElement('div');
+      div.className='mgc r'+card.rarity;div.style.animationDelay=(i*.065)+'s';
+      div.innerHTML=`<div class="card-art">${Art.html(card,'100%','100px')}</div>
+<div class="card-footer">
+  <div class="card-name-txt">${card.name}</div>
+  ${isNew?'<div style="font-size:.46rem;color:var(--gold);font-family:var(--fm)">✦ NEW</div>':''}
+  <div class="card-stars r${card.rarity}">${starsHTML(card.rarity)}</div>
+</div>`;
+      div.onclick=()=>Detail.open(card);grid.appendChild(div);
+      setTimeout(()=>{const r=div.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,card.rarity);},(i*65)+280);
+    }
+    homeStats();
+  },
+  flip(){
+    if(this.flipped||!this.pending)return;
+    this.flipped=true;const card=this.pending;
+    $('card-inner').classList.add('flipped');
+    setTimeout(()=>{const sh=$('card-shim');sh.classList.add('run');setTimeout(()=>sh.classList.remove('run'),700);},460);
+    setTimeout(()=>{const wr=$('card-wrap');const rc=wr.getBoundingClientRect();burst(rc.left+rc.width/2,rc.top+rc.height/2,card.rarity);},520);
+    setTimeout(()=>{
+      const isNew=State.unlock(card.id);
+      if(isNew)$('new-badge').style.display='inline-block';
+      $('info-name').textContent=card.name;$('info-title').textContent=card.title;$('info-lore').textContent=card.lore;
+      const di=$('draw-info');di.style.display='block';di.style.animation='fadeUp .5s ease forwards';
+      homeStats();
+    },920);
+  }
+};
+
+/* ════════════════════════════════════
+   DEX
+════════════════════════════════════ */
+const Dex={
+  cf:'all',
+  render(){
+    const n=State.unlocked.length,t=ROSTER.length;
+    $('dex-prog').textContent=`${n} / ${t} spirits chronicled`;
+    $('dex-fill').style.width=(n/t*100)+'%';
+    let list=[...ROSTER];
+    if(this.cf==='unlocked')list=list.filter(c=>State.unlocked.includes(c.id));
+    else if(this.cf==='locked')list=list.filter(c=>!State.unlocked.includes(c.id));
+    else if(['5','4','3','2','1'].includes(this.cf))list=list.filter(c=>c.rarity===+this.cf);
+    list.sort((a,b)=>{
+      const au=State.unlocked.includes(a.id),bu=State.unlocked.includes(b.id);
+      if(au!==bu)return au?-1:1;return b.rarity-a.rarity;
+    });
+    const grid=$('dex-grid');grid.innerHTML='';
+    list.forEach(card=>{
+      const ok=State.unlocked.includes(card.id);
+      const div=document.createElement('div');
+      div.className='dex-card r'+card.rarity+(ok?'':' locked');
+      div.innerHTML=`${!ok?'<div class="lock-ico">🔒</div>':''}
+<div class="dex-art">${ok?Art.html(card,'100%','100%'):'<div style="width:100%;height:100%;background:#06060f;"></div>'}</div>
+<div class="dex-foot"><div class="dex-name">${ok?card.name:'???'}</div><div class="dex-rstars r${card.rarity}">${starsHTML(card.rarity)}</div></div>`;
+      if(ok)div.onclick=()=>Detail.open(card);
+      grid.appendChild(div);
+    });
+  },
+  filter(f,btn){
+    this.cf=f;document.querySelectorAll('.df').forEach(b=>b.classList.remove('active'));btn.classList.add('active');this.render();
+  }
+};
+
+/* ════════════════════════════════════
+   DETAIL
+════════════════════════════════════ */
+const Detail={
+  current:null,
+  open(card){
+    this.current=card;
+    $('det-art').innerHTML=Art.html(card,'100%','250px');
+    $('det-rbar').style=rarBar(card.rarity);
+    $('det-name').textContent=card.name;$('det-title').textContent=card.title;
+    $('det-stars').innerHTML=starsHTML(card.rarity);$('det-lore').textContent=card.lore;
+    $('det-stats').innerHTML=Object.entries(card.stats||{}).map(([k,v])=>`<div class="det-stat"><div class="sv">${v}</div><div class="sk">${k}</div></div>`).join('');
+    $('det-abs').innerHTML=(card.abilities||[]).map(a=>`<div class="det-ab"><div class="an">${a.name}</div><div class="ad">${a.desc}</div></div>`).join('');
+    $('det-origin').textContent=card.origin;
+    const bb=$('det-battle-btn');
+    if(State.unlocked.includes(card.id)){bb.style.display='block';bb.onclick=()=>{Detail.close();Nav.go('battle');Battle._selectCard(card);};}
+    else bb.style.display='none';
+    $('det-overlay').classList.add('show');
+  },
+  close(){$('det-overlay').classList.remove('show');}
+};
+
+/* ════════════════════════════════════
+   BATTLE
+════════════════════════════════════ */
+const Battle={
+  squad:[null,null,null],    // player chosen cards
+  enemySquad:[],
+  pFighters:[],              // {card, hp, maxHp}
+  eFighters:[],
+  activePIdx:0,
+  activeEIdx:0,
+  playerTurn:true,
+  inBattle:false,
+
+  /* ── SELECT PHASE ── */
+  initSelect(){
+    this.squad=[null,null,null];
+    this._renderSlots();
+    const grid=$('pick-grid');grid.innerHTML='';
+    const avail=ROSTER.filter(c=>State.unlocked.includes(c.id));
+    if(!avail.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:rgba(240,236,223,.4);font-size:.75rem;padding:2rem;font-family:var(--fc);">Summon spirits first to build your squad!</div>';return;}
+    avail.sort((a,b)=>b.rarity-a.rarity);
+    avail.forEach(card=>{
+      const div=document.createElement('div');
+      div.className='pick-card r'+card.rarity;div.id='pick-'+card.id;
+      div.innerHTML=`<div class="pick-art">${Art.html(card,'100%','100%')}</div>
+<div class="pick-foot"><div class="pick-name">${card.name}</div><div class="pick-rstars r${card.rarity}">${starsHTML(card.rarity)}</div></div>`;
+      div.onclick=()=>this._selectCard(card);
+      grid.appendChild(div);
+    });
+    $('battle-select').style.display='flex';
+    $('battle-arena').style.display='none';
+    this._updateStartBtn();
+  },
+  _selectCard(card){
+    const exists=this.squad.findIndex(s=>s&&s.id===card.id);
+    if(exists>=0){this.squad[exists]=null;this._renderSlots();this._markPick();this._updateStartBtn();return;}
+    const empty=this.squad.findIndex(s=>!s);
+    if(empty<0)return;
+    this.squad[empty]=card;this._renderSlots();this._markPick();this._updateStartBtn();
+  },
+  removeSlot(i){if(!this.squad[i])return;this.squad[i]=null;this._renderSlots();this._markPick();this._updateStartBtn();},
+  _renderSlots(){
+    for(let i=0;i<3;i++){
+      const el=$('slot-'+i);const card=this.squad[i];
+      if(card){
+        el.className='squad-slot filled r'+card.rarity;
+        el.innerHTML=`${Art.html(card,'80px','70px')}<div class="slot-name">${card.name}</div><div class="slot-remove">✕</div>`;
+      }else{
+        el.className='squad-slot';el.innerHTML='<div class="slot-empty">+</div>';
+      }
+    }
+  },
+  _markPick(){
+    document.querySelectorAll('.pick-card').forEach(el=>{
+      const id=el.id.replace('pick-','');
+      el.classList.toggle('chosen',this.squad.some(s=>s&&s.id===id));
+    });
+  },
+  _updateStartBtn(){
+    $('battle-start-btn').disabled=this.squad.filter(Boolean).length<3;
+  },
+
+  /* ── BATTLE PHASE ── */
+  _buildFighter(card,isPlayer){
+    const bonus=isPlayer?0:card.rarity*3; // enemy HP scaled by rarity
+    const hp=Math.round(50+card.stats.Power*0.6+bonus);
+    return{card,hp,maxHp:hp,isPlayer};
+  },
+  _enemyDraft(){
+    // Draft 3 random cards weighted toward player's rarity level
+    const pool=ROSTER.filter(c=>c.rarity>=1);
+    const chosen=[];while(chosen.length<3){
+      const c=pool[Math.floor(Math.random()*pool.length)];
+      if(!chosen.find(x=>x.id===c.id))chosen.push(c);
+    }
+    return chosen;
+  },
+  start(){
+    const squad=this.squad.filter(Boolean);if(squad.length<3)return;
+    this.pFighters=squad.map(c=>this._buildFighter(c,true));
+    this.enemySquad=this._enemyDraft();
+    this.eFighters=this.enemySquad.map(c=>this._buildFighter(c,false));
+    this.activePIdx=0;this.activeEIdx=0;this.playerTurn=true;this.inBattle=true;
+    $('battle-select').style.display='none';
+    $('battle-arena').style.display='flex';
+    $('battle-arena').style.flexDirection='column';
+    $('battle-arena').style.height='100%';
+    $('battle-log').innerHTML='';
+    this._log('Battle begins!','sys');
+    this._log(`Your squad: ${squad.map(c=>c.name).join(', ')}`, 'sys');
+    this._log(`Enemy squad: ${this.enemySquad.map(c=>c.name).join(', ')}`, 'sys');
+    this._renderArena();
+  },
+  _renderArena(){
+    this._renderFighters('enemy-fighters',this.eFighters,false);
+    this._renderFighters('player-fighters',this.pFighters,true);
+    $('turn-ind').textContent=this.playerTurn?'⚔ Your turn — choose an action':'⏳ Enemy turn...';
+    $('turn-ind').style.color=this.playerTurn?'rgba(134,239,172,.7)':'rgba(252,165,165,.7)';
+    const btns=$('battle-actions').querySelectorAll('button');
+    btns.forEach(b=>b.disabled=!this.playerTurn||!this.inBattle);
+  },
+  _renderFighters(containerId,fighters,isPlayer){
+    const el=$(containerId);el.innerHTML='';
+    fighters.forEach((f,i)=>{
+      const active=(isPlayer&&i===this.activePIdx)||(!isPlayer&&i===this.activeEIdx);
+      const div=document.createElement('div');
+      div.className='combatant'+(f.hp<=0?' defeated':'')+(active&&f.hp>0?' active-fighter':'');
+      div.innerHTML=`<div style="width:100%;height:65px;overflow:hidden;">${Art.html(f.card,'90px','65px')}</div>
+<div class="c-name">${f.card.name}</div>
+<div class="c-hpbar"><div class="c-hpfill ${isPlayer?'p':'e'}" style="width:${Math.max(0,f.hp/f.maxHp*100)}%"></div></div>
+<div class="c-hp-txt">${Math.max(0,f.hp)}/${f.maxHp}</div>`;
+      if(isPlayer&&f.hp>0)div.onclick=()=>{this.activePIdx=i;this._renderArena();};
+      el.appendChild(div);
+    });
+  },
+  _log(msg,type){
+    const el=$('battle-log');
+    const d=document.createElement('div');d.className='blog-entry '+(type||'');d.textContent=msg;
+    el.appendChild(d);el.scrollTop=el.scrollHeight;
+  },
+  _calcDmg(attacker,defender){
+    const base=Math.round(attacker.stats.Power*0.4+Math.random()*attacker.stats.Power*0.2);
+    const spd_bonus=attacker.stats.Speed>defender.stats.Speed?Math.round(attacker.stats.Speed*0.05):0;
+    return Math.max(1,base+spd_bonus);
+  },
+  _dealDmg(target,dmg,container,idx){
+    target.hp=Math.max(0,target.hp-dmg);
+    // Float dmg number at fighter position
+    const fighters=document.querySelector('#'+container).children[idx];
+    if(fighters){const r=fighters.getBoundingClientRect();floatDmg(r.left+r.width/2,r.top+20,dmg);}
+  },
+  _nextAlive(fighters,from){
+    for(let i=from;i<fighters.length;i++)if(fighters[i].hp>0)return i;
+    for(let i=0;i<from;i++)if(fighters[i].hp>0)return i;
+    return -1;
+  },
+  _checkWin(){
+    if(this.eFighters.every(f=>f.hp<=0)){this._endBattle(true);return true;}
+    if(this.pFighters.every(f=>f.hp<=0)){this._endBattle(false);return true;}
+    return false;
+  },
+  _endBattle(playerWon){
+    this.inBattle=false;
+    this._renderArena();
+    if(playerWon){
+      State.wins++;State.gems+=20;State.save();allGems();
+      this._log(`Victory! +20 💎 (Total wins: ${State.wins})`,'sys');
+      setTimeout(()=>alert(`Victory! +20 💎 gems rewarded!\n\nTotal wins: ${State.wins}`),200);
+    }else{
+      this._log('Defeat. Your spirits have fallen.','sys');
+      setTimeout(()=>alert('Defeat! Rally new spirits and try again.'),200);
+    }
+  },
+
+  playerAttack(){
+    if(!this.playerTurn||!this.inBattle)return;
+    const pf=this.pFighters[this.activePIdx];
+    const ei=this._nextAlive(this.eFighters,this.activeEIdx);
+    if(ei<0||pf.hp<=0)return;
+    const ef=this.eFighters[ei];this.activeEIdx=ei;
+    const dmg=this._calcDmg(pf.card,ef.card);
+    this._dealDmg(ef,dmg,'enemy-fighters',ei);
+    this._log(`${pf.card.name} attacks ${ef.card.name} for ${dmg} damage!`,'player');
+    if(ef.hp<=0){
+      this._log(`${ef.card.name} is defeated!`,'player');
+      burst(...(()=>{const r=document.querySelector('#enemy-fighters').children[ei]?.getBoundingClientRect();return r?[r.left+r.width/2,r.top+r.height/2,ef.card.rarity]:[200,200,3];})());
+      const ni=this._nextAlive(this.eFighters,ei+1);this.activeEIdx=ni>=0?ni:0;
+    }
+    this._renderArena();
+    if(this._checkWin())return;
+    this._doEnemyTurn();
+  },
+
+  playerSkill(){
+    if(!this.playerTurn||!this.inBattle)return;
+    const pf=this.pFighters[this.activePIdx];
+    const ab=pf.card.abilities[0];
+    // Generic skill effect: heal or big damage
+    const effect=ab.desc.toLowerCase();
+    let msg='';
+    if(effect.includes('heal')||effect.includes('hp')){
+      const heal=Math.round(pf.card.stats.Wisdom*0.3+10);
+      pf.hp=Math.min(pf.maxHp,pf.hp+heal);msg=`${pf.card.name} uses ${ab.name} — healed ${heal} HP!`;
+    }else{
+      const ei=this._nextAlive(this.eFighters,this.activeEIdx);
+      if(ei<0)return;
+      const ef=this.eFighters[ei];
+      const dmg=Math.round(pf.card.stats.Power*0.65+pf.card.stats.Wisdom*0.15);
+      this._dealDmg(ef,dmg,'enemy-fighters',ei);
+      msg=`${pf.card.name} uses ${ab.name} — deals ${dmg} damage!`;
+      if(ef.hp<=0){this._log(`${ef.card.name} is defeated!`,'player');burst(...(()=>{const r=document.querySelector('#enemy-fighters').children[ei]?.getBoundingClientRect();return r?[r.left+r.width/2,r.top+r.height/2,ef.card.rarity]:[200,200,3];})());}
+    }
+    this._log(msg,'player');
+    this._renderArena();
+    if(this._checkWin())return;
+    this._doEnemyTurn();
+  },
+
+  endPlayerTurn(){
+    if(!this.playerTurn||!this.inBattle)return;
+    this._log('You end your turn.','player');
+    this._doEnemyTurn();
+  },
+
+  async _doEnemyTurn(){
+    this.playerTurn=false;this._renderArena();
+    await sleep(700);
+    // Enemy attacks — each alive enemy attacks
+    for(let i=0;i<this.eFighters.length;i++){
+      const ef=this.eFighters[i];if(ef.hp<=0)continue;
+      const pi=this._nextAlive(this.pFighters,this.activePIdx);
+      if(pi<0)break;
+      const pf=this.pFighters[pi];
+      const dmg=this._calcDmg(ef.card,pf.card);
+      this._dealDmg(pf,dmg,'player-fighters',pi);
+      this._log(`${ef.card.name} attacks ${pf.card.name} for ${dmg}!`,'enemy');
+      if(pf.hp<=0){
+        this._log(`${pf.card.name} falls!`,'enemy');
+        const ni=this._nextAlive(this.pFighters,pi+1);this.activePIdx=ni>=0?ni:0;
+      }
+      this._renderArena();
+      if(this._checkWin())return;
+      await sleep(550);
+    }
+    this.playerTurn=true;this._renderArena();
+    this._log('Your turn.','sys');
+  },
+
+  retreat(){
+    if(!confirm('Retreat from battle?'))return;
+    this.inBattle=false;
+    $('battle-arena').style.display='none';
+    this.initSelect();
+  }
+};
+
+/* ════════════════════════════════════
+   BOOT
+════════════════════════════════════ */
+(function boot(){
+  allGems();homeStats();
+  // 1 gem per minute while playing
+  setInterval(()=>{State.gems+=1;State.save();allGems();},60000);
+  // Art base URL notice
+  if(location.protocol==='file:'){
+    console.info('MYTHIKA: Running locally. Add card images to ./art/<id>.jpg or set Art.BASE_URL to a CDN. Fallback SVGs are shown until images are available.');
+  }
+})();
+</script>
+</body>
+</html>
