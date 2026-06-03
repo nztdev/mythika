@@ -197,17 +197,17 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .squad-slot svg{width:100%;height:70px;}
 .squad-slot .slot-name{font-family:var(--fd);font-size:.44rem;color:var(--gold);letter-spacing:.06em;padding:3px 4px;text-align:center;line-height:1.2;background:rgba(8,8,16,.9);width:100%;}
 .squad-slot .slot-remove{position:absolute;top:2px;right:3px;font-size:.6rem;color:rgba(240,236,223,.4);background:rgba(0,0,0,.5);border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;}
-.pick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:320px;padding-bottom:.5rem;}
-.pick-card{border-radius:8px;overflow:hidden;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:all .18s;aspect-ratio:2/3;display:flex;flex-direction:column;position:relative;}
-.pick-card:hover{transform:scale(1.04);border-color:rgba(201,168,76,.4);}
+.pick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:340px;padding-bottom:.5rem;}
+.pick-card{border-radius:8px;overflow:hidden;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:all .18s;display:flex;flex-direction:column;height:140px;position:relative;}
+.pick-card:hover{transform:scale(1.03);border-color:rgba(201,168,76,.4);}
 .pick-card.chosen{border-color:rgba(201,168,76,.7);box-shadow:0 0 10px rgba(201,168,76,.3);}
-.pick-card.chosen::after{content:'✓';position:absolute;top:3px;right:4px;font-size:.6rem;color:var(--gold);font-weight:700;}
-.pick-art{flex:1;overflow:hidden;background:#06060f;display:flex;align-items:center;justify-content:center;}
+.pick-card.chosen::after{content:'✓';position:absolute;top:3px;right:4px;font-size:.65rem;color:var(--gold);font-weight:700;background:rgba(0,0,0,.5);border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;}
+.pick-art{flex:1;overflow:hidden;background:#06060f;min-height:0;display:flex;align-items:center;justify-content:center;}
 .pick-art img{width:100%;height:100%;object-fit:contain;display:block;}
 .pick-art svg{width:100%;height:100%;}
-.pick-foot{padding:3px 4px 5px;background:rgba(8,8,16,.92);}
-.pick-name{font-family:var(--fd);font-size:.45rem;color:var(--gold);line-height:1.2;}
-.pick-rstars .rstar{font-size:.44rem;}
+.pick-foot{padding:4px 5px 5px;background:rgba(8,8,16,.92);flex-shrink:0;}
+.pick-name{font-family:var(--fd);font-size:.48rem;color:var(--gold);line-height:1.2;margin-bottom:2px;}
+.pick-rstars .rstar{font-size:.45rem;}
 .battle-start-btn{background:linear-gradient(135deg,#b91c1c,#ef4444);color:white;font-family:var(--fd);font-size:.9rem;letter-spacing:.12em;padding:13px 24px;border-radius:var(--r5);box-shadow:0 0 28px rgba(239,68,68,.3);transition:all .25s;margin-top:.25rem;}
 .battle-start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 36px rgba(239,68,68,.5);}
 .battle-start-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
@@ -301,11 +301,13 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
   .multi-grid{grid-template-columns:repeat(5,1fr);}
   .mgc .card-art{height:110px;}
   .dex-grid{grid-template-columns:repeat(4,1fr);}
-  .pick-grid{grid-template-columns:repeat(5,1fr);}
+  .pick-grid{grid-template-columns:repeat(4,1fr);}
+  .pick-card{height:150px;}
 }
 @media(min-width:640px){
   .dex-grid{grid-template-columns:repeat(5,1fr);}
   .card-wrap{width:248px;height:372px;}
+  .pick-grid{grid-template-columns:repeat(5,1fr);}
 }
 </style>
 </head>
@@ -545,7 +547,7 @@ const ROSTER=[
    palette:['#d4af37','#1a3a2a','#8b0000'],img:'art/cleopatra.jpg'},
   {id:'merlin',name:'Merlin',title:'Architect of the Once and Future',rarity:5,origin:'Arthurian Legend · Britain',
    lore:'He lived backwards through time, which is why he always seemed to know what was coming. It wasn\'t prophecy — it was memory. He has already seen how every story ends.',
-   element:'Arcane',archetype:'Sage',stats:{Power:70,Speed:55,Wisdom:99,Fortune:76},
+   element:'Arcane',archetype:'Sage',stats:{Power:70,Speed:55,Wisdom:97,Fortune:76},
    abilities:[{name:'Retrograde Vision',desc:'View and rearrange the bottom 5 cards of your deck freely.'},{name:'Avalon Seal',desc:'Imprisons one enemy card for 2 turns.'}],
    palette:['#1e3a5f','#6b21a8','#d4af37'],img:'art/merlin.jpg'},
   // ── 4★ HEROES ──
@@ -713,10 +715,12 @@ const Art={
   BASE_URL: '', // Set to CDN base URL if hosting remotely, e.g. 'https://cdn.example.com/mythika/'
   url(card){return (this.BASE_URL||'') + (card.img||`art/${card.id}.jpg`);},
   html(card,w,h){
-    // Returns an <img> with fallback to SVG
     const url=this.url(card);
     const fb=this.fallback(card);
-    return `<img src="${url}" alt="${card.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" style="width:100%;height:${h||'100%'};object-fit:cover;display:block;"><div style="display:none;width:100%;height:${h||'100%'};">${fb}</div>`;
+    // Always contain — never crop portrait images
+    const imgStyle=`width:100%;height:100%;object-fit:contain;display:block;`;
+    const wrapStyle=`width:${w||'100%'};height:${h||'100%'};display:flex;align-items:center;justify-content:center;background:#06060f;`;
+    return `<div style="${wrapStyle}"><img src="${url}" alt="${card.name}" loading="lazy" style="${imgStyle}" onerror="this.parentElement.innerHTML='${fb.replace(/'/g,"\\'").replace(/\n/g,' ')}'"></div>`;
   },
   fallback(card){
     const p=card.palette;
@@ -1029,12 +1033,18 @@ const Battle={
     this._renderArena();
   },
   _renderArena(){
+    // Full render of fighters (only needed at start or after a death)
     this._renderFighters('enemy-fighters',this.eFighters,false);
     this._renderFighters('player-fighters',this.pFighters,true);
-    $('turn-ind').textContent=this.playerTurn?'⚔ Your turn — choose an action':'⏳ Enemy turn...';
+    $('turn-ind').textContent=this.playerTurn?'⚔ Your turn — tap a card then choose action':'⏳ Enemy turn...';
     $('turn-ind').style.color=this.playerTurn?'rgba(134,239,172,.7)':'rgba(252,165,165,.7)';
     const btns=$('battle-actions').querySelectorAll('button');
     btns.forEach(b=>b.disabled=!this.playerTurn||!this.inBattle);
+  },
+  _refreshHP(){
+    // Update HP bars/text in-place without rebuilding DOM (preserves tooltips)
+    this.pFighters.forEach((f,i)=>this._updateFighterHP('player-fighters',i,f));
+    this.eFighters.forEach((f,i)=>this._updateFighterHP('enemy-fighters',i,f));
   },
   _renderFighters(containerId,fighters,isPlayer){
     const el=$(containerId);el.innerHTML='';
@@ -1043,9 +1053,11 @@ const Battle={
       const div=document.createElement('div');
       div.className='combatant'+(f.hp<=0?' defeated':'')+(active&&f.hp>0?' active-fighter':'');
 
-      // Tooltip HTML
       const card=f.card;
-      const ttStars=Array.from({length:5},(_,j)=>`<span class="rstar" style="color:${j<card.rarity?({1:'#9ba8b5',2:'#4cc9f0',3:'#c9a84c',4:'#c77dff',5:'#ff6b6b'}[card.rarity]):'rgba(255,255,255,.15)'}">${j<card.rarity?'★':'☆'}</span>`).join('');
+      const ttStars=Array.from({length:5},(_,j)=>{
+        const c={1:'#9ba8b5',2:'#4cc9f0',3:'#c9a84c',4:'#c77dff',5:'#ff6b6b'}[card.rarity];
+        return `<span class="rstar" style="color:${j<card.rarity?c:'rgba(255,255,255,.15)'}">${j<card.rarity?'★':'☆'}</span>`;
+      }).join('');
       const ab=card.abilities?.[0];
 
       div.innerHTML=`
@@ -1060,28 +1072,40 @@ const Battle={
         </div>
         <div class="c-img">${Art.html(card,'108px','100px')}</div>
         <div class="c-name">${card.name}</div>
-        <div class="c-hpbar"><div class="c-hpfill ${isPlayer?'p':'e'}" style="width:${Math.max(0,f.hp/f.maxHp*100)}%"></div></div>
-        <div class="c-hp-txt">${Math.max(0,f.hp)}/${f.maxHp}</div>`;
+        <div class="c-hpbar"><div class="c-hpfill ${isPlayer?'p':'e'}" id="hpf-${containerId}-${i}" style="width:${Math.max(0,f.hp/f.maxHp*100)}%"></div></div>
+        <div class="c-hp-txt" id="hptxt-${containerId}-${i}">${Math.max(0,f.hp)}/${f.maxHp}</div>`;
 
-      if(isPlayer&&f.hp>0){
-        div.onclick=(e)=>{
+      if(f.hp>0){
+        div.addEventListener('click', e=>{
           e.stopPropagation();
-          this.activePIdx=i;
-          Battle._dismissAllTooltips();
+          // If player card, also set as active fighter
+          if(isPlayer){
+            this.activePIdx=i;
+            // Update active-fighter highlight without full re-render
+            document.querySelectorAll('#player-fighters .combatant').forEach((el,idx)=>{
+              el.classList.toggle('active-fighter', idx===i);
+            });
+          }
+          // Toggle this tooltip; dismiss all others
           const tt=div.querySelector('.c-tooltip');
-          tt.classList.add('show');
-          this._renderArena();
-        };
-      } else if(!isPlayer&&f.hp>0){
-        div.onclick=(e)=>{
-          e.stopPropagation();
-          Battle._dismissAllTooltips();
-          const tt=div.querySelector('.c-tooltip');
-          tt.classList.add('show');
-        };
+          const wasShown=tt.classList.contains('show');
+          this._dismissAllTooltips();
+          if(!wasShown) tt.classList.add('show');
+        });
       }
       el.appendChild(div);
     });
+  },
+  _updateFighterHP(containerId,i,f){
+    const bar=$(`hpf-${containerId}-${i}`);
+    const txt=$(`hptxt-${containerId}-${i}`);
+    if(bar)bar.style.width=Math.max(0,f.hp/f.maxHp*100)+'%';
+    if(txt)txt.textContent=Math.max(0,f.hp)+'/'+f.maxHp;
+    // Mark defeated without re-rendering
+    if(f.hp<=0){
+      const fighters=$(containerId).children[i];
+      if(fighters){fighters.classList.add('defeated');fighters.classList.remove('active-fighter');}
+    }
   },
   _dismissAllTooltips(){
     document.querySelectorAll('.c-tooltip').forEach(t=>t.classList.remove('show'));
@@ -1127,6 +1151,7 @@ const Battle={
 
   playerAttack(){
     if(!this.playerTurn||!this.inBattle)return;
+    this._dismissAllTooltips();
     const pf=this.pFighters[this.activePIdx];
     const ei=this._nextAlive(this.eFighters,this.activeEIdx);
     if(ei<0||pf.hp<=0)return;
@@ -1134,26 +1159,30 @@ const Battle={
     const dmg=this._calcDmg(pf.card,ef.card);
     this._dealDmg(ef,dmg,'enemy-fighters',ei);
     this._log(`${pf.card.name} attacks ${ef.card.name} for ${dmg} damage!`,'player');
+    this._refreshHP();
     if(ef.hp<=0){
       this._log(`${ef.card.name} is defeated!`,'player');
-      burst(...(()=>{const r=document.querySelector('#enemy-fighters').children[ei]?.getBoundingClientRect();return r?[r.left+r.width/2,r.top+r.height/2,ef.card.rarity]:[200,200,3];})());
+      burst(...(()=>{const r=document.querySelector('#enemy-fighters .combatant:nth-child('+(ei+1)+')')?.getBoundingClientRect();return r?[r.left+r.width/2,r.top+r.height/2,ef.card.rarity]:[200,200,3];})());
       const ni=this._nextAlive(this.eFighters,ei+1);this.activeEIdx=ni>=0?ni:0;
+      if(this._checkWin())return;
+      this._renderArena(); // re-render on death
+      return;
     }
-    this._renderArena();
     if(this._checkWin())return;
     this._doEnemyTurn();
   },
 
   playerSkill(){
     if(!this.playerTurn||!this.inBattle)return;
+    this._dismissAllTooltips();
     const pf=this.pFighters[this.activePIdx];
     const ab=pf.card.abilities[0];
-    // Generic skill effect: heal or big damage
     const effect=ab.desc.toLowerCase();
     let msg='';
     if(effect.includes('heal')||effect.includes('hp')){
       const heal=Math.round(pf.card.stats.Wisdom*0.3+10);
       pf.hp=Math.min(pf.maxHp,pf.hp+heal);msg=`${pf.card.name} uses ${ab.name} — healed ${heal} HP!`;
+      this._refreshHP();
     }else{
       const ei=this._nextAlive(this.eFighters,this.activeEIdx);
       if(ei<0)return;
@@ -1161,24 +1190,34 @@ const Battle={
       const dmg=Math.round(pf.card.stats.Power*0.65+pf.card.stats.Wisdom*0.15);
       this._dealDmg(ef,dmg,'enemy-fighters',ei);
       msg=`${pf.card.name} uses ${ab.name} — deals ${dmg} damage!`;
-      if(ef.hp<=0){this._log(`${ef.card.name} is defeated!`,'player');burst(...(()=>{const r=document.querySelector('#enemy-fighters').children[ei]?.getBoundingClientRect();return r?[r.left+r.width/2,r.top+r.height/2,ef.card.rarity]:[200,200,3];})());}
+      this._refreshHP();
+      if(ef.hp<=0){
+        this._log(`${ef.card.name} is defeated!`,'player');
+        burst(...(()=>{const r=document.querySelector('#enemy-fighters .combatant:nth-child('+(ei+1)+')')?.getBoundingClientRect();return r?[r.left+r.width/2,r.top+r.height/2,ef.card.rarity]:[200,200,3];})());
+        if(this._checkWin())return;
+        this._renderArena();
+        return;
+      }
     }
     this._log(msg,'player');
-    this._renderArena();
     if(this._checkWin())return;
     this._doEnemyTurn();
   },
 
   endPlayerTurn(){
     if(!this.playerTurn||!this.inBattle)return;
+    this._dismissAllTooltips();
     this._log('You end your turn.','player');
     this._doEnemyTurn();
   },
 
   async _doEnemyTurn(){
-    this.playerTurn=false;this._renderArena();
+    this.playerTurn=false;
+    const btns=$('battle-actions').querySelectorAll('button');
+    btns.forEach(b=>b.disabled=true);
+    $('turn-ind').textContent='⏳ Enemy turn...';
+    $('turn-ind').style.color='rgba(252,165,165,.7)';
     await sleep(700);
-    // Enemy attacks — each alive enemy attacks
     for(let i=0;i<this.eFighters.length;i++){
       const ef=this.eFighters[i];if(ef.hp<=0)continue;
       const pi=this._nextAlive(this.pFighters,this.activePIdx);
@@ -1187,15 +1226,22 @@ const Battle={
       const dmg=this._calcDmg(ef.card,pf.card);
       this._dealDmg(pf,dmg,'player-fighters',pi);
       this._log(`${ef.card.name} attacks ${pf.card.name} for ${dmg}!`,'enemy');
+      this._refreshHP();
       if(pf.hp<=0){
         this._log(`${pf.card.name} falls!`,'enemy');
         const ni=this._nextAlive(this.pFighters,pi+1);this.activePIdx=ni>=0?ni:0;
+        if(this._checkWin())return;
+        this._renderArena(); // re-render on death
+        await sleep(400);
+        continue;
       }
-      this._renderArena();
       if(this._checkWin())return;
       await sleep(550);
     }
-    this.playerTurn=true;this._renderArena();
+    this.playerTurn=true;
+    $('turn-ind').textContent='⚔ Your turn — tap a card then choose action';
+    $('turn-ind').style.color='rgba(134,239,172,.7)';
+    btns.forEach(b=>b.disabled=false);
     this._log('Your turn.','sys');
   },
 
@@ -1212,6 +1258,10 @@ const Battle={
 ════════════════════════════════════ */
 (function boot(){
   allGems();homeStats();
+  // Dismiss battle tooltips when tapping anywhere outside a combatant
+  document.addEventListener('click',()=>{
+    if(typeof Battle!=='undefined') Battle._dismissAllTooltips();
+  });
   // 1 gem per minute while playing
   setInterval(()=>{State.gems+=1;State.save();allGems();},60000);
   // Art base URL notice
