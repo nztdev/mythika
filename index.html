@@ -1857,18 +1857,18 @@ const Manga = {
       chapter: 'Chapter 1 · The Last Light of Camelot',
       pages: [
         {
-          src: 'manga/page1.jpg',
+          src: 'manga/page1.PNG',
           // Each value = cumulative % of image height revealed on that tap
           // Page 1 has 4 row-bands: splash (0→28%), row2 (28→52%), row3 (52→75%), row4 (75→100%)
           rows: [28, 52, 75, 100]
         },
         {
-          src: 'manga/page2.jpg',
+          src: 'manga/page2.PNG',
           // Page 2: 4 row-bands
           rows: [22, 46, 70, 100]
         },
         {
-          src: 'manga/page3.jpg',
+          src: 'manga/page3.PNG',
           // Page 3: 4 row-bands
           rows: [26, 50, 74, 100]
         }
@@ -2043,7 +2043,7 @@ const Manga = {
   setInterval(() => { State.gems += 1; State.save(); allGems(); }, 60000);
 
   if (location.protocol === 'file:') {
-    console.info('MYTHIKA: Add card images to ./art/<id>.jpg and manga pages to ./manga/page1.jpg, page2.jpg, page3.jpg');
+    console.info('MYTHIKA: Add card images to ./art/<id>.jpg and manga pages to ./manga/page1.PNG, page2.PNG, page3.PNG');
   }
 })();
 </script>
