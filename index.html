@@ -1751,12 +1751,19 @@ const Landing = {
   },
 
   play() {
-    // Fade out landing, then run play transition
-    $('screen-landing').classList.add('hide');
-    setTimeout(() => {
-      $('screen-landing').style.display = 'none';
+    // Hide manga reader if open
+    $('screen-manga').classList.remove('active');
+    // Fade out landing if still visible, otherwise just run transition
+    const landing = $('screen-landing');
+    if (landing.style.display !== 'none') {
+      landing.classList.add('hide');
+      setTimeout(() => {
+        landing.style.display = 'none';
+        PlayTransition.run();
+      }, 700);
+    } else {
       PlayTransition.run();
-    }, 700);
+    }
   }
 };
 
@@ -1821,7 +1828,12 @@ const PlayTransition = {
     }, 3000);
 
     setTimeout(() => {
-      // Step 5: show home screen fading in beneath, then remove overlay
+      // Step 5: hide manga reader, show home screen, fade out overlay
+      // Explicitly hide manga screen (it uses its own .active class + position:fixed)
+      $('screen-manga').classList.remove('active');
+      $('screen-manga').style.display = 'none';
+
+      // Show home screen
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       $('screen-home').classList.add('active');
       allGems(); homeStats();
@@ -1836,6 +1848,8 @@ const PlayTransition = {
         pt.style.transition = '';
         sigil.style.display = 'none';
         logoText.style.opacity = '';
+        // Restore manga screen display for future use
+        $('screen-manga').style.display = '';
       }, 850);
     }, 5800);
   }
@@ -1860,17 +1874,17 @@ const Manga = {
           src: 'manga/page1.PNG',
           // Each value = cumulative % of image height revealed on that tap
           // Page 1 has 4 row-bands: splash (0→28%), row2 (28→52%), row3 (52→75%), row4 (75→100%)
-          rows: [28, 52, 75, 100]
+          rows: [30, 52, 75, 100]
         },
         {
           src: 'manga/page2.PNG',
           // Page 2: 4 row-bands
-          rows: [22, 46, 70, 100]
+          rows: [25, 46, 60, 72, 100]
         },
         {
           src: 'manga/page3.PNG',
           // Page 3: 4 row-bands
-          rows: [26, 50, 74, 100]
+          rows: [30, 50, 68, 100]
         }
       ]
     }
@@ -2043,7 +2057,7 @@ const Manga = {
   setInterval(() => { State.gems += 1; State.save(); allGems(); }, 60000);
 
   if (location.protocol === 'file:') {
-    console.info('MYTHIKA: Add card images to ./art/<id>.jpg and manga pages to ./manga/page1.PNG, page2.PNG, page3.PNG');
+    console.info('MYTHIKA: Add card images to ./art/<id>.jpg and manga pages to ./manga/page1.jpg, page2.jpg, page3.jpg');
   }
 })();
 </script>
