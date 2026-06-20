@@ -218,7 +218,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .battle-start-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
 
 /* BATTLE ARENA */
-.battle-arena{flex:1;display:flex;flex-direction:column;padding:.75rem 1rem;gap:.65rem;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.battle-arena{flex:1;display:flex;flex-direction:column;padding:1.75rem 1rem .75rem;gap:.85rem;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .arena-label{font-size:.58rem;font-weight:700;letter-spacing:.12em;color:rgba(240,236,223,.3);text-transform:uppercase;display:flex;align-items:center;gap:6px;font-family:var(--fc);}
 .arena-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08);}
 .combatants{display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap;}
@@ -234,6 +234,16 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .combatant.defeated{filter:grayscale(1) brightness(.4);cursor:default;}
 .combatant.targeted{border-color:var(--red);box-shadow:0 0 16px rgba(239,68,68,.45);animation:targetPulse .4s ease infinite alternate;}
 @keyframes targetPulse{from{box-shadow:0 0 8px rgba(239,68,68,.3)}to{box-shadow:0 0 22px rgba(239,68,68,.65)}}
+/* Card has acted this turn — dimmed, not clickable for actions but tooltip still works */
+.combatant.used-turn{opacity:.5;}
+.combatant.used-turn .c-img{filter:grayscale(.6);}
+.used-badge{
+  position:absolute;top:4px;right:4px;z-index:4;
+  background:rgba(8,8,16,.85);border:1px solid rgba(201,168,76,.4);
+  color:var(--gold2);font-size:.42rem;font-family:var(--fm);
+  letter-spacing:.05em;text-transform:uppercase;
+  padding:2px 5px;border-radius:8px;
+}
 /* card image area — contain, no crop */
 .combatant .c-img{
   width:100%;height:100px;overflow:hidden;border-radius:10px 10px 0 0;
@@ -248,26 +258,30 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .c-hpfill.e{background:var(--red);}
 .c-hp-txt{font-size:.48rem;font-family:var(--fm);text-align:center;color:rgba(240,236,223,.5);padding-bottom:5px;}
 
-/* FIX 5: Battle card tooltip popup — shown on tap */
+/* FIX 5: Battle card tooltip popup — shown on tap. Anchored BELOW by default
+   (.below modifier) so it never clips at the top of the viewport; enemy row
+   (closer to top) uses .below, player row (lower) can use the default above
+   anchor since there's room beneath the action bar. JS decides per-row. */
 .c-tooltip{
-  display:none;position:absolute;bottom:calc(100% + 8px);left:50%;
+  display:none;position:absolute;left:50%;
   transform:translateX(-50%);
-  width:200px;
-  background:rgba(14,12,28,.97);border:1px solid rgba(201,168,76,.35);
+  width:210px;max-width:80vw;
+  background:rgba(14,12,28,.98);border:1px solid rgba(201,168,76,.35);
   border-radius:12px;padding:.75rem;z-index:300;
-  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  box-shadow:0 8px 32px rgba(0,0,0,.65);
   animation:ttFadeIn .18s ease;
   pointer-events:none;
+  max-height:70vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
 }
 .c-tooltip.show{display:block;}
-/* Keep tooltip inside viewport on edge combatants */
+/* Default: anchored above the card */
+.c-tooltip{bottom:calc(100% + 8px);}
+/* Below-anchor variant: used when there isn't enough room above */
+.c-tooltip.below{bottom:auto;top:calc(100% + 8px);}
+/* Keep tooltip inside viewport horizontally on edge combatants */
 .combatant:first-child .c-tooltip{left:0;transform:none;}
 .combatant:last-child  .c-tooltip{left:auto;right:0;transform:none;}
-@keyframes ttFadeIn{from{opacity:0;transform:translateX(-50%) translateY(4px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.combatant:first-child .c-tooltip{animation:ttFadeInLeft .18s ease;}
-.combatant:last-child  .c-tooltip{animation:ttFadeInRight .18s ease;}
-@keyframes ttFadeInLeft{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-@keyframes ttFadeInRight{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ttFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .tt-name{font-family:var(--fd);font-size:.72rem;letter-spacing:.08em;color:var(--gold);margin-bottom:2px;}
 .tt-title{font-size:.58rem;color:rgba(240,236,223,.45);font-family:var(--fc);letter-spacing:.05em;margin-bottom:.5rem;}
 .tt-stars{display:flex;gap:2px;margin-bottom:.5rem;}
@@ -300,6 +314,38 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 /* Floating damage number */
 .dmg-float{position:fixed;z-index:999;pointer-events:none;font-family:var(--fd);font-size:1.4rem;font-weight:700;animation:dmgAnim .9s ease forwards;}
 @keyframes dmgAnim{0%{opacity:1;transform:translateY(0) scale(1);}60%{opacity:1;}100%{opacity:0;transform:translateY(-55px) scale(.7);}}
+
+/* FIX 6: Skill picker — lets the user choose which ability a card uses */
+.skill-picker-overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
+  align-items:flex-end;justify-content:center;
+}
+.skill-picker-overlay.show{display:flex;animation:dFadeIn .22s ease;}
+.skill-picker-sheet{
+  background:linear-gradient(to bottom,rgba(18,14,32,.99),rgba(8,8,16,.99));
+  border:1px solid rgba(124,92,252,.3);border-radius:18px 18px 0 0;
+  width:100%;max-width:420px;padding:1rem 1.2rem 1.4rem;
+  animation:dSlideUp .3s cubic-bezier(.32,1,.56,1);
+}
+.sp-handle{width:32px;height:4px;background:rgba(255,255,255,.14);border-radius:2px;margin:0 auto 12px;}
+.sp-title{font-family:var(--fd);font-size:.95rem;letter-spacing:.07em;color:var(--gold);text-align:center;margin-bottom:.85rem;}
+.sp-list{display:flex;flex-direction:column;gap:8px;margin-bottom:.85rem;}
+.sp-option{
+  width:100%;text-align:left;background:rgba(124,92,252,.1);
+  border:1px solid rgba(124,92,252,.3);border-radius:10px;
+  padding:10px 14px;cursor:pointer;transition:all .18s;
+}
+.sp-option:hover,.sp-option:active{background:rgba(124,92,252,.22);border-color:rgba(124,92,252,.55);}
+.sp-an{font-family:var(--fc);font-size:.8rem;font-weight:700;color:#c4b5fd;margin-bottom:3px;}
+.sp-ad{font-size:.72rem;color:rgba(240,236,223,.6);line-height:1.5;}
+.sp-cancel{
+  width:100%;padding:10px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);border-radius:10px;
+  color:rgba(240,236,223,.5);font-family:var(--fc);font-size:.75rem;
+  letter-spacing:.08em;text-transform:uppercase;transition:all .2s;
+}
+.sp-cancel:hover{background:rgba(255,255,255,.1);}
 
 /* ══════════ RESPONSIVE ══════════ */
 @media(min-width:480px){
@@ -987,12 +1033,12 @@ const ROSTER=[
    element:'Arcane',archetype:'Sovereign',stats:{Power:71,Speed:68,Wisdom:99,Fortune:95},
    abilities:[{name:'Nile\'s Blessing',desc:'Floods the field with golden mana — doubles resource gain for 3 turns.'},{name:'Asp of Ra',desc:'Afflicts one enemy: their buffs become debuffs.'}],
    palette:['#d4af37','#1a3a2a','#8b0000'],img:'art/cleopatra.jpg'},
-  {id:'merlin',name:'Merlin',title:'Architect of the Once and Future',rarity:5,origin:'Arthurian Legend · Britain',
+  // ── 4★ HEROES ──
+  {id:'merlin',name:'Merlin',title:'Architect of the Once and Future',rarity:4,origin:'Arthurian Legend · Britain',
    lore:'He lived backwards through time, which is why he always seemed to know what was coming. It wasn\'t prophecy — it was memory. He has already seen how every story ends.',
    element:'Arcane',archetype:'Sage',stats:{Power:70,Speed:55,Wisdom:97,Fortune:76},
    abilities:[{name:'Retrograde Vision',desc:'View and rearrange the bottom 5 cards of your deck freely.'},{name:'Avalon Seal',desc:'Imprisons one enemy card for 2 turns.'}],
    palette:['#1e3a5f','#6b21a8','#d4af37'],img:'art/merlin.jpg'},
-  // ── 4★ HEROES ──
   {id:'loki',name:'Loki',title:'Trickster of Asgard, Father of Monsters',rarity:4,origin:'Norse Mythology',
    lore:'He shape-shifts, lies, schemes, and occasionally saves the day through methods nobody approved of in advance. Every Norse catastrophe has his fingerprints on it. So does every solution.',
    element:'Arcane',archetype:'Trickster',stats:{Power:68,Speed:92,Wisdom:88,Fortune:72},
@@ -1453,7 +1499,7 @@ const Battle={
   _buildFighter(card,isPlayer){
     const bonus=isPlayer?0:card.rarity*3; // enemy HP scaled by rarity
     const hp=Math.round(50+card.stats.Power*0.6+bonus);
-    return{card,hp,maxHp:hp,isPlayer};
+    return{card,hp,maxHp:hp,isPlayer,usedThisTurn:false};
   },
   _enemyDraft(){
     // Draft 3 random cards weighted toward player's rarity level
@@ -1484,8 +1530,16 @@ const Battle={
     // Full render of fighters (only needed at start or after a death)
     this._renderFighters('enemy-fighters',this.eFighters,false);
     this._renderFighters('player-fighters',this.pFighters,true);
-    $('turn-ind').textContent=this.playerTurn?'⚔ Your turn — tap a card then choose action':'⏳ Enemy turn...';
-    $('turn-ind').style.color=this.playerTurn?'rgba(134,239,172,.7)':'rgba(252,165,165,.7)';
+    if(this.playerTurn){
+      const remaining=this.pFighters.filter(f=>f.hp>0&&!f.usedThisTurn).length;
+      $('turn-ind').textContent = remaining>0
+        ? `⚔ Your turn — ${remaining} card${remaining===1?'':'s'} can still act`
+        : '⚔ Your turn';
+      $('turn-ind').style.color='rgba(134,239,172,.7)';
+    }else{
+      $('turn-ind').textContent='⏳ Enemy turn...';
+      $('turn-ind').style.color='rgba(252,165,165,.7)';
+    }
     const btns=$('battle-actions').querySelectorAll('button');
     btns.forEach(b=>b.disabled=!this.playerTurn||!this.inBattle);
   },
@@ -1499,37 +1553,48 @@ const Battle={
     fighters.forEach((f,i)=>{
       const active=(isPlayer&&i===this.activePIdx)||(!isPlayer&&i===this.activeEIdx);
       const div=document.createElement('div');
-      div.className='combatant'+(f.hp<=0?' defeated':'')+(active&&f.hp>0?' active-fighter':'');
+      div.className='combatant'
+        +(f.hp<=0?' defeated':'')
+        +(active&&f.hp>0?' active-fighter':'')
+        +(isPlayer&&f.usedThisTurn?' used-turn':'');
 
       const card=f.card;
       const ttStars=Array.from({length:5},(_,j)=>{
         const c={1:'#9ba8b5',2:'#4cc9f0',3:'#c9a84c',4:'#c77dff',5:'#ff6b6b'}[card.rarity];
         return `<span class="rstar" style="color:${j<card.rarity?c:'rgba(255,255,255,.15)'}">${j<card.rarity?'★':'☆'}</span>`;
       }).join('');
-      const ab=card.abilities?.[0];
+      // FIX 4: show ALL abilities, not just the first one
+      const abilitiesHTML=(card.abilities||[]).map(a=>
+        `<div class="tt-ability"><div class="tan">${a.name}</div><div class="tad">${a.desc}</div></div>`
+      ).join('');
+
+      // FIX 3: enemy row tooltips anchor BELOW the card (since enemy row sits
+      // near the top of the now-lower-padded arena, there's more room below
+      // than above). Player row tooltips keep the default above-anchor.
+      const tooltipBelowClass = isPlayer ? '' : ' below';
 
       div.innerHTML=`
-        <div class="c-tooltip" id="tt-${containerId}-${i}">
+        <div class="c-tooltip${tooltipBelowClass}" id="tt-${containerId}-${i}">
           <div class="tt-name">${card.name}</div>
           <div class="tt-title">${card.title}</div>
           <div class="tt-stars">${ttStars}</div>
           <div class="tt-stats">
             ${Object.entries(card.stats||{}).map(([k,v])=>`<div class="tt-stat"><div class="tsv">${v}</div><div class="tsk">${k}</div></div>`).join('')}
           </div>
-          ${ab?`<div class="tt-ability"><div class="tan">${ab.name}</div><div class="tad">${ab.desc}</div></div>`:''}
+          ${abilitiesHTML}
         </div>
         <div class="c-img">${Art.html(card,'108px','100px')}</div>
         <div class="c-name">${card.name}</div>
+        ${isPlayer&&f.usedThisTurn?'<div class="used-badge">Acted</div>':''}
         <div class="c-hpbar"><div class="c-hpfill ${isPlayer?'p':'e'}" id="hpf-${containerId}-${i}" style="width:${Math.max(0,f.hp/f.maxHp*100)}%"></div></div>
         <div class="c-hp-txt" id="hptxt-${containerId}-${i}">${Math.max(0,f.hp)}/${f.maxHp}</div>`;
 
       if(f.hp>0){
         div.addEventListener('click', e=>{
           e.stopPropagation();
-          // If player card, also set as active fighter
+          // If player card, also set as active fighter (even if already used — view-only)
           if(isPlayer){
             this.activePIdx=i;
-            // Update active-fighter highlight without full re-render
             document.querySelectorAll('#player-fighters .combatant').forEach((el,idx)=>{
               el.classList.toggle('active-fighter', idx===i);
             });
@@ -1597,16 +1662,35 @@ const Battle={
     }
   },
 
+  // Returns true if every alive player fighter has acted this turn
+  _allPlayerActed(){
+    return this.pFighters.every(f=>f.hp<=0||f.usedThisTurn);
+  },
+
+  // Advance activePIdx to the next alive, not-yet-acted card (if any)
+  _focusNextAvailable(){
+    const idx=this.pFighters.findIndex(f=>f.hp>0&&!f.usedThisTurn);
+    if(idx>=0){
+      this.activePIdx=idx;
+      document.querySelectorAll('#player-fighters .combatant').forEach((el,i)=>{
+        el.classList.toggle('active-fighter', i===idx);
+      });
+    }
+  },
+
   playerAttack(){
     if(!this.playerTurn||!this.inBattle)return;
     this._dismissAllTooltips();
     const pf=this.pFighters[this.activePIdx];
+    if(!pf||pf.hp<=0){this._log('Select a living card first.','sys');return;}
+    if(pf.usedThisTurn){this._log(`${pf.card.name} has already acted this turn.`,'sys');return;}
     const ei=this._nextAlive(this.eFighters,this.activeEIdx);
-    if(ei<0||pf.hp<=0)return;
+    if(ei<0)return;
     const ef=this.eFighters[ei];this.activeEIdx=ei;
     const dmg=this._calcDmg(pf.card,ef.card);
     this._dealDmg(ef,dmg,'enemy-fighters',ei);
     this._log(`${pf.card.name} attacks ${ef.card.name} for ${dmg} damage!`,'player');
+    pf.usedThisTurn=true;
     this._refreshHP();
     if(ef.hp<=0){
       this._log(`${ef.card.name} is defeated!`,'player');
@@ -1614,23 +1698,83 @@ const Battle={
       const ni=this._nextAlive(this.eFighters,ei+1);this.activeEIdx=ni>=0?ni:0;
       if(this._checkWin())return;
       this._renderArena(); // re-render on death
-      return;
+      this._focusNextAvailable();
+    }else{
+      if(this._checkWin())return;
+      this._renderArena(); // refresh used-state styling/badges
+      this._focusNextAvailable();
     }
-    if(this._checkWin())return;
-    this._doEnemyTurn();
+    // Only proceed to enemy turn once every living card has acted
+    if(this._allPlayerActed()) this._finishPlayerTurn();
   },
 
+  // FIX 6: opens a small chooser so the user picks which of the card's
+  // abilities to use, instead of always firing abilities[0] automatically.
   playerSkill(){
     if(!this.playerTurn||!this.inBattle)return;
     this._dismissAllTooltips();
     const pf=this.pFighters[this.activePIdx];
-    const ab=pf.card.abilities[0];
+    if(!pf||pf.hp<=0){this._log('Select a living card first.','sys');return;}
+    if(pf.usedThisTurn){this._log(`${pf.card.name} has already acted this turn.`,'sys');return;}
+    const abilities=pf.card.abilities||[];
+    if(!abilities.length)return;
+    if(abilities.length===1){
+      this._executeSkill(pf,abilities[0]);
+      return;
+    }
+    this._openSkillPicker(pf,abilities);
+  },
+
+  _openSkillPicker(pf,abilities){
+    let modal=$('skill-picker');
+    if(!modal){
+      modal=document.createElement('div');
+      modal.id='skill-picker';
+      modal.className='skill-picker-overlay';
+      document.body.appendChild(modal);
+    }
+    modal.innerHTML=`
+      <div class="skill-picker-sheet">
+        <div class="sp-handle"></div>
+        <div class="sp-title">${pf.card.name} — Choose a Skill</div>
+        <div class="sp-list">
+          ${abilities.map((a,idx)=>`
+            <button class="sp-option" data-idx="${idx}">
+              <div class="sp-an">${a.name}</div>
+              <div class="sp-ad">${a.desc}</div>
+            </button>
+          `).join('')}
+        </div>
+        <button class="sp-cancel">Cancel</button>
+      </div>`;
+    modal.classList.add('show');
+    modal.querySelectorAll('.sp-option').forEach(btn=>{
+      btn.onclick=(e)=>{
+        e.stopPropagation();
+        const idx=+btn.dataset.idx;
+        modal.classList.remove('show');
+        this._executeSkill(pf,abilities[idx]);
+      };
+    });
+    modal.querySelector('.sp-cancel').onclick=(e)=>{
+      e.stopPropagation();
+      modal.classList.remove('show');
+    };
+    modal.onclick=(e)=>{ if(e.target===modal) modal.classList.remove('show'); };
+  },
+
+  _executeSkill(pf,ab){
     const effect=ab.desc.toLowerCase();
     let msg='';
-    if(effect.includes('heal')||effect.includes('hp')){
+    if(effect.includes('heal')||effect.includes('hp')&&(effect.includes('restor')||effect.includes('regain')||effect.includes('heal'))){
       const heal=Math.round(pf.card.stats.Wisdom*0.3+10);
-      pf.hp=Math.min(pf.maxHp,pf.hp+heal);msg=`${pf.card.name} uses ${ab.name} — healed ${heal} HP!`;
+      pf.hp=Math.min(pf.maxHp,pf.hp+heal);
+      msg=`${pf.card.name} uses ${ab.name} — healed ${heal} HP!`;
+      pf.usedThisTurn=true;
       this._refreshHP();
+      this._log(msg,'player');
+      this._renderArena();
+      this._focusNextAvailable();
     }else{
       const ei=this._nextAlive(this.eFighters,this.activeEIdx);
       if(ei<0)return;
@@ -1638,24 +1782,34 @@ const Battle={
       const dmg=Math.round(pf.card.stats.Power*0.65+pf.card.stats.Wisdom*0.15);
       this._dealDmg(ef,dmg,'enemy-fighters',ei);
       msg=`${pf.card.name} uses ${ab.name} — deals ${dmg} damage!`;
+      pf.usedThisTurn=true;
       this._refreshHP();
+      this._log(msg,'player');
       if(ef.hp<=0){
         this._log(`${ef.card.name} is defeated!`,'player');
         burst(...(()=>{const r=document.querySelector('#enemy-fighters .combatant:nth-child('+(ei+1)+')')?.getBoundingClientRect();return r?[r.left+r.width/2,r.top+r.height/2,ef.card.rarity]:[200,200,3];})());
         if(this._checkWin())return;
-        this._renderArena();
-        return;
       }
+      if(this._checkWin())return;
+      this._renderArena();
+      this._focusNextAvailable();
     }
-    this._log(msg,'player');
     if(this._checkWin())return;
-    this._doEnemyTurn();
+    if(this._allPlayerActed()) this._finishPlayerTurn();
   },
 
+  // FIX 5: this is now only triggered automatically once every alive player
+  // card has acted, OR manually via the End Turn button (which forfeits
+  // remaining unused cards for the round).
   endPlayerTurn(){
     if(!this.playerTurn||!this.inBattle)return;
     this._dismissAllTooltips();
     this._log('You end your turn.','player');
+    this._finishPlayerTurn();
+  },
+
+  _finishPlayerTurn(){
+    this._dismissAllTooltips();
     this._doEnemyTurn();
   },
 
@@ -1686,7 +1840,11 @@ const Battle={
       if(this._checkWin())return;
       await sleep(550);
     }
+    // New round: reset every living player card's used-this-turn flag
+    this.pFighters.forEach(f=>{ if(f.hp>0) f.usedThisTurn=false; });
     this.playerTurn=true;
+    this._focusNextAvailable();
+    this._renderArena();
     $('turn-ind').textContent='⚔ Your turn — tap a card then choose action';
     $('turn-ind').style.color='rgba(134,239,172,.7)';
     btns.forEach(b=>b.disabled=false);
@@ -1729,22 +1887,22 @@ const Landing = {
     // Sequence: sigil fades in → slow pulse starts → Welcome emerges → title → tagline → buttons
     // Sigil appears at 0.5s, starts pulsing at 2.7s
     const sigil = $('landing-sigil');
-    setTimeout(() => sigil.classList.add('slow-pulse'), 2700);
+    setTimeout(() => sigil.classList.add('slow-pulse'), 1400);
 
-    // After ~2 full slow pulses (~10s total), reveal text sequence
-    const PULSE_DELAY = 10200; // ms until welcome emerges
+    // After ~1.3 pulses, reveal text sequence (shortened overall intro)
+    const PULSE_DELAY = 5200; // ms until welcome emerges
     setTimeout(() => {
       $('landing-welcome').classList.add('emerge');
     }, PULSE_DELAY);
     setTimeout(() => {
       $('landing-title').classList.add('emerge');
-    }, PULSE_DELAY + 2000);
+    }, PULSE_DELAY + 1500);
     setTimeout(() => {
       $('landing-tagline').classList.add('emerge');
-    }, PULSE_DELAY + 3100);
+    }, PULSE_DELAY + 2400);
     setTimeout(() => {
       $('landing-btns').classList.add('emerge');
-    }, PULSE_DELAY + 3900);
+    }, PULSE_DELAY + 3000);
   },
 
   read() {
@@ -1877,18 +2035,14 @@ const Manga = {
       pages: [
         {
           src: 'manga/page1.PNG',
-          // Each value = cumulative % of image height revealed on that tap
-          // Page 1 has 4 row-bands: splash (0→28%), row2 (28→52%), row3 (52→75%), row4 (75→100%)
           rows: [32, 52, 74, 100]
         },
         {
           src: 'manga/page2.PNG',
-          // Page 2: 4 row-bands
           rows: [27, 46, 62, 80, 100]
         },
         {
           src: 'manga/page3.PNG',
-          // Page 3: 4 row-bands
           rows: [33, 52, 68, 100]
         }
       ]
@@ -1934,18 +2088,24 @@ const Manga = {
     const mask = $('manga-reveal-mask');
     const wrap = $('manga-page-wrap');
 
-    img.src = page.src;
+    img.style.transition = 'none';
     img.style.transform = 'translateY(0)';
 
-    // Reset mask to full cover (nothing visible)
+    // Reset mask to full cover (nothing visible) — in px to match advance()
     mask.style.transition = 'none';
-    mask.style.height = '100%';
-    mask.style.top = '0';
+    mask.style.top = '0px';
+    mask.style.height = wrap.offsetHeight + 'px';
 
     // Update progress dots
     document.querySelectorAll('.mpd').forEach((d, i) => d.classList.toggle('active', i === pageIdx));
 
     this.currentRow = -1;
+    this._imgReady = false;
+
+    img.onload = () => { this._imgReady = true; };
+    img.src = page.src;
+    // If cached, onload may not refire — check directly
+    if (img.complete && img.naturalWidth) this._imgReady = true;
   },
 
   advance() {
@@ -1954,6 +2114,14 @@ const Manga = {
     // If arc select or end screen is open, ignore taps
     if ($('manga-arc-select').classList.contains('show')) return;
     if ($('manga-end').classList.contains('show')) return;
+
+    const img = $('manga-page-img');
+    // If the image hasn't finished loading yet (natural dimensions unknown),
+    // defer this advance briefly rather than computing with wrong ratios.
+    if (!this._imgReady && !(img.complete && img.naturalWidth)) {
+      setTimeout(() => this.advance(), 80);
+      return;
+    }
 
     const arc = this.ARCS[this.currentArc];
     const page = arc.pages[this.currentPage];
@@ -1967,26 +2135,42 @@ const Manga = {
       const img = $('manga-page-img');
       const wrap = $('manga-page-wrap');
 
-      // The mask covers everything BELOW the revealed portion
-      // We reveal from top: mask sits at bottom of revealed area
-      mask.style.transition = 'top .65s cubic-bezier(.4,0,.2,1)';
-      mask.style.top = pct + '%';
-      mask.style.height = (100 - pct) + '%';
+      // ── PIXEL-ACCURATE REVEAL ──
+      // The image is full-width inside the wrap; its rendered height depends
+      // on the wrap's width and the image's natural aspect ratio — this is
+      // NOT the same as the wrap's own height (which varies a lot between
+      // mobile portrait and desktop landscape viewports). We must compute
+      // everything relative to the image's actual rendered height in px,
+      // not as a % of the wrap container, or rows misalign on desktop.
+      const wrapW = wrap.offsetWidth;
+      const wrapH = wrap.offsetHeight;
+      const naturalRatio = (img.naturalHeight && img.naturalWidth)
+        ? img.naturalHeight / img.naturalWidth
+        : 1.5; // sane fallback before image loads
+      const imgRenderedH = wrapW * naturalRatio; // actual full image height in px at current width
 
-      // If we're revealing a lower row, scroll the image up so the new row is visible
-      // We shift the image up to keep the new row centred in the viewport
-      if (nextRow > 0) {
-        const prevPct = page.rows[nextRow - 1];
-        // Scroll so the new row band is at the top of the viewport
-        const scrollFrac = prevPct / 100;
-        img.style.transition = 'transform .65s cubic-bezier(.4,0,.2,1)';
-        // We need to know the rendered image height vs container height
-        const wrapH = wrap.offsetHeight;
-        const imgH = img.offsetHeight || (img.naturalHeight * wrap.offsetWidth / img.naturalWidth);
-        const maxScroll = Math.max(0, imgH - wrapH);
-        const scrollY = -(scrollFrac * imgH);
-        img.style.transform = `translateY(${Math.max(scrollY, -maxScroll)}px)`;
-      }
+      // Pixel offset within the image where this row band ends
+      const revealEndPx = (pct / 100) * imgRenderedH;
+
+      // We scroll the image up so revealEndPx aligns with the bottom edge
+      // of the visible wrap (or as close as possible without overscrolling).
+      const maxScroll = Math.max(0, imgRenderedH - wrapH);
+      const desiredScroll = Math.max(0, revealEndPx - wrapH);
+      const scrollY = -Math.min(desiredScroll, maxScroll);
+
+      img.style.transition = 'transform .65s cubic-bezier(.4,0,.2,1)';
+      img.style.transform = `translateY(${scrollY}px)`;
+
+      // The mask hides everything below the revealed row, measured in
+      // image-pixel-space then converted back to wrap-relative px.
+      // Visible image top (in wrap space) = scrollY (already applied via transform)
+      // The reveal boundary in wrap space:
+      const revealBoundaryInWrap = revealEndPx + scrollY; // px from top of wrap
+      const maskTopPx = Math.max(0, Math.min(wrapH, revealBoundaryInWrap));
+
+      mask.style.transition = 'top .65s cubic-bezier(.4,0,.2,1), height .65s cubic-bezier(.4,0,.2,1)';
+      mask.style.top = maskTopPx + 'px';
+      mask.style.height = (wrapH - maskTopPx) + 'px';
 
       this.currentRow = nextRow;
 
@@ -2040,6 +2224,37 @@ const Manga = {
 
   hideArcSelect() {
     $('manga-arc-select').classList.remove('show');
+  },
+
+  // Re-snap the current row's reveal position after a viewport resize
+  // (desktop window resize / orientation change) so it stays accurate.
+  _resnap() {
+    if (!$('screen-manga').classList.contains('active')) return;
+    if (this.currentRow < 0) return;
+    const arc = this.ARCS[this.currentArc];
+    const page = arc.pages[this.currentPage];
+    const img = $('manga-page-img');
+    const mask = $('manga-reveal-mask');
+    const wrap = $('manga-page-wrap');
+    if (!(img.complete && img.naturalWidth)) return;
+
+    const wrapW = wrap.offsetWidth;
+    const wrapH = wrap.offsetHeight;
+    const naturalRatio = img.naturalHeight / img.naturalWidth;
+    const imgRenderedH = wrapW * naturalRatio;
+    const pct = page.rows[this.currentRow];
+    const revealEndPx = (pct / 100) * imgRenderedH;
+    const maxScroll = Math.max(0, imgRenderedH - wrapH);
+    const desiredScroll = Math.max(0, revealEndPx - wrapH);
+    const scrollY = -Math.min(desiredScroll, maxScroll);
+
+    img.style.transition = 'none';
+    img.style.transform = `translateY(${scrollY}px)`;
+    const revealBoundaryInWrap = revealEndPx + scrollY;
+    const maskTopPx = Math.max(0, Math.min(wrapH, revealBoundaryInWrap));
+    mask.style.transition = 'none';
+    mask.style.top = maskTopPx + 'px';
+    mask.style.height = (wrapH - maskTopPx) + 'px';
   }
 };
 
@@ -2060,6 +2275,13 @@ const Manga = {
 
   // 1 gem per minute while playing
   setInterval(() => { State.gems += 1; State.save(); allGems(); }, 60000);
+
+  // Re-align manga reveal mask on resize/orientation change (debounced)
+  let _resizeTO;
+  window.addEventListener('resize', () => {
+    clearTimeout(_resizeTO);
+    _resizeTO = setTimeout(() => { if (typeof Manga !== 'undefined') Manga._resnap(); }, 120);
+  });
 
   if (location.protocol === 'file:') {
     console.info('MYTHIKA: Add card images to ./art/<id>.jpg and manga pages to ./manga/page1.jpg, page2.jpg, page3.jpg');
