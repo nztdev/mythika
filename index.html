@@ -189,8 +189,14 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .det-battle-btn:hover{background:rgba(239,68,68,.24);}
 
 /* ══════════ BATTLE ══════════ */
-#screen-battle{background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(239,68,68,.1) 0%,transparent 65%),var(--ink);}
-.battle-select{flex:1;display:flex;flex-direction:column;padding:1rem 1.1rem;gap:.75rem;}
+#screen-battle{
+  background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(239,68,68,.1) 0%,transparent 65%),var(--ink);
+  height:100vh;max-height:100vh;overflow:hidden;
+}
+/* Battle select phase scrolls internally if the pick-grid is tall */
+#battle-select{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:1rem 1.1rem;gap:.75rem;}
+/* Arena phase wrapper: fills remaining height, action bar stays pinned at bottom */
+#battle-arena-wrap{flex:1;min-height:0;display:flex;flex-direction:column;}
 .battle-select h2{font-family:var(--fd);font-size:1rem;letter-spacing:.1em;color:var(--gold);text-align:center;}
 .battle-select p{font-size:.72rem;color:rgba(240,236,223,.45);text-align:center;font-family:var(--fc);}
 .squad-slots{display:flex;gap:.65rem;justify-content:center;margin:.25rem 0;}
@@ -258,30 +264,27 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .c-hpfill.e{background:var(--red);}
 .c-hp-txt{font-size:.48rem;font-family:var(--fm);text-align:center;color:rgba(240,236,223,.5);padding-bottom:5px;}
 
-/* FIX 5: Battle card tooltip popup — shown on tap. Anchored BELOW by default
-   (.below modifier) so it never clips at the top of the viewport; enemy row
-   (closer to top) uses .below, player row (lower) can use the default above
-   anchor since there's room beneath the action bar. JS decides per-row. */
-.c-tooltip{
-  display:none;position:absolute;left:50%;
-  transform:translateX(-50%);
-  width:210px;max-width:80vw;
-  background:rgba(14,12,28,.98);border:1px solid rgba(201,168,76,.35);
-  border-radius:12px;padding:.75rem;z-index:300;
-  box-shadow:0 8px 32px rgba(0,0,0,.65);
-  animation:ttFadeIn .18s ease;
-  pointer-events:none;
-  max-height:70vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+/* FIX: card preview is now a fixed, centred overlay (like the Dex detail
+   sheet) instead of being absolutely positioned relative to the tapped
+   card. The old approach broke whenever two fighter rows sat close
+   together — the popup had nowhere safe to render and got covered by
+   the neighbouring row. A centred overlay can never be obscured. */
+.c-tooltip-overlay{
+  display:none;position:fixed;inset:0;z-index:400;
+  background:rgba(0,0,0,.78);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;padding:1.25rem;
 }
-.c-tooltip.show{display:block;}
-/* Default: anchored above the card */
-.c-tooltip{bottom:calc(100% + 8px);}
-/* Below-anchor variant: used when there isn't enough room above */
-.c-tooltip.below{bottom:auto;top:calc(100% + 8px);}
-/* Keep tooltip inside viewport horizontally on edge combatants */
-.combatant:first-child .c-tooltip{left:0;transform:none;}
-.combatant:last-child  .c-tooltip{left:auto;right:0;transform:none;}
-@keyframes ttFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.c-tooltip-overlay.show{display:flex;animation:ttOverlayFade .18s ease;}
+@keyframes ttOverlayFade{from{opacity:0}to{opacity:1}}
+.c-tooltip{
+  width:100%;max-width:280px;
+  background:rgba(14,12,28,.98);border:1px solid rgba(201,168,76,.4);
+  border-radius:16px;padding:1rem;
+  box-shadow:0 16px 50px rgba(0,0,0,.7);
+  max-height:80vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  animation:ttPop .22s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes ttPop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
 .tt-name{font-family:var(--fd);font-size:.72rem;letter-spacing:.08em;color:var(--gold);margin-bottom:2px;}
 .tt-title{font-size:.58rem;color:rgba(240,236,223,.45);font-family:var(--fc);letter-spacing:.05em;margin-bottom:.5rem;}
 .tt-stars{display:flex;gap:2px;margin-bottom:.5rem;}
@@ -953,7 +956,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
     <button class="battle-start-btn" id="battle-start-btn" onclick="Battle.start()" disabled>⚔ Begin Battle</button>
   </div>
   <!-- Arena phase -->
-  <div id="battle-arena" style="display:none;flex-direction:column;height:100%;">
+  <div id="battle-arena-wrap" style="display:none;">
     <div class="battle-arena">
       <div class="arena-label">Enemy</div>
       <div class="combatants" id="enemy-fighters"></div>
@@ -969,6 +972,11 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
       <button class="btn btn-retreat" onclick="Battle.retreat()">✕ Retreat</button>
     </div>
   </div>
+</div>
+
+<!-- Battle fighter preview overlay (single shared instance) -->
+<div class="c-tooltip-overlay" id="c-tooltip-overlay" onclick="if(event.target===this)Battle._dismissAllTooltips()">
+  <div class="c-tooltip" id="c-tooltip-content"></div>
 </div>
 
 <!-- Detail sheet -->
@@ -1033,12 +1041,12 @@ const ROSTER=[
    element:'Arcane',archetype:'Sovereign',stats:{Power:71,Speed:68,Wisdom:99,Fortune:95},
    abilities:[{name:'Nile\'s Blessing',desc:'Floods the field with golden mana — doubles resource gain for 3 turns.'},{name:'Asp of Ra',desc:'Afflicts one enemy: their buffs become debuffs.'}],
    palette:['#d4af37','#1a3a2a','#8b0000'],img:'art/cleopatra.jpg'},
-  // ── 4★ HEROES ──
-  {id:'merlin',name:'Merlin',title:'Architect of the Once and Future',rarity:4,origin:'Arthurian Legend · Britain',
+  {id:'merlin',name:'Merlin',title:'Architect of the Once and Future',rarity:5,origin:'Arthurian Legend · Britain',
    lore:'He lived backwards through time, which is why he always seemed to know what was coming. It wasn\'t prophecy — it was memory. He has already seen how every story ends.',
    element:'Arcane',archetype:'Sage',stats:{Power:70,Speed:55,Wisdom:97,Fortune:76},
    abilities:[{name:'Retrograde Vision',desc:'View and rearrange the bottom 5 cards of your deck freely.'},{name:'Avalon Seal',desc:'Imprisons one enemy card for 2 turns.'}],
    palette:['#1e3a5f','#6b21a8','#d4af37'],img:'art/merlin.jpg'},
+  // ── 4★ HEROES ──
   {id:'loki',name:'Loki',title:'Trickster of Asgard, Father of Monsters',rarity:4,origin:'Norse Mythology',
    lore:'He shape-shifts, lies, schemes, and occasionally saves the day through methods nobody approved of in advance. Every Norse catastrophe has his fingerprints on it. So does every solution.',
    element:'Arcane',archetype:'Trickster',stats:{Power:68,Speed:92,Wisdom:88,Fortune:72},
@@ -1463,7 +1471,7 @@ const Battle={
       grid.appendChild(div);
     });
     $('battle-select').style.display='flex';
-    $('battle-arena').style.display='none';
+    $('battle-arena-wrap').style.display='none';
     this._updateStartBtn();
   },
   _selectCard(card){
@@ -1517,9 +1525,7 @@ const Battle={
     this.eFighters=this.enemySquad.map(c=>this._buildFighter(c,false));
     this.activePIdx=0;this.activeEIdx=0;this.playerTurn=true;this.inBattle=true;
     $('battle-select').style.display='none';
-    $('battle-arena').style.display='flex';
-    $('battle-arena').style.flexDirection='column';
-    $('battle-arena').style.height='100%';
+    $('battle-arena-wrap').style.display='flex';
     $('battle-log').innerHTML='';
     this._log('Battle begins!','sys');
     this._log(`Your squad: ${squad.map(c=>c.name).join(', ')}`, 'sys');
@@ -1559,30 +1565,8 @@ const Battle={
         +(isPlayer&&f.usedThisTurn?' used-turn':'');
 
       const card=f.card;
-      const ttStars=Array.from({length:5},(_,j)=>{
-        const c={1:'#9ba8b5',2:'#4cc9f0',3:'#c9a84c',4:'#c77dff',5:'#ff6b6b'}[card.rarity];
-        return `<span class="rstar" style="color:${j<card.rarity?c:'rgba(255,255,255,.15)'}">${j<card.rarity?'★':'☆'}</span>`;
-      }).join('');
-      // FIX 4: show ALL abilities, not just the first one
-      const abilitiesHTML=(card.abilities||[]).map(a=>
-        `<div class="tt-ability"><div class="tan">${a.name}</div><div class="tad">${a.desc}</div></div>`
-      ).join('');
-
-      // FIX 3: enemy row tooltips anchor BELOW the card (since enemy row sits
-      // near the top of the now-lower-padded arena, there's more room below
-      // than above). Player row tooltips keep the default above-anchor.
-      const tooltipBelowClass = isPlayer ? '' : ' below';
 
       div.innerHTML=`
-        <div class="c-tooltip${tooltipBelowClass}" id="tt-${containerId}-${i}">
-          <div class="tt-name">${card.name}</div>
-          <div class="tt-title">${card.title}</div>
-          <div class="tt-stars">${ttStars}</div>
-          <div class="tt-stats">
-            ${Object.entries(card.stats||{}).map(([k,v])=>`<div class="tt-stat"><div class="tsv">${v}</div><div class="tsk">${k}</div></div>`).join('')}
-          </div>
-          ${abilitiesHTML}
-        </div>
         <div class="c-img">${Art.html(card,'108px','100px')}</div>
         <div class="c-name">${card.name}</div>
         ${isPlayer&&f.usedThisTurn?'<div class="used-badge">Acted</div>':''}
@@ -1599,15 +1583,32 @@ const Battle={
               el.classList.toggle('active-fighter', idx===i);
             });
           }
-          // Toggle this tooltip; dismiss all others
-          const tt=div.querySelector('.c-tooltip');
-          const wasShown=tt.classList.contains('show');
-          this._dismissAllTooltips();
-          if(!wasShown) tt.classList.add('show');
+          this._showFighterPreview(card);
         });
       }
       el.appendChild(div);
     });
+  },
+  // Card preview is rendered into the single shared, centred overlay —
+  // this guarantees it is never overlapped or clipped by neighbouring
+  // fighter rows, regardless of where on screen the tapped card sits.
+  _showFighterPreview(card){
+    const ttStars=Array.from({length:5},(_,j)=>{
+      const c={1:'#9ba8b5',2:'#4cc9f0',3:'#c9a84c',4:'#c77dff',5:'#ff6b6b'}[card.rarity];
+      return `<span class="rstar" style="color:${j<card.rarity?c:'rgba(255,255,255,.15)'}">${j<card.rarity?'★':'☆'}</span>`;
+    }).join('');
+    const abilitiesHTML=(card.abilities||[]).map(a=>
+      `<div class="tt-ability"><div class="tan">${a.name}</div><div class="tad">${a.desc}</div></div>`
+    ).join('');
+    $('c-tooltip-content').innerHTML=`
+      <div class="tt-name">${card.name}</div>
+      <div class="tt-title">${card.title}</div>
+      <div class="tt-stars">${ttStars}</div>
+      <div class="tt-stats">
+        ${Object.entries(card.stats||{}).map(([k,v])=>`<div class="tt-stat"><div class="tsv">${v}</div><div class="tsk">${k}</div></div>`).join('')}
+      </div>
+      ${abilitiesHTML}`;
+    $('c-tooltip-overlay').classList.add('show');
   },
   _updateFighterHP(containerId,i,f){
     const bar=$(`hpf-${containerId}-${i}`);
@@ -1621,7 +1622,8 @@ const Battle={
     }
   },
   _dismissAllTooltips(){
-    document.querySelectorAll('.c-tooltip').forEach(t=>t.classList.remove('show'));
+    const ov=$('c-tooltip-overlay');
+    if(ov)ov.classList.remove('show');
   },
   _log(msg,type){
     const el=$('battle-log');
@@ -1854,7 +1856,7 @@ const Battle={
   retreat(){
     if(!confirm('Retreat from battle?'))return;
     this.inBattle=false;
-    $('battle-arena').style.display='none';
+    $('battle-arena-wrap').style.display='none';
     this.initSelect();
   }
 };
