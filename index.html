@@ -223,6 +223,74 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .battle-start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 36px rgba(239,68,68,.5);}
 .battle-start-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
 
+/* ══════════ MODE SELECT ══════════ */
+#mode-select{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem 1.25rem;gap:1.25rem;}
+#mode-select h2{font-family:var(--fd);font-size:1.05rem;letter-spacing:.1em;color:var(--gold);text-align:center;}
+#mode-select p{font-size:.72rem;color:rgba(240,236,223,.4);text-align:center;font-family:var(--fc);max-width:280px;}
+.mode-cards{display:flex;flex-direction:column;gap:.85rem;width:100%;max-width:340px;}
+.mode-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:1.1rem 1.25rem;cursor:pointer;transition:all .22s;display:flex;align-items:center;gap:1rem;}
+.mode-card:hover{border-color:rgba(201,168,76,.45);background:rgba(201,168,76,.06);transform:translateY(-2px);}
+.mode-card.campaign-card{border-color:rgba(124,92,252,.25);}
+.mode-card.campaign-card:hover{border-color:rgba(124,92,252,.6);background:rgba(124,92,252,.07);}
+.mode-icon{font-size:2rem;flex-shrink:0;width:48px;text-align:center;}
+.mode-name{font-family:var(--fd);font-size:.88rem;letter-spacing:.08em;color:var(--paper);margin-bottom:3px;}
+.mode-desc{font-size:.65rem;color:rgba(240,236,223,.45);font-family:var(--fc);line-height:1.5;}
+.mode-badge{display:inline-block;font-size:.54rem;font-family:var(--fm);letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:20px;margin-top:5px;}
+.mode-badge.death{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3);}
+.mode-badge.campaign{background:rgba(124,92,252,.15);color:#c4b5fd;border:1px solid rgba(124,92,252,.3);}
+
+/* ══════════ HOW-TO OVERLAY ══════════ */
+.howto-overlay{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.92);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:1.5rem;}
+.howto-overlay.show{display:flex;animation:dFadeIn .25s ease;}
+.howto-box{background:linear-gradient(160deg,rgba(18,14,32,.99),rgba(8,8,16,.99));border:1px solid rgba(201,168,76,.22);border-radius:18px;width:100%;max-width:360px;overflow:hidden;animation:dSlideUp .3s cubic-bezier(.32,1,.56,1);}
+.howto-slides{display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1);}
+.howto-slide{min-width:100%;padding:1.75rem 1.5rem 1.25rem;display:flex;flex-direction:column;gap:.75rem;text-align:center;}
+.howto-icon{font-size:2.4rem;}
+.howto-title{font-family:var(--fd);font-size:1rem;letter-spacing:.09em;color:var(--gold);}
+.howto-body{font-size:.78rem;line-height:1.82;color:rgba(240,236,223,.72);font-family:var(--fc);}
+.howto-body strong{color:var(--gold2);font-weight:600;}
+.howto-footer{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.25rem 1.1rem;border-top:1px solid rgba(255,255,255,.07);}
+.howto-dots{display:flex;gap:5px;}
+.howto-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.18);transition:background .2s;}
+.howto-dot.active{background:var(--gold);}
+.howto-skip{font-size:.65rem;font-family:var(--fc);letter-spacing:.07em;color:rgba(240,236,223,.35);padding:6px 10px;}
+.howto-skip:hover{color:rgba(240,236,223,.7);}
+.howto-next{background:linear-gradient(135deg,#b8932e,#e8c96a);color:var(--ink);font-family:var(--fd);font-size:.75rem;letter-spacing:.1em;padding:9px 20px;border-radius:var(--r5);}
+.howto-next:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(201,168,76,.35);}
+
+/* ══════════ CAMPAIGN ══════════ */
+#campaign-level-select{flex:1;display:flex;flex-direction:column;padding:1rem 1.1rem;gap:.75rem;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+#campaign-level-select h2{font-family:var(--fd);font-size:1rem;letter-spacing:.1em;color:#c4b5fd;text-align:center;}
+.level-list{display:flex;flex-direction:column;gap:.6rem;}
+.level-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:.85rem 1rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.85rem;}
+.level-item:hover{border-color:rgba(124,92,252,.5);background:rgba(124,92,252,.07);transform:translateX(3px);}
+.level-item.locked-level{opacity:.35;cursor:default;pointer-events:none;}
+.lv-num{font-family:var(--fd);font-size:1.4rem;color:#c4b5fd;width:36px;text-align:center;flex-shrink:0;}
+.lv-name{font-family:var(--fd);font-size:.8rem;letter-spacing:.07em;color:var(--paper);margin-bottom:2px;}
+.lv-detail{font-size:.62rem;color:rgba(240,236,223,.4);font-family:var(--fc);}
+.lv-badge{margin-left:auto;font-size:.56rem;font-family:var(--fm);padding:3px 9px;border-radius:20px;background:rgba(124,92,252,.15);color:#c4b5fd;border:1px solid rgba(124,92,252,.25);flex-shrink:0;}
+#campaign-select{flex:1;display:flex;flex-direction:column;padding:.85rem 1.1rem;gap:.65rem;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.csq-label{font-size:.58rem;font-weight:700;letter-spacing:.12em;color:rgba(240,236,223,.3);text-transform:uppercase;font-family:var(--fc);}
+.csq-slots{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;}
+.campaign-progress-bar{display:flex;align-items:center;gap:.5rem;padding:.4rem 1rem;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(124,92,252,.15);flex-shrink:0;}
+.cp-label{font-size:.6rem;font-family:var(--fc);letter-spacing:.08em;color:rgba(196,181,253,.5);}
+.cp-pips{display:flex;gap:4px;}
+.cp-pip{width:18px;height:4px;border-radius:2px;background:rgba(255,255,255,.12);transition:background .3s;}
+.cp-pip.done{background:#c4b5fd;} .cp-pip.current{background:var(--gold);animation:fp .8s ease-in-out infinite;}
+.bench-zone{padding:.5rem .75rem .35rem;border-top:1px dashed rgba(124,92,252,.2);flex-shrink:0;}
+.bench-label{font-size:.56rem;font-weight:700;letter-spacing:.12em;color:rgba(196,181,253,.4);text-transform:uppercase;font-family:var(--fc);margin-bottom:.4rem;}
+
+/* ── FAN HAND for bench cards ── */
+.fan-hand{position:relative;height:90px;display:flex;align-items:flex-end;justify-content:center;overflow:visible;}
+.fan-card-wrap{position:absolute;bottom:0;transform-origin:bottom center;transition:transform .22s cubic-bezier(.34,1.4,.64,1);cursor:pointer;touch-action:none;will-change:transform;}
+.fan-card-wrap:hover .fc-mini,.fan-card-wrap.hovered .fc-mini{transform:translateY(-12px) scale(1.08);border-color:var(--gold);}
+.fan-card-wrap.selected .fc-mini{transform:translateY(-18px) scale(1.12);border-color:#c4b5fd;box-shadow:0 0 12px rgba(196,181,253,.4);}
+.fc-mini{width:58px;height:82px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:var(--ink2);overflow:hidden;display:flex;flex-direction:column;transition:transform .22s cubic-bezier(.34,1.4,.64,1),border-color .18s;}
+.fc-mini .fm-art{flex:1;overflow:hidden;background:#06060f;display:flex;align-items:center;justify-content:center;}
+.fc-mini .fm-art img{width:100%;height:100%;object-fit:contain;display:block;}
+.fc-mini .fm-art svg{width:100%;height:100%;}
+.fc-mini .fm-name{font-family:var(--fd);font-size:.38rem;color:var(--gold);padding:2px 3px;text-align:center;background:rgba(8,8,16,.9);line-height:1.2;}
+
 /* BATTLE ARENA */
 .battle-arena{flex:1;display:flex;flex-direction:column;padding:1.75rem 1rem .75rem;gap:.85rem;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .arena-label{font-size:.58rem;font-weight:700;letter-spacing:.12em;color:rgba(240,236,223,.3);text-transform:uppercase;display:flex;align-items:center;gap:6px;font-family:var(--fc);}
@@ -240,7 +308,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .combatant.defeated{filter:grayscale(1) brightness(.4);cursor:default;}
 .combatant.targeted{border-color:var(--red);box-shadow:0 0 16px rgba(239,68,68,.45);animation:targetPulse .4s ease infinite alternate;}
 @keyframes targetPulse{from{box-shadow:0 0 8px rgba(239,68,68,.3)}to{box-shadow:0 0 22px rgba(239,68,68,.65)}}
-/* Card has acted this turn — dimmed, not clickable for actions but tooltip still works */
+/* Card has acted this turn — dimmed */
 .combatant.used-turn{opacity:.5;}
 .combatant.used-turn .c-img{filter:grayscale(.6);}
 .used-badge{
@@ -249,6 +317,20 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
   color:var(--gold2);font-size:.42rem;font-family:var(--fm);
   letter-spacing:.05em;text-transform:uppercase;
   padding:2px 5px;border-radius:8px;
+}
+/* Enemy card in targeting mode — pulsing red outline */
+.combatant.targeting-available{
+  border-color:var(--red);
+  box-shadow:0 0 14px rgba(239,68,68,.5);
+  animation:targetPulse .6s ease-in-out infinite alternate;
+  cursor:crosshair;
+}
+.target-badge{
+  position:absolute;top:4px;left:4px;z-index:4;
+  background:rgba(239,68,68,.85);border:1px solid rgba(239,68,68,.6);
+  color:white;font-size:.42rem;font-family:var(--fm);
+  letter-spacing:.04em;text-transform:uppercase;
+  padding:2px 5px;border-radius:8px;pointer-events:none;
 }
 /* card image area — contain, no crop */
 .combatant .c-img{
@@ -943,8 +1025,33 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
     </div>
     <div class="tn-gems">💎<span id="gc-battle">120</span></div>
   </nav>
-  <!-- Select phase -->
-  <div class="battle-select" id="battle-select">
+
+  <!-- Phase 0: Mode select -->
+  <div id="mode-select">
+    <h2>Choose Your Battle</h2>
+    <p>Two ways to fight. One Chronicle.</p>
+    <div class="mode-cards">
+      <div class="mode-card" onclick="HowTo.show('death', ()=>Battle.initSelect())">
+        <div class="mode-icon">⚔️</div>
+        <div>
+          <div class="mode-name">Sudden Death</div>
+          <div class="mode-desc">3 spirits. One match. No second chances. The last side standing wins.</div>
+          <span class="mode-badge death">3v3 · Classic</span>
+        </div>
+      </div>
+      <div class="mode-card campaign-card" onclick="HowTo.show('campaign', ()=>Campaign.initLevelSelect())">
+        <div class="mode-icon">🗺️</div>
+        <div>
+          <div class="mode-name">Campaign</div>
+          <div class="mode-desc">5 levels of escalating battles. Manage your full roster across a series of matches.</div>
+          <span class="mode-badge campaign">5 Levels · Strategic</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 1a: Sudden Death squad select -->
+  <div id="battle-select" style="display:none;">
     <h2>Assemble Your Squad</h2>
     <p>Choose 3 spirits from your collection to fight</p>
     <div class="squad-slots" id="squad-slots">
@@ -955,14 +1062,44 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
     <div class="pick-grid" id="pick-grid"></div>
     <button class="battle-start-btn" id="battle-start-btn" onclick="Battle.start()" disabled>⚔ Begin Battle</button>
   </div>
-  <!-- Arena phase -->
+
+  <!-- Phase 1b: Campaign level select -->
+  <div id="campaign-level-select" style="display:none;">
+    <h2>Choose Level</h2>
+    <div class="level-list" id="level-list"></div>
+  </div>
+
+  <!-- Phase 1c: Campaign squad select -->
+  <div id="campaign-select" style="display:none;">
+    <div style="text-align:center;">
+      <div style="font-family:var(--fd);font-size:.95rem;letter-spacing:.09em;color:#c4b5fd;" id="csq-title">Level 1 — Assemble</div>
+      <div style="font-size:.68rem;color:rgba(240,236,223,.4);font-family:var(--fc);margin-top:3px;" id="csq-hint"></div>
+    </div>
+    <div class="csq-label">Field Squad <span id="csq-field-count"></span></div>
+    <div class="csq-slots" id="csq-field-slots"></div>
+    <div class="csq-label" id="csq-bench-label" style="display:none;">Bench <span id="csq-bench-count"></span></div>
+    <div class="csq-slots" id="csq-bench-slots" style="display:none;"></div>
+    <div class="pick-grid" id="campaign-pick-grid"></div>
+    <button class="battle-start-btn" id="campaign-start-btn" onclick="Campaign.start()" style="background:linear-gradient(135deg,#5b21b6,#7c3aed);" disabled>🗺 Begin Campaign</button>
+  </div>
+
+  <!-- Arena phase (shared by both modes) -->
   <div id="battle-arena-wrap" style="display:none;">
+    <div class="campaign-progress-bar" id="campaign-progress-bar" style="display:none;">
+      <div class="cp-label" id="cp-label">Level 1</div>
+      <div class="cp-pips" id="cp-pips"></div>
+    </div>
     <div class="battle-arena">
       <div class="arena-label">Enemy</div>
       <div class="combatants" id="enemy-fighters"></div>
       <div class="turn-indicator" id="turn-ind">Your turn</div>
       <div class="combatants" id="player-fighters"></div>
       <div class="arena-label">Your Squad</div>
+      <!-- Bench fan hand (campaign only) -->
+      <div class="bench-zone" id="bench-zone" style="display:none;">
+        <div class="bench-label">Bench — tap to deploy a fallen slot</div>
+        <div class="fan-hand" id="bench-fan"></div>
+      </div>
       <div class="battle-log" id="battle-log"></div>
     </div>
     <div class="battle-actions" id="battle-actions">
@@ -970,6 +1107,18 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
       <button class="btn btn-skill" onclick="Battle.playerSkill()">✦ Skill</button>
       <button class="btn btn-nextturn" onclick="Battle.endPlayerTurn()">→ End Turn</button>
       <button class="btn btn-retreat" onclick="Battle.retreat()">✕ Retreat</button>
+    </div>
+  </div>
+</div>
+
+<!-- How-to overlay -->
+<div class="howto-overlay" id="howto-overlay">
+  <div class="howto-box">
+    <div class="howto-slides" id="howto-slides"></div>
+    <div class="howto-footer">
+      <button class="howto-skip" onclick="HowTo.skip()">Skip</button>
+      <div class="howto-dots" id="howto-dots"></div>
+      <button class="howto-next" id="howto-next-btn" onclick="HowTo.next()">Next →</button>
     </div>
   </div>
 </div>
@@ -1041,12 +1190,12 @@ const ROSTER=[
    element:'Arcane',archetype:'Sovereign',stats:{Power:71,Speed:68,Wisdom:99,Fortune:95},
    abilities:[{name:'Nile\'s Blessing',desc:'Floods the field with golden mana — doubles resource gain for 3 turns.'},{name:'Asp of Ra',desc:'Afflicts one enemy: their buffs become debuffs.'}],
    palette:['#d4af37','#1a3a2a','#8b0000'],img:'art/cleopatra.jpg'},
-  {id:'merlin',name:'Merlin',title:'Architect of the Once and Future',rarity:5,origin:'Arthurian Legend · Britain',
+  // ── 4★ HEROES ──
+  {id:'merlin',name:'Merlin',title:'Architect of the Once and Future',rarity:4,origin:'Arthurian Legend · Britain',
    lore:'He lived backwards through time, which is why he always seemed to know what was coming. It wasn\'t prophecy — it was memory. He has already seen how every story ends.',
    element:'Arcane',archetype:'Sage',stats:{Power:70,Speed:55,Wisdom:97,Fortune:76},
    abilities:[{name:'Retrograde Vision',desc:'View and rearrange the bottom 5 cards of your deck freely.'},{name:'Avalon Seal',desc:'Imprisons one enemy card for 2 turns.'}],
    palette:['#1e3a5f','#6b21a8','#d4af37'],img:'art/merlin.jpg'},
-  // ── 4★ HEROES ──
   {id:'loki',name:'Loki',title:'Trickster of Asgard, Father of Monsters',rarity:4,origin:'Norse Mythology',
    lore:'He shape-shifts, lies, schemes, and occasionally saves the day through methods nobody approved of in advance. Every Norse catastrophe has his fingerprints on it. So does every solution.',
    element:'Arcane',archetype:'Trickster',stats:{Power:68,Speed:92,Wisdom:88,Fortune:72},
@@ -1315,7 +1464,7 @@ const Nav={
     window.scrollTo(0,0);allGems();
     if(name==='home')homeStats();
     if(name==='dex')Dex.render();
-    if(name==='battle')Battle.initSelect();
+    if(name==='battle')Battle.showModeSelect();
   }
 };
 
@@ -1445,22 +1594,44 @@ const Detail={
    BATTLE
 ════════════════════════════════════ */
 const Battle={
-  squad:[null,null,null],    // player chosen cards
+  squad:[null,null,null],
   enemySquad:[],
-  pFighters:[],              // {card, hp, maxHp}
+  pFighters:[],
   eFighters:[],
   activePIdx:0,
   activeEIdx:0,
   playerTurn:true,
   inBattle:false,
+  targetingMode:false,   // true when waiting for user to pick an enemy target
+  pendingSkillAb:null,   // set when targeting mode was triggered by a skill
+  _tapTimers:{},         // per-card double-tap detection
+  _isCampaign:false,     // true when running inside Campaign mode
 
   /* ── SELECT PHASE ── */
+  showModeSelect(){
+    ['mode-select','battle-select','campaign-level-select','campaign-select','battle-arena-wrap'].forEach(id=>{
+      const el=$(id);if(el)el.style.display='none';
+    });
+    $('mode-select').style.display='flex';
+    this.inBattle=false;
+    this.targetingMode=false;
+  },
+
   initSelect(){
+    // Hide all battle phases, show only squad select
+    ['mode-select','campaign-level-select','campaign-select','battle-arena-wrap'].forEach(id=>{
+      const el=$(id);if(el)el.style.display='none';
+    });
     this.squad=[null,null,null];
+    this._isCampaign=false;
     this._renderSlots();
     const grid=$('pick-grid');grid.innerHTML='';
     const avail=ROSTER.filter(c=>State.unlocked.includes(c.id));
-    if(!avail.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:rgba(240,236,223,.4);font-size:.75rem;padding:2rem;font-family:var(--fc);">Summon spirits first to build your squad!</div>';return;}
+    if(!avail.length){
+      grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:rgba(240,236,223,.4);font-size:.75rem;padding:2rem;font-family:var(--fc);">Summon spirits first to build your squad!</div>';
+      $('battle-select').style.display='flex';
+      return;
+    }
     avail.sort((a,b)=>b.rarity-a.rarity);
     avail.forEach(card=>{
       const div=document.createElement('div');
@@ -1471,7 +1642,6 @@ const Battle={
       grid.appendChild(div);
     });
     $('battle-select').style.display='flex';
-    $('battle-arena-wrap').style.display='none';
     this._updateStartBtn();
   },
   _selectCard(card){
@@ -1559,35 +1729,72 @@ const Battle={
     fighters.forEach((f,i)=>{
       const active=(isPlayer&&i===this.activePIdx)||(!isPlayer&&i===this.activeEIdx);
       const div=document.createElement('div');
-      div.className='combatant'
-        +(f.hp<=0?' defeated':'')
-        +(active&&f.hp>0?' active-fighter':'')
-        +(isPlayer&&f.usedThisTurn?' used-turn':'');
+      let cls='combatant';
+      if(f.hp<=0) cls+=' defeated';
+      else if(active) cls+=' active-fighter';
+      if(isPlayer&&f.usedThisTurn) cls+=' used-turn';
+      if(!isPlayer&&f.hp>0&&this.targetingMode) cls+=' targeting-available';
+      div.className=cls;
 
       const card=f.card;
-
       div.innerHTML=`
         <div class="c-img">${Art.html(card,'108px','100px')}</div>
         <div class="c-name">${card.name}</div>
         ${isPlayer&&f.usedThisTurn?'<div class="used-badge">Acted</div>':''}
+        ${!isPlayer&&this.targetingMode&&f.hp>0?'<div class="target-badge">⚔ Target</div>':''}
         <div class="c-hpbar"><div class="c-hpfill ${isPlayer?'p':'e'}" id="hpf-${containerId}-${i}" style="width:${Math.max(0,f.hp/f.maxHp*100)}%"></div></div>
         <div class="c-hp-txt" id="hptxt-${containerId}-${i}">${Math.max(0,f.hp)}/${f.maxHp}</div>`;
 
       if(f.hp>0){
+        const tapKey=containerId+'-'+i;
         div.addEventListener('click', e=>{
           e.stopPropagation();
-          // If player card, also set as active fighter (even if already used — view-only)
-          if(isPlayer){
+
+          // ── ENEMY CARD TAPPED ──
+          if(!isPlayer){
+            if(this.targetingMode){
+              // Single tap on enemy during targeting = execute the action
+              this._confirmTarget(i);
+            } else {
+              // Single tap = nothing (need double-tap for preview outside targeting mode)
+              this._doubleTapCheck(tapKey, ()=>this._showFighterPreview(card));
+            }
+            return;
+          }
+
+          // ── PLAYER CARD TAPPED ──
+          // Single tap = select as active fighter
+          // Double tap = open preview
+          this._doubleTapCheck(tapKey, ()=>{
+            // double tap → preview
+            this._showFighterPreview(card);
+          }, ()=>{
+            // single tap → select
             this.activePIdx=i;
             document.querySelectorAll('#player-fighters .combatant').forEach((el,idx)=>{
               el.classList.toggle('active-fighter', idx===i);
             });
-          }
-          this._showFighterPreview(card);
+            this._log(`${card.name} selected.`,'sys');
+          });
         });
       }
       el.appendChild(div);
     });
+  },
+
+  // Double-tap detection: fires onDouble if two taps within 300ms,
+  // otherwise fires onSingle after the window expires.
+  _doubleTapCheck(key, onDouble, onSingle){
+    if(this._tapTimers[key]){
+      clearTimeout(this._tapTimers[key]);
+      delete this._tapTimers[key];
+      onDouble();
+    } else {
+      this._tapTimers[key]=setTimeout(()=>{
+        delete this._tapTimers[key];
+        if(onSingle) onSingle();
+      }, 280);
+    }
   },
   // Card preview is rendered into the single shared, centred overlay —
   // this guarantees it is never overlapped or clipped by neighbouring
@@ -1654,6 +1861,10 @@ const Battle={
   _endBattle(playerWon){
     this.inBattle=false;
     this._renderArena();
+    if(this._isCampaign){
+      Campaign.onMatchEnd(playerWon);
+      return;
+    }
     if(playerWon){
       State.wins++;State.gems+=20;State.save();allGems();
       this._log(`Victory! +20 💎 (Total wins: ${State.wins})`,'sys');
@@ -1686,32 +1897,9 @@ const Battle={
     const pf=this.pFighters[this.activePIdx];
     if(!pf||pf.hp<=0){this._log('Select a living card first.','sys');return;}
     if(pf.usedThisTurn){this._log(`${pf.card.name} has already acted this turn.`,'sys');return;}
-    const ei=this._nextAlive(this.eFighters,this.activeEIdx);
-    if(ei<0)return;
-    const ef=this.eFighters[ei];this.activeEIdx=ei;
-    const dmg=this._calcDmg(pf.card,ef.card);
-    this._dealDmg(ef,dmg,'enemy-fighters',ei);
-    this._log(`${pf.card.name} attacks ${ef.card.name} for ${dmg} damage!`,'player');
-    pf.usedThisTurn=true;
-    this._refreshHP();
-    if(ef.hp<=0){
-      this._log(`${ef.card.name} is defeated!`,'player');
-      burst(...(()=>{const r=document.querySelector('#enemy-fighters .combatant:nth-child('+(ei+1)+')')?.getBoundingClientRect();return r?[r.left+r.width/2,r.top+r.height/2,ef.card.rarity]:[200,200,3];})());
-      const ni=this._nextAlive(this.eFighters,ei+1);this.activeEIdx=ni>=0?ni:0;
-      if(this._checkWin())return;
-      this._renderArena(); // re-render on death
-      this._focusNextAvailable();
-    }else{
-      if(this._checkWin())return;
-      this._renderArena(); // refresh used-state styling/badges
-      this._focusNextAvailable();
-    }
-    // Only proceed to enemy turn once every living card has acted
-    if(this._allPlayerActed()) this._finishPlayerTurn();
+    this._enterTargetingMode(null); // null = attack, no skill ability pending
   },
 
-  // FIX 6: opens a small chooser so the user picks which of the card's
-  // abilities to use, instead of always firing abilities[0] automatically.
   playerSkill(){
     if(!this.playerTurn||!this.inBattle)return;
     this._dismissAllTooltips();
@@ -1721,10 +1909,82 @@ const Battle={
     const abilities=pf.card.abilities||[];
     if(!abilities.length)return;
     if(abilities.length===1){
-      this._executeSkill(pf,abilities[0]);
-      return;
+      this._enterTargetingModeForSkill(pf,abilities[0]);
+    } else {
+      this._openSkillPicker(pf,abilities);
     }
-    this._openSkillPicker(pf,abilities);
+  },
+
+  // Called after skill is chosen (or directly for single-ability cards)
+  _enterTargetingModeForSkill(pf,ab){
+    const effect=ab.desc.toLowerCase();
+    const isHeal=effect.includes('heal')||effect.includes('regain')||effect.includes('restor');
+    if(isHeal){
+      // Heal skills don't need a target — execute immediately
+      this._executeSkill(pf,ab);
+    } else {
+      this._enterTargetingMode(ab);
+    }
+  },
+
+  _enterTargetingMode(ab){
+    // ab = null means Attack; ab = ability object means Skill
+    this.targetingMode=true;
+    this.pendingSkillAb=ab;
+    this._renderArena(); // re-renders enemy row with targeting-available class + ⚔ Target badges
+    $('turn-ind').textContent='⚔ Tap an enemy to '+(ab?`use ${ab.name}`:'attack');
+    $('turn-ind').style.color='rgba(252,165,165,.9)';
+    // Show cancel hint in log
+    this._log(ab?`Choose a target for ${ab.name}...`:'Choose an enemy to attack...','sys');
+  },
+
+  _cancelTargeting(){
+    this.targetingMode=false;
+    this.pendingSkillAb=null;
+    this._renderArena();
+  },
+
+  _confirmTarget(enemyIdx){
+    if(!this.targetingMode)return;
+    const pf=this.pFighters[this.activePIdx];
+    const ef=this.eFighters[enemyIdx];
+    if(!ef||ef.hp<=0)return;
+    this.activeEIdx=enemyIdx;
+    this.targetingMode=false;
+
+    if(this.pendingSkillAb){
+      const ab=this.pendingSkillAb;
+      this.pendingSkillAb=null;
+      // Execute skill against the chosen target
+      const dmg=Math.round(pf.card.stats.Power*0.65+pf.card.stats.Wisdom*0.15);
+      this._dealDmg(ef,dmg,'enemy-fighters',enemyIdx);
+      const msg=`${pf.card.name} uses ${ab.name} on ${ef.card.name} — deals ${dmg} damage!`;
+      pf.usedThisTurn=true;
+      this._refreshHP();
+      this._log(msg,'player');
+      if(ef.hp<=0){
+        this._log(`${ef.card.name} is defeated!`,'player');
+        burst(...(()=>{const r=document.querySelector('#enemy-fighters .combatant:nth-child('+(enemyIdx+1)+')')?.getBoundingClientRect();return r?[r.left+r.width/2,r.top+r.height/2,ef.card.rarity]:[200,200,3];})());
+        if(this._checkWin())return;
+      }
+    } else {
+      // Attack
+      const dmg=this._calcDmg(pf.card,ef.card);
+      this._dealDmg(ef,dmg,'enemy-fighters',enemyIdx);
+      this._log(`${pf.card.name} attacks ${ef.card.name} for ${dmg} damage!`,'player');
+      pf.usedThisTurn=true;
+      this._refreshHP();
+      if(ef.hp<=0){
+        this._log(`${ef.card.name} is defeated!`,'player');
+        burst(...(()=>{const r=document.querySelector('#enemy-fighters .combatant:nth-child('+(enemyIdx+1)+')')?.getBoundingClientRect();return r?[r.left+r.width/2,r.top+r.height/2,ef.card.rarity]:[200,200,3];})());
+        if(this._checkWin())return;
+      }
+    }
+
+    if(this._checkWin())return;
+    this._renderArena();
+    this._focusNextAvailable();
+    if(this._allPlayerActed()) this._finishPlayerTurn();
   },
 
   _openSkillPicker(pf,abilities){
@@ -1755,7 +2015,7 @@ const Battle={
         e.stopPropagation();
         const idx=+btn.dataset.idx;
         modal.classList.remove('show');
-        this._executeSkill(pf,abilities[idx]);
+        this._enterTargetingModeForSkill(pf,abilities[idx]);
       };
     });
     modal.querySelector('.sp-cancel').onclick=(e)=>{
@@ -1765,38 +2025,16 @@ const Battle={
     modal.onclick=(e)=>{ if(e.target===modal) modal.classList.remove('show'); };
   },
 
+  // Only called for heal-type skills (damage skills go through _confirmTarget)
   _executeSkill(pf,ab){
-    const effect=ab.desc.toLowerCase();
-    let msg='';
-    if(effect.includes('heal')||effect.includes('hp')&&(effect.includes('restor')||effect.includes('regain')||effect.includes('heal'))){
-      const heal=Math.round(pf.card.stats.Wisdom*0.3+10);
-      pf.hp=Math.min(pf.maxHp,pf.hp+heal);
-      msg=`${pf.card.name} uses ${ab.name} — healed ${heal} HP!`;
-      pf.usedThisTurn=true;
-      this._refreshHP();
-      this._log(msg,'player');
-      this._renderArena();
-      this._focusNextAvailable();
-    }else{
-      const ei=this._nextAlive(this.eFighters,this.activeEIdx);
-      if(ei<0)return;
-      const ef=this.eFighters[ei];
-      const dmg=Math.round(pf.card.stats.Power*0.65+pf.card.stats.Wisdom*0.15);
-      this._dealDmg(ef,dmg,'enemy-fighters',ei);
-      msg=`${pf.card.name} uses ${ab.name} — deals ${dmg} damage!`;
-      pf.usedThisTurn=true;
-      this._refreshHP();
-      this._log(msg,'player');
-      if(ef.hp<=0){
-        this._log(`${ef.card.name} is defeated!`,'player');
-        burst(...(()=>{const r=document.querySelector('#enemy-fighters .combatant:nth-child('+(ei+1)+')')?.getBoundingClientRect();return r?[r.left+r.width/2,r.top+r.height/2,ef.card.rarity]:[200,200,3];})());
-        if(this._checkWin())return;
-      }
-      if(this._checkWin())return;
-      this._renderArena();
-      this._focusNextAvailable();
-    }
+    const heal=Math.round(pf.card.stats.Wisdom*0.3+10);
+    pf.hp=Math.min(pf.maxHp,pf.hp+heal);
+    pf.usedThisTurn=true;
+    this._refreshHP();
+    this._log(`${pf.card.name} uses ${ab.name} — healed ${heal} HP!`,'player');
     if(this._checkWin())return;
+    this._renderArena();
+    this._focusNextAvailable();
     if(this._allPlayerActed()) this._finishPlayerTurn();
   },
 
@@ -1806,6 +2044,7 @@ const Battle={
   endPlayerTurn(){
     if(!this.playerTurn||!this.inBattle)return;
     this._dismissAllTooltips();
+    if(this.targetingMode){ this._cancelTargeting(); return; } // first tap cancels target mode
     this._log('You end your turn.','player');
     this._finishPlayerTurn();
   },
@@ -1844,6 +2083,9 @@ const Battle={
     }
     // New round: reset every living player card's used-this-turn flag
     this.pFighters.forEach(f=>{ if(f.hp>0) f.usedThisTurn=false; });
+    this.targetingMode=false;
+    this.pendingSkillAb=null;
+    this._tapTimers={};
     this.playerTurn=true;
     this._focusNextAvailable();
     this._renderArena();
@@ -1856,8 +2098,457 @@ const Battle={
   retreat(){
     if(!confirm('Retreat from battle?'))return;
     this.inBattle=false;
+    this.targetingMode=false;
     $('battle-arena-wrap').style.display='none';
-    this.initSelect();
+    $('bench-zone').style.display='none';
+    $('campaign-progress-bar').style.display='none';
+    this.showModeSelect();
+  }
+};
+
+/* ════════════════════════════════════
+   MODULE: HowTo
+   Skippable slide-based tutorial overlay.
+   Shown once per session per mode.
+════════════════════════════════════ */
+const HowTo = {
+  _seen: {},
+  _slides: {
+    death: [
+      {
+        icon:'⚔️',
+        title:'Sudden Death',
+        body:'<strong>3 spirits</strong> against 3 enemies. One match — no respawns.<br><br>Last side with a living spirit wins.'
+      },
+      {
+        icon:'👆',
+        title:'Selecting & Targeting',
+        body:'<strong>Tap</strong> a friendly card to select it as your active fighter.<br><strong>Double-tap</strong> any card to view its full stats and abilities.'
+      },
+      {
+        icon:'🎯',
+        title:'Attack & Skills',
+        body:'Press <strong>Attack</strong> or <strong>Skill</strong>, then <strong>tap an enemy</strong> to target them.<br><br>Each card acts once per turn. When all have acted, the enemy strikes back.'
+      }
+    ],
+    campaign: [
+      {
+        icon:'🗺️',
+        title:'The Campaign',
+        body:'Five levels of escalating battles. Each level is a <strong>series of matches</strong> — your spirits carry their HP between them.'
+      },
+      {
+        icon:'🃏',
+        title:'Field & Bench',
+        body:'Choose a <strong>field squad</strong> to fight and a <strong>bench</strong> of reserve spirits.<br><br>When a field card falls, deploy a bench card to take its place — tap the fanned hand below the arena.'
+      },
+      {
+        icon:'📈',
+        title:'Difficulty Scales',
+        body:'Early levels pit you against <strong>weaker enemies</strong>. By Level 5 the opposition matches — and exceeds — your strongest spirits.<br><br>Build your roster wisely.'
+      }
+    ]
+  },
+  _current: 0,
+  _mode: null,
+  _onDone: null,
+
+  show(mode, onDone) {
+    // Skip if already seen this session
+    if (this._seen[mode]) { if(onDone) onDone(); return; }
+    this._mode = mode;
+    this._onDone = onDone || null;
+    this._current = 0;
+    this._render();
+    $('howto-overlay').classList.add('show');
+  },
+
+  _render() {
+    const slides = this._slides[this._mode];
+    // Build slide HTML
+    $('howto-slides').innerHTML = slides.map(s =>
+      `<div class="howto-slide">
+        <div class="howto-icon">${s.icon}</div>
+        <div class="howto-title">${s.title}</div>
+        <div class="howto-body">${s.body}</div>
+      </div>`
+    ).join('');
+    // Dots
+    $('howto-dots').innerHTML = slides.map((_,i) =>
+      `<div class="howto-dot${i===this._current?' active':''}"></div>`
+    ).join('');
+    // Scroll to current slide
+    $('howto-slides').style.transform = `translateX(-${this._current * 100}%)`;
+    // Button label
+    $('howto-next-btn').textContent = this._current < slides.length - 1 ? 'Next →' : 'Let\'s go ✦';
+  },
+
+  next() {
+    const slides = this._slides[this._mode];
+    if (this._current < slides.length - 1) {
+      this._current++;
+      this._render();
+    } else {
+      this.skip();
+    }
+  },
+
+  skip() {
+    this._seen[this._mode] = true;
+    $('howto-overlay').classList.remove('show');
+    if (this._onDone) this._onDone();
+  }
+};
+
+/* ════════════════════════════════════
+   MODULE: FanHand
+   Renders bench cards as a fanned hand.
+   Used during campaign battles.
+════════════════════════════════════ */
+const FanHand = {
+  render(containerId, cards, onSelect) {
+    const el = $(containerId);
+    el.innerHTML = '';
+    const n = cards.length;
+    if (!n) return;
+    const maxSpread = 24, maxOffsetX = 28;
+    const stepRot = n > 1 ? maxSpread / (n - 1) : 0;
+    const stepX   = n > 1 ? (Math.min(maxOffsetX * 2, (n-1) * 18)) / (n-1) : 0;
+
+    cards.forEach((card, i) => {
+      if (!card) return;
+      const mid = (n - 1) / 2;
+      const t = i - mid;
+      const rot = t * stepRot;
+      const tx  = t * stepX;
+      const ty  = Math.abs(t) * 5;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'fan-card-wrap';
+      wrap.style.transform = `translateX(${tx}px) translateY(${ty}px) rotate(${rot}deg)`;
+      wrap.style.zIndex = i;
+
+      const mini = document.createElement('div');
+      mini.className = 'fc-mini';
+      mini.innerHTML = `<div class="fm-art">${Art.html(card,'58px','100%')}</div><div class="fm-name">${card.name}</div>`;
+      wrap.appendChild(mini);
+
+      // Hover lift
+      wrap.addEventListener('mouseenter', () => { wrap.classList.add('hovered'); wrap.style.zIndex=50; });
+      wrap.addEventListener('mouseleave', () => { wrap.classList.remove('hovered'); wrap.style.zIndex=i; });
+
+      wrap.addEventListener('click', e => {
+        e.stopPropagation();
+        document.querySelectorAll(`#${containerId} .fan-card-wrap`).forEach(w=>w.classList.remove('selected'));
+        wrap.classList.add('selected');
+        if (onSelect) onSelect(card, i, wrap);
+      });
+
+      el.appendChild(wrap);
+    });
+  }
+};
+
+/* ════════════════════════════════════
+   MODULE: Campaign
+   Manages campaign state: levels, matches,
+   persistent HP, bench deployment.
+════════════════════════════════════ */
+const Campaign = {
+  // Level definitions
+  LEVELS: [
+    {num:1, name:'The Awakening',     fieldSize:3, benchSize:3, enemyMult:0.70, matches:2},
+    {num:2, name:'The Gathering Storm', fieldSize:3, benchSize:3, enemyMult:0.85, matches:3},
+    {num:3, name:'The Crucible',       fieldSize:4, benchSize:2, enemyMult:1.00, matches:3},
+    {num:4, name:'The Reckoning',      fieldSize:4, benchSize:2, enemyMult:1.18, matches:4},
+    {num:5, name:'The Chronicle\'s End', fieldSize:5, benchSize:1, enemyMult:1.35, matches:5},
+  ],
+
+  // State
+  level: null,          // current LEVELS entry
+  matchNum: 0,          // 1-based match counter
+  fieldCards: [],       // chosen field cards (persistent across matches)
+  benchCards: [],       // chosen bench cards
+  pFighters: [],        // live fighters for this match (subset of fieldCards)
+  selectedField: [],    // during squad select
+  selectedBench: [],    // during squad select
+  _deployingIdx: null,  // field slot index awaiting bench deployment
+
+  initLevelSelect() {
+    ['mode-select','battle-select','battle-arena-wrap','campaign-select'].forEach(id=>{
+      const el=$(id);if(el)el.style.display='none';
+    });
+    $('campaign-level-select').style.display='flex';
+
+    const avail = ROSTER.filter(c=>State.unlocked.includes(c.id));
+    const list = $('level-list');
+    list.innerHTML = '';
+    this.LEVELS.forEach(lv => {
+      const needCards = lv.fieldSize + lv.benchSize;
+      const canPlay = avail.length >= needCards;
+      const div = document.createElement('div');
+      div.className = 'level-item' + (!canPlay ? ' locked-level' : '');
+      div.innerHTML = `
+        <div class="lv-num">${lv.num}</div>
+        <div>
+          <div class="lv-name">${lv.name}</div>
+          <div class="lv-detail">${lv.fieldSize} field · ${lv.benchSize} bench · ${lv.matches} matches</div>
+        </div>
+        <div class="lv-badge">${canPlay ? '▶ Play' : `Need ${needCards} cards`}</div>`;
+      if (canPlay) div.onclick = () => this.initSquadSelect(lv);
+      list.appendChild(div);
+    });
+  },
+
+  initSquadSelect(lv) {
+    this.level = lv;
+    this.selectedField = [];
+    this.selectedBench = [];
+    $('campaign-level-select').style.display = 'none';
+    $('campaign-select').style.display = 'flex';
+
+    $('csq-title').textContent = `Level ${lv.num} — ${lv.name}`;
+    $('csq-hint').textContent = `Pick ${lv.fieldSize} field spirits + ${lv.benchSize > 0 ? lv.benchSize + ' bench' : 'no bench'}`;
+    $('csq-field-count').textContent = `(0 / ${lv.fieldSize})`;
+
+    if (lv.benchSize > 0) {
+      $('csq-bench-label').style.display = '';
+      $('csq-bench-count').textContent = `(0 / ${lv.benchSize})`;
+      $('csq-bench-slots').style.display = 'flex';
+    } else {
+      $('csq-bench-label').style.display = 'none';
+      $('csq-bench-slots').style.display = 'none';
+    }
+
+    this._renderCampaignSlots();
+    this._renderCampaignPick();
+    $('campaign-start-btn').disabled = true;
+  },
+
+  _renderCampaignSlots() {
+    const lv = this.level;
+    // Field slots
+    const fs = $('csq-field-slots'); fs.innerHTML = '';
+    for (let i = 0; i < lv.fieldSize; i++) {
+      const card = this.selectedField[i];
+      const slot = document.createElement('div');
+      slot.className = 'squad-slot' + (card ? ' filled' : '');
+      slot.style.width = '72px'; slot.style.height = '100px';
+      slot.innerHTML = card
+        ? `${Art.html(card,'72px','70px')}<div class="slot-name">${card.name}</div><div class="slot-remove">✕</div>`
+        : '<div class="slot-empty">+</div>';
+      if (card) slot.onclick = () => { this.selectedField[i]=null; this._renderCampaignSlots(); this._renderCampaignPick(); this._updateCampaignStartBtn(); };
+      fs.appendChild(slot);
+    }
+    $('csq-field-count').textContent = `(${this.selectedField.filter(Boolean).length} / ${lv.fieldSize})`;
+
+    // Bench slots
+    if (lv.benchSize > 0) {
+      const bs = $('csq-bench-slots'); bs.innerHTML = '';
+      for (let i = 0; i < lv.benchSize; i++) {
+        const card = this.selectedBench[i];
+        const slot = document.createElement('div');
+        slot.className = 'squad-slot' + (card ? ' filled' : '');
+        slot.style.width = '72px'; slot.style.height = '100px';
+        slot.innerHTML = card
+          ? `${Art.html(card,'72px','70px')}<div class="slot-name">${card.name}</div><div class="slot-remove">✕</div>`
+          : '<div class="slot-empty">+</div>';
+        if (card) slot.onclick = () => { this.selectedBench[i]=null; this._renderCampaignSlots(); this._renderCampaignPick(); this._updateCampaignStartBtn(); };
+        bs.appendChild(slot);
+      }
+      $('csq-bench-count').textContent = `(${this.selectedBench.filter(Boolean).length} / ${lv.benchSize})`;
+    }
+  },
+
+  _renderCampaignPick() {
+    const avail = ROSTER.filter(c=>State.unlocked.includes(c.id)).sort((a,b)=>b.rarity-a.rarity);
+    const allChosen = [...this.selectedField.filter(Boolean), ...this.selectedBench.filter(Boolean)];
+    const grid = $('campaign-pick-grid'); grid.innerHTML = '';
+    avail.forEach(card => {
+      const chosen = allChosen.some(c=>c.id===card.id);
+      const div = document.createElement('div');
+      div.className = 'pick-card r'+card.rarity + (chosen?' chosen':'');
+      div.id = 'cpick-'+card.id;
+      div.innerHTML = `<div class="pick-art">${Art.html(card,'100%','100%')}</div>
+        <div class="pick-foot"><div class="pick-name">${card.name}</div><div class="pick-rstars r${card.rarity}">${starsHTML(card.rarity)}</div></div>`;
+      div.onclick = () => this._campaignPick(card);
+      grid.appendChild(div);
+    });
+  },
+
+  _campaignPick(card) {
+    const lv = this.level;
+    const allChosen = [...this.selectedField.filter(Boolean), ...this.selectedBench.filter(Boolean)];
+    // Deselect if already chosen
+    const fi = this.selectedField.findIndex(c=>c&&c.id===card.id);
+    if (fi >= 0) { this.selectedField[fi]=null; this._renderCampaignSlots(); this._renderCampaignPick(); this._updateCampaignStartBtn(); return; }
+    const bi = this.selectedBench.findIndex(c=>c&&c.id===card.id);
+    if (bi >= 0) { this.selectedBench[bi]=null; this._renderCampaignSlots(); this._renderCampaignPick(); this._updateCampaignStartBtn(); return; }
+    // Add to field first, then bench
+    if (this.selectedField.filter(Boolean).length < lv.fieldSize) {
+      const empty = this.selectedField.findIndex(c=>!c);
+      this.selectedField[empty >= 0 ? empty : this.selectedField.length] = card;
+    } else if (lv.benchSize > 0 && this.selectedBench.filter(Boolean).length < lv.benchSize) {
+      const empty = this.selectedBench.findIndex(c=>!c);
+      this.selectedBench[empty >= 0 ? empty : this.selectedBench.length] = card;
+    } else return; // slots full
+    this._renderCampaignSlots();
+    this._renderCampaignPick();
+    this._updateCampaignStartBtn();
+  },
+
+  _updateCampaignStartBtn() {
+    const lv = this.level;
+    const fieldOk = this.selectedField.filter(Boolean).length === lv.fieldSize;
+    const benchOk = this.selectedBench.filter(Boolean).length === lv.benchSize;
+    $('campaign-start-btn').disabled = !(fieldOk && benchOk);
+  },
+
+  start() {
+    const lv = this.level;
+    this.fieldCards = this.selectedField.filter(Boolean).map(c => Battle._buildFighter(c, true));
+    this.benchCards = [...this.selectedBench.filter(Boolean)]; // raw card objects, not fighters
+    this.matchNum = 1;
+    $('campaign-select').style.display = 'none';
+    this._startMatch();
+  },
+
+  _startMatch() {
+    const lv = this.level;
+    // Restore any dead field slots from bench if available
+    // (only happens on match 2+ when a card died in previous match)
+
+    // Build enemy squad — scale power by level multiplier, weighted to player avg
+    const playerAvgPower = this.fieldCards.reduce((s,f)=>s+f.card.stats.Power,0) / this.fieldCards.length;
+    const enemyPool = ROSTER.filter(c=>c.rarity>=1);
+    const enemyCards = [];
+    while (enemyCards.length < lv.fieldSize) {
+      const c = enemyPool[Math.floor(Math.random()*enemyPool.length)];
+      if (!enemyCards.find(x=>x.id===c.id)) enemyCards.push(c);
+    }
+
+    // Build enemy fighters with scaled HP/power
+    const mult = lv.enemyMult;
+    Battle.eFighters = enemyCards.map(c => {
+      const hp = Math.round((50 + c.stats.Power * 0.6) * mult + lv.num * 5);
+      return { card:c, hp, maxHp:hp, isPlayer:false, usedThisTurn:false };
+    });
+
+    // Heal field cards partially between matches (not full — carry damage)
+    if (this.matchNum > 1) {
+      this.fieldCards.forEach(f => {
+        if (f.hp > 0) f.hp = Math.min(f.maxHp, f.hp + Math.round(f.maxHp * 0.25)); // 25% regen
+      });
+    }
+
+    Battle.pFighters = this.fieldCards.filter(f => f.hp > 0);
+    if (!Battle.pFighters.length) { alert('All your spirits have fallen. Campaign over.'); this.endCampaign(false); return; }
+
+    Battle.activePIdx = 0;
+    Battle.activeEIdx = 0;
+    Battle.playerTurn = true;
+    Battle.inBattle = true;
+    Battle.targetingMode = false;
+    Battle.pendingSkillAb = null;
+    Battle._tapTimers = {};
+    Battle._isCampaign = true;
+
+    // Show arena
+    $('campaign-select').style.display = 'none';
+    $('battle-arena-wrap').style.display = 'flex';
+
+    // Progress bar
+    const pb = $('campaign-progress-bar');
+    pb.style.display = 'flex';
+    $('cp-label').textContent = `Level ${lv.num} — Match ${this.matchNum}/${lv.matches}`;
+    $('cp-pips').innerHTML = Array.from({length:lv.matches},(_,i)=>
+      `<div class="cp-pip${i<this.matchNum-1?' done':i===this.matchNum-1?' current':''}"></div>`
+    ).join('');
+
+    // Bench fan hand
+    const bench = this.benchCards.filter(c => !this.fieldCards.find(f=>f.card.id===c.id && f.hp<=0));
+    if (this.benchCards.length > 0) {
+      $('bench-zone').style.display = 'block';
+      FanHand.render('bench-fan', this.benchCards, (card, idx) => this._deployBench(card, idx));
+    } else {
+      $('bench-zone').style.display = 'none';
+    }
+
+    $('battle-log').innerHTML = '';
+    Battle._log(`Match ${this.matchNum} of ${lv.matches} begins!`, 'sys');
+    Battle._log(`Level ${lv.num}: ${lv.name}`, 'sys');
+    Battle._renderArena();
+  },
+
+  _deployBench(card, benchIdx) {
+    // Find first defeated field slot and replace with bench card
+    const deadIdx = Battle.pFighters.length < this.fieldCards.length
+      ? -1
+      : this.fieldCards.findIndex(f=>f.hp<=0);
+    const targetIdx = deadIdx >= 0 ? deadIdx
+      : this.fieldCards.findIndex(f=>f.hp<=0);
+    if (targetIdx < 0) { Battle._log('No fallen slot to deploy into.','sys'); return; }
+    if (!Battle.playerTurn) { Battle._log('Can only deploy on your turn.','sys'); return; }
+
+    const newFighter = Battle._buildFighter(card, true);
+    this.fieldCards[targetIdx] = newFighter;
+    // Remove from bench
+    this.benchCards.splice(benchIdx, 1);
+    // Refresh pFighters
+    Battle.pFighters = this.fieldCards.filter(f=>f.hp>0);
+    Battle._log(`${card.name} deployed from bench!`, 'player');
+
+    // Re-render bench fan hand
+    if (this.benchCards.length > 0) {
+      FanHand.render('bench-fan', this.benchCards, (c,i) => this._deployBench(c,i));
+    } else {
+      $('bench-zone').style.display = 'none';
+    }
+    Battle._renderArena();
+  },
+
+  // Called by Battle._endBattle when _isCampaign is true
+  onMatchEnd(playerWon) {
+    Battle.inBattle = false;
+    const lv = this.level;
+    if (!playerWon) {
+      setTimeout(() => {
+        alert(`Defeated in Match ${this.matchNum}. Campaign over.\n\nReach Level ${lv.num} again to try once more.`);
+        this.endCampaign(false);
+      }, 300);
+      return;
+    }
+    // Reward gems per match
+    State.gems += 10 + lv.num * 5;
+    State.save(); allGems();
+    Battle._log(`Match ${this.matchNum} won! +${10 + lv.num * 5} 💎`, 'sys');
+
+    if (this.matchNum >= lv.matches) {
+      // Level complete!
+      setTimeout(() => {
+        State.gems += 50; State.save(); allGems();
+        alert(`Level ${lv.num} Complete!\n${lv.name}\n\n+50 💎 bonus reward!`);
+        this.endCampaign(true);
+      }, 400);
+    } else {
+      this.matchNum++;
+      setTimeout(() => {
+        if (confirm(`Match ${this.matchNum-1} won!\n\nContinue to match ${this.matchNum}?`)) {
+          $('battle-arena-wrap').style.display = 'none';
+          this._startMatch();
+        } else {
+          this.endCampaign(false);
+        }
+      }, 400);
+    }
+  },
+
+  endCampaign(won) {
+    Battle._isCampaign = false;
+    $('battle-arena-wrap').style.display = 'none';
+    $('bench-zone').style.display = 'none';
+    $('campaign-progress-bar').style.display = 'none';
+    Battle.showModeSelect();
   }
 };
 
