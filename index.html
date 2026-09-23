@@ -37,8 +37,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 /* ── TOP NAV ── */
 .topnav{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.1rem;flex-shrink:0;border-bottom:1px solid rgba(201,168,76,.18);background:rgba(8,8,16,.97);backdrop-filter:blur(14px);position:sticky;top:0;z-index:50;}
 .tn-brand{font-family:var(--fd);font-size:1rem;letter-spacing:.14em;color:var(--gold);text-shadow:0 0 18px rgba(201,168,76,.45);}
-.tn-tabs{display:flex;gap:2px;background:rgba(255,255,255,.05);border-radius:20px;padding:3px;}
-.tn-tab{padding:4px 10px;border-radius:17px;font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(240,236,223,.32);transition:all .2s;}
+.tn-tabs{display:flex;gap:1px;background:rgba(255,255,255,.05);border-radius:20px;padding:3px;}
+.tn-tab{padding:4px 8px;border-radius:17px;font-size:.56rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(240,236,223,.32);transition:all .2s;white-space:nowrap;}
 .tn-tab.active{background:var(--gold);color:var(--ink);}
 .tn-gems{font-size:.72rem;font-weight:700;color:var(--gold2);font-family:var(--fm);display:flex;align-items:center;gap:3px;}
 
@@ -188,6 +188,27 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .det-battle-btn{width:100%;padding:11px;background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.3);border-radius:var(--r10);color:#fca5a5;font-family:var(--fc);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;margin-top:.5rem;transition:all .2s;}
 .det-battle-btn:hover{background:rgba(239,68,68,.24);}
 
+/* ══════════ GAMES HUB ══════════ */
+#screen-games{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(124,92,252,.08) 0%,transparent 65%),var(--ink);}
+#games-hub{flex:1;display:flex;flex-direction:column;padding:1.5rem 1.25rem;gap:1.1rem;max-width:480px;margin:0 auto;width:100%;}
+#games-hub h2{font-family:var(--fd);font-size:1.05rem;letter-spacing:.1em;color:var(--gold);text-align:center;}
+#games-hub > p{font-size:.72rem;color:rgba(240,236,223,.42);text-align:center;font-family:var(--fc);line-height:1.6;font-style:italic;max-width:320px;margin:0 auto;}
+.games-list{display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem;}
+.game-card{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+  border-radius:14px;padding:1rem 1.15rem;
+  display:flex;align-items:center;gap:1rem;
+  transition:all .2s;cursor:default;
+}
+.game-card.unlocked-game{cursor:pointer;border-color:rgba(124,92,252,.28);}
+.game-card.unlocked-game:hover{background:rgba(124,92,252,.08);border-color:rgba(124,92,252,.6);transform:translateY(-2px);}
+.game-card.locked-game{opacity:.42;}
+.game-icon{font-size:1.8rem;flex-shrink:0;width:44px;text-align:center;}
+.game-name{font-family:var(--fd);font-size:.85rem;letter-spacing:.07em;color:var(--paper);margin-bottom:3px;}
+.game-detail{font-size:.65rem;color:rgba(240,236,223,.42);font-family:var(--fc);line-height:1.5;}
+.game-go{margin-left:auto;font-size:1rem;color:#c4b5fd;flex-shrink:0;}
+.game-lock{margin-left:auto;font-size:.56rem;font-family:var(--fm);letter-spacing:.06em;text-transform:uppercase;background:rgba(255,255,255,.06);border-radius:20px;padding:3px 10px;flex-shrink:0;white-space:nowrap;}
+
 /* ══════════ BATTLE ══════════ */
 #screen-battle{
   background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(239,68,68,.1) 0%,transparent 65%),var(--ink);
@@ -228,7 +249,16 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 #mode-select h2{font-family:var(--fd);font-size:1.05rem;letter-spacing:.1em;color:var(--gold);text-align:center;}
 #mode-select p{font-size:.72rem;color:rgba(240,236,223,.4);text-align:center;font-family:var(--fc);max-width:280px;}
 .mode-cards{display:flex;flex-direction:column;gap:.85rem;width:100%;max-width:340px;}
-.mode-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:1.1rem 1.25rem;cursor:pointer;transition:all .22s;display:flex;align-items:center;gap:1rem;}
+.mode-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:1.1rem 1.25rem;cursor:pointer;transition:all .22s;display:flex;align-items:center;gap:1rem;position:relative;}
+.mode-help-btn{
+  position:absolute;top:8px;right:8px;z-index:2;
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+  color:rgba(240,236,223,.55);font-size:.68rem;font-family:var(--fc);font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .18s;
+}
+.mode-help-btn:hover{background:rgba(201,168,76,.18);border-color:rgba(201,168,76,.5);color:var(--gold);transform:scale(1.1);}
 .mode-card:hover{border-color:rgba(201,168,76,.45);background:rgba(201,168,76,.06);transform:translateY(-2px);}
 .mode-card.campaign-card{border-color:rgba(124,92,252,.25);}
 .mode-card.campaign-card:hover{border-color:rgba(124,92,252,.6);background:rgba(124,92,252,.07);}
@@ -895,6 +925,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
       <button class="tn-tab active" onclick="Nav.go('home')">Summon</button>
       <button class="tn-tab" onclick="Nav.go('dex')">Dex</button>
       <button class="tn-tab" onclick="Nav.go('battle')">Battle</button>
+    
+      <button class="tn-tab" onclick="Nav.go('games')">Games</button>
     </div>
     <div class="tn-gems">💎<span id="gc-home">120</span></div>
   </nav>
@@ -995,6 +1027,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
       <button class="tn-tab" onclick="Nav.go('home')">Summon</button>
       <button class="tn-tab active" onclick="Nav.go('dex')">Dex</button>
       <button class="tn-tab" onclick="Nav.go('battle')">Battle</button>
+    
+      <button class="tn-tab" onclick="Nav.go('games')">Games</button>
     </div>
     <div class="tn-gems">💎<span id="gc-dex">120</span></div>
   </nav>
@@ -1022,6 +1056,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
       <button class="tn-tab" onclick="Nav.go('home')">Summon</button>
       <button class="tn-tab" onclick="Nav.go('dex')">Dex</button>
       <button class="tn-tab active" onclick="Nav.go('battle')">Battle</button>
+    
+      <button class="tn-tab" onclick="Nav.go('games')">Games</button>
     </div>
     <div class="tn-gems">💎<span id="gc-battle">120</span></div>
   </nav>
@@ -1032,6 +1068,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
     <p>Two ways to fight. One Chronicle.</p>
     <div class="mode-cards">
       <div class="mode-card" onclick="HowTo.show('death', ()=>Battle.initSelect())">
+        <button class="mode-help-btn" onclick="event.stopPropagation();HowTo.force('death')" title="How to play">?</button>
         <div class="mode-icon">⚔️</div>
         <div>
           <div class="mode-name">Sudden Death</div>
@@ -1040,6 +1077,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
         </div>
       </div>
       <div class="mode-card campaign-card" onclick="HowTo.show('campaign', ()=>Campaign.initLevelSelect())">
+        <button class="mode-help-btn" onclick="event.stopPropagation();HowTo.force('campaign')" title="How to play">?</button>
         <div class="mode-icon">🗺️</div>
         <div>
           <div class="mode-name">Campaign</div>
@@ -1123,6 +1161,50 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
   </div>
 </div>
 
+<!-- ═══════ GAMES HUB ═══════ -->
+<div class="screen" id="screen-games">
+  <nav class="topnav">
+    <div class="tn-brand">MYTHIKA</div>
+    <div class="tn-tabs">
+      <button class="tn-tab" onclick="Nav.go('home')">Summon</button>
+      <button class="tn-tab" onclick="Nav.go('dex')">Dex</button>
+      <button class="tn-tab" onclick="Nav.go('battle')">Battle</button>
+      <button class="tn-tab active" onclick="Nav.go('games')">Games</button>
+    </div>
+    <div class="tn-gems">💎<span id="gc-games">120</span></div>
+  </nav>
+  <div id="games-hub">
+    <h2>The Chronicle's Other Tales</h2>
+    <p>The Archivist has preserved more than one kind of story. Every game here draws from the same spirits you've already gathered.</p>
+    <div class="games-list">
+      <div class="game-card unlocked-game" onclick="location.href='trivia.html'">
+        <div class="game-icon">📜</div>
+        <div class="game-info">
+          <div class="game-name">Lore Trivia</div>
+          <div class="game-detail">Test your knowledge of the Chronicle's legends. Earn gems for every correct answer.</div>
+        </div>
+        <div class="game-go">▶</div>
+      </div>
+      <div class="game-card locked-game">
+        <div class="game-icon">🎴</div>
+        <div class="game-info">
+          <div class="game-name">Memory Match</div>
+          <div class="game-detail">Flip and match spirits from your collection.</div>
+        </div>
+        <div class="game-lock">🔒 Soon</div>
+      </div>
+      <div class="game-card locked-game">
+        <div class="game-icon">♟️</div>
+        <div class="game-info">
+          <div class="game-name">Chess</div>
+          <div class="game-detail">A 3D board where your spirits become the pieces.</div>
+        </div>
+        <div class="game-lock">🔒 Soon</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Battle fighter preview overlay (single shared instance) -->
 <div class="c-tooltip-overlay" id="c-tooltip-overlay" onclick="if(event.target===this)Battle._dismissAllTooltips()">
   <div class="c-tooltip" id="c-tooltip-content"></div>
@@ -1175,7 +1257,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 ════════════════════════════════════ */
 
 /* helpers */
-function allGems(){['gc-home','gc-draw','gc-dex','gc-battle'].forEach(id=>{const e=$(id);if(e)e.textContent=State.gems;});}
+function allGems(){['gc-home','gc-draw','gc-dex','gc-battle','gc-games'].forEach(id=>{const e=$(id);if(e)e.textContent=State.gems;});}
 function homeStats(){
   const n=State.unlocked.length,t=ROSTER.length;
   $('stat-n').textContent=n;$('stat-t').textContent=t;$('stat-p').textContent=Math.floor(n/t*100)+'%';
@@ -1335,7 +1417,21 @@ const Detail={
     $('det-abs').innerHTML=(card.abilities||[]).map(a=>`<div class="det-ab"><div class="an">${a.name}</div><div class="ad">${a.desc}</div></div>`).join('');
     $('det-origin').textContent=card.origin;
     const bb=$('det-battle-btn');
-    if(State.unlocked.includes(card.id)){bb.style.display='block';bb.onclick=()=>{Detail.close();Nav.go('battle');Battle._selectCard(card);};}
+    if(State.unlocked.includes(card.id)){
+      bb.style.display='block';
+      bb.onclick=()=>{
+        Detail.close();
+        // Route straight to the Sudden Death squad builder (not Mode
+        // Select — Nav.go('battle') would land there, before the grid
+        // exists, so Battle._selectCard would silently no-op).
+        // Campaign is skipped here since its field/bench split makes
+        // "which slot" ambiguous for a one-tap add.
+        document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+        $('screen-battle').classList.add('active');
+        Battle.initSelect();
+        Battle._selectCard(card);
+      };
+    }
     else bb.style.display='none';
     $('det-overlay').classList.add('show');
   },
@@ -1864,10 +1960,13 @@ const Battle={
 /* ════════════════════════════════════
    MODULE: HowTo
    Skippable slide-based tutorial overlay.
-   Shown once per session per mode.
+   Auto-shows once per mode, ever (persisted via localStorage) —
+   after that, players reopen it manually via the "?" button on
+   each mode card. This avoids interrupting returning players on
+   every match while keeping the rules always one tap away.
 ════════════════════════════════════ */
 const HowTo = {
-  _seen: {},
+  _seen: LS('mk_howto_seen', {}),
   _slides: {
     death: [
       {
@@ -1909,10 +2008,22 @@ const HowTo = {
   _onDone: null,
 
   show(mode, onDone) {
-    // Skip if already seen this session
+    // Skip if already seen (persisted — survives reload/app restart)
     if (this._seen[mode]) { if(onDone) onDone(); return; }
     this._mode = mode;
     this._onDone = onDone || null;
+    this._current = 0;
+    this._render();
+    $('howto-overlay').classList.add('show');
+  },
+
+  // Manually reopen the how-to regardless of whether it's been seen —
+  // wired to the "?" button on each mode card. Does not call onDone,
+  // since the player is already on the screen they want; it's purely
+  // a rules refresher.
+  force(mode) {
+    this._mode = mode;
+    this._onDone = null;
     this._current = 0;
     this._render();
     $('howto-overlay').classList.add('show');
@@ -1950,6 +2061,7 @@ const HowTo = {
 
   skip() {
     this._seen[this._mode] = true;
+    LSset('mk_howto_seen', this._seen);
     $('howto-overlay').classList.remove('show');
     if (this._onDone) this._onDone();
   }
