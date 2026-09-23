@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="./mythikalogo.PNG">
+<link rel="icon" type="image/jpeg" href="./mythikalogo.PNG">
+<title>MYTHIKA — Lore Trivia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;700&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#080810;--ink2:#0f0f1a;--ink3:#16162a;
+  --paper:#f0ecdf;--gold:#c9a84c;--gold2:#e8c96a;--gold3:#fff6d0;
+  --silver:#9ba8b5;--green:#4ade80;--red:#ef4444;--blue:#60a5fa;
+  --purple:#7c3aed;--purple2:#c4b5fd;
+  --r5:5px;--r10:10px;--r16:16px;--r24:24px;
+  --fd:'Cinzel Decorative',serif;--fc:'Cinzel',serif;
+  --fb:'Zen Kaku Gothic New',sans-serif;--fm:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:var(--fb);background:var(--ink);color:var(--paper);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;}
+button{font-family:var(--fb);cursor:pointer;border:none;background:none;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,.3);border-radius:2px;}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+.screen{display:none;flex-direction:column;min-height:100vh;position:relative;z-index:1;}
+.screen.active{display:flex;}
+
+/* Top bar */
+.topnav{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.1rem;flex-shrink:0;border-bottom:1px solid rgba(201,168,76,.18);background:rgba(8,8,16,.97);backdrop-filter:blur(14px);position:sticky;top:0;z-index:50;}
+.tn-back{font-size:.72rem;font-family:var(--fc);letter-spacing:.06em;color:rgba(240,236,223,.45);transition:color .2s;}
+.tn-back:hover{color:var(--paper);}
+.tn-brand{font-family:var(--fd);font-size:.95rem;letter-spacing:.13em;color:var(--gold);text-shadow:0 0 16px rgba(201,168,76,.4);}
+.tn-gems{font-size:.72rem;font-weight:700;color:var(--gold2);font-family:var(--fm);display:flex;align-items:center;gap:3px;}
+
+/* ══════════ START SCREEN ══════════ */
+#screen-start{background:radial-gradient(ellipse 70% 55% at 50% 0%,rgba(124,92,252,.1) 0%,transparent 65%),var(--ink);}
+.start-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;gap:1.3rem;text-align:center;}
+.start-icon{font-size:3rem;filter:drop-shadow(0 0 20px rgba(124,92,252,.4));}
+.start-title{font-family:var(--fd);font-size:clamp(1.6rem,7vw,2.2rem);letter-spacing:.12em;color:var(--paper);}
+.start-title span{color:#c4b5fd;}
+.start-sub{font-size:.75rem;color:rgba(240,236,223,.45);font-family:var(--fc);letter-spacing:.06em;line-height:1.7;max-width:320px;font-style:italic;}
+.start-stats{display:flex;gap:2rem;font-family:var(--fm);font-size:.68rem;color:rgba(240,236,223,.4);margin-top:.3rem;}
+.start-stats strong{display:block;font-size:1.15rem;color:#c4b5fd;font-family:var(--fd);}
+.btn-begin{
+  margin-top:.6rem;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#5b21b6,#7c3aed,#5b21b6);color:white;
+  font-family:var(--fd);font-size:.9rem;letter-spacing:.12em;
+  padding:14px 32px;border-radius:var(--r5);
+  box-shadow:0 0 26px rgba(124,92,252,.35);transition:all .25s;
+}
+.btn-begin:hover{transform:translateY(-2px);box-shadow:0 6px 34px rgba(124,92,252,.55);}
+.btn-begin:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.start-warn{font-size:.65rem;color:rgba(252,165,165,.7);font-family:var(--fc);margin-top:.4rem;}
+
+/* ══════════ QUIZ SCREEN ══════════ */
+#screen-quiz{background:var(--ink);}
+.quiz-progress-bar{display:flex;align-items:center;gap:.6rem;padding:.6rem 1.1rem;border-bottom:1px solid rgba(124,92,252,.15);flex-shrink:0;}
+.qp-label{font-size:.62rem;font-family:var(--fc);letter-spacing:.06em;color:rgba(196,181,253,.55);white-space:nowrap;}
+.qp-track{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
+.qp-fill{height:100%;background:linear-gradient(90deg,#7c3aed,#c4b5fd);border-radius:2px;transition:width .4s ease;}
+.qp-score{font-size:.68rem;font-family:var(--fm);color:var(--gold2);white-space:nowrap;}
+
+.quiz-body{flex:1;display:flex;flex-direction:column;padding:1.75rem 1.25rem;gap:1.4rem;max-width:480px;margin:0 auto;width:100%;}
+.q-portrait{width:120px;height:120px;margin:0 auto;border-radius:50%;overflow:hidden;border:2px solid rgba(124,92,252,.3);box-shadow:0 0 24px rgba(124,92,252,.2);}
+.q-portrait img{width:100%;height:100%;object-fit:cover;display:block;}
+.q-portrait svg{width:100%;height:100%;}
+.q-prompt{font-family:var(--fd);font-size:1.05rem;letter-spacing:.04em;color:var(--paper);text-align:center;line-height:1.5;}
+.q-choices{display:flex;flex-direction:column;gap:.65rem;}
+.q-choice{
+  background:rgba(255,255,255,.045);border:1.5px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:13px 16px;text-align:left;
+  font-size:.82rem;font-family:var(--fc);color:rgba(240,236,223,.85);
+  transition:all .18s;
+}
+.q-choice:hover{border-color:rgba(124,92,252,.5);background:rgba(124,92,252,.08);}
+.q-choice.correct{border-color:var(--green);background:rgba(74,222,128,.14);color:#86efac;}
+.q-choice.wrong{border-color:var(--red);background:rgba(239,68,68,.14);color:#fca5a5;}
+.q-choice.disabled{pointer-events:none;}
+.q-choice.dim{opacity:.4;}
+
+.q-feedback{text-align:center;font-size:.72rem;font-family:var(--fc);letter-spacing:.05em;min-height:1.2rem;}
+.q-feedback.correct-txt{color:#86efac;}
+.q-feedback.wrong-txt{color:#fca5a5;}
+
+/* ══════════ RESULTS SCREEN ══════════ */
+#screen-results{background:radial-gradient(ellipse 70% 55% at 50% 20%,rgba(124,92,252,.12) 0%,transparent 65%),var(--ink);}
+.results-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;gap:1rem;text-align:center;}
+.results-icon{font-size:2.6rem;}
+.results-title{font-family:var(--fd);font-size:1.3rem;letter-spacing:.08em;color:var(--gold);}
+.results-score{font-family:var(--fd);font-size:2.4rem;color:#c4b5fd;letter-spacing:.05em;}
+.results-score span{font-size:1.1rem;color:rgba(240,236,223,.4);}
+.results-msg{font-size:.75rem;color:rgba(240,236,223,.55);font-family:var(--fc);font-style:italic;max-width:280px;line-height:1.7;}
+.results-reward{display:flex;align-items:center;gap:6px;font-family:var(--fm);font-size:.9rem;color:var(--gold2);background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);border-radius:20px;padding:6px 18px;margin-top:.3rem;}
+.results-actions{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:260px;margin-top:.8rem;}
+.btn-again2{background:linear-gradient(135deg,#5b21b6,#7c3aed);color:white;font-family:var(--fd);font-size:.8rem;letter-spacing:.1em;padding:12px 20px;border-radius:var(--r5);transition:all .2s;}
+.btn-again2:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(124,92,252,.4);}
+.btn-home2{background:rgba(255,255,255,.06);border:1px solid rgba(201,168,76,.25);color:var(--gold);font-family:var(--fc);font-size:.75rem;letter-spacing:.07em;padding:11px 18px;border-radius:var(--r5);transition:all .2s;}
+.btn-home2:hover{background:rgba(201,168,76,.1);}
+
+.spin-ring{width:24px;height:24px;border:2px solid rgba(124,92,252,.18);border-top-color:#c4b5fd;border-radius:50%;animation:spin .85s linear infinite;margin:0 auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- ═══════ START ═══════ -->
+<div class="screen active" id="screen-start">
+  <nav class="topnav">
+    <a class="tn-back" href="mythika-gacha.html">← Chronicle</a>
+    <div class="tn-brand">LORE TRIVIA</div>
+    <div class="tn-gems">💎<span id="gc-start">0</span></div>
+  </nav>
+  <div class="start-body">
+    <div class="start-icon">📜</div>
+    <div class="start-title">The Archivist's <span>Trial</span></div>
+    <div class="start-sub">How well do you know the legends you've gathered? Answer truly, and the Chronicle rewards you.</div>
+    <div class="start-stats">
+      <div><strong id="stat-known">0</strong>Spirits Known</div>
+      <div><strong>8</strong>Questions</div>
+    </div>
+    <button class="btn-begin" id="begin-btn" onclick="Trivia.start()">✦ Begin the Trial ✦</button>
+    <div class="start-warn" id="start-warn" style="display:none;">Summon at least 4 spirits before the Archivist can test you.</div>
+  </div>
+</div>
+
+<!-- ═══════ QUIZ ═══════ -->
+<div class="screen" id="screen-quiz">
+  <nav class="topnav">
+    <a class="tn-back" href="mythika-gacha.html">← Chronicle</a>
+    <div class="tn-brand">LORE TRIVIA</div>
+    <div class="tn-gems">💎<span id="gc-quiz">0</span></div>
+  </nav>
+  <div class="quiz-progress-bar">
+    <div class="qp-label" id="qp-label">Question 1/8</div>
+    <div class="qp-track"><div class="qp-fill" id="qp-fill" style="width:0%"></div></div>
+    <div class="qp-score" id="qp-score">0 correct</div>
+  </div>
+  <div class="quiz-body">
+    <div class="q-portrait" id="q-portrait"></div>
+    <div class="q-prompt" id="q-prompt">—</div>
+    <div class="q-choices" id="q-choices"></div>
+    <div class="q-feedback" id="q-feedback"></div>
+  </div>
+</div>
+
+<!-- ═══════ RESULTS ═══════ -->
+<div class="screen" id="screen-results">
+  <nav class="topnav">
+    <a class="tn-back" href="mythika-gacha.html">← Chronicle</a>
+    <div class="tn-brand">LORE TRIVIA</div>
+    <div class="tn-gems">💎<span id="gc-results">0</span></div>
+  </nav>
+  <div class="results-body">
+    <div class="results-icon" id="results-icon">📜</div>
+    <div class="results-title" id="results-title">Trial Complete</div>
+    <div class="results-score"><span id="results-num">0</span><span> / 8 correct</span></div>
+    <div class="results-msg" id="results-msg">—</div>
+    <div class="results-reward" id="results-reward">💎 +0 gems</div>
+    <div class="results-actions">
+      <button class="btn-again2" onclick="Trivia.start()">✦ Trial Again</button>
+      <a class="btn-home2" href="mythika-gacha.html" style="display:block;text-align:center;text-decoration:none;">← Return to the Chronicle</a>
+    </div>
+  </div>
+</div>
+
+<!-- Shared modules — same roster, save data, and art rendering as
+     every other Mythika game. See mythika-gacha.html's own comment
+     for load-order notes; this page needs the same order. -->
+<script src="shared/roster.js"></script>
+<script src="shared/state.js"></script>
+<script src="shared/art.js"></script>
+<script src="shared/ui-helpers.js"></script>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+function allGems(){['gc-start','gc-quiz','gc-results'].forEach(id=>{const e=$(id);if(e)e.textContent=State.gems;});}
+
+/* ════════════════════════════════════
+   MODULE: Trivia
+   Generates multiple-choice questions dynamically from ROSTER —
+   no hardcoded question bank, so this scales automatically as
+   characters are added to shared/roster.js.
+════════════════════════════════════ */
+const Trivia = {
+  ROUND_LENGTH: 8,
+  MIN_CHARACTERS: 4,   // need at least this many unlocked to generate fair distractors
+  GEM_PER_CORRECT: 3,
+  PERFECT_BONUS: 15,
+
+  questions: [],
+  current: 0,
+  score: 0,
+  answered: false,
+
+  init(){
+    const known = State.unlocked.length;
+    $('stat-known').textContent = known;
+    allGems();
+    if (known < this.MIN_CHARACTERS) {
+      $('begin-btn').disabled = true;
+      $('start-warn').style.display = 'block';
+    }
+  },
+
+  // ── Question generation ──
+  _pool(){
+    return ROSTER.filter(c => State.unlocked.includes(c.id));
+  },
+
+  _sample(arr, n, exclude){
+    const pool = arr.filter(x => !exclude || x.id !== exclude.id);
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, n);
+  },
+
+  _shuffle(arr){
+    return [...arr].sort(() => Math.random() - 0.5);
+  },
+
+  // Builds up to `count` DISTINCT option values, always starting with
+  // the correct answer, drawing distractors from `candidates` (a flat
+  // array of values, e.g. every other character's element). Dedupes
+  // against the growing list from the start — this is the part the
+  // naive `new Set(distractors)` approach got wrong, since that only
+  // deduped the distractors against EACH OTHER, not against the
+  // correct answer itself, so a distractor equal to the correct value
+  // slipped through as a visible duplicate.
+  //
+  // Gracefully returns fewer than `count` options if the candidate
+  // pool genuinely doesn't contain enough distinct values (e.g. a
+  // very small unlocked collection where every character shares the
+  // same element) — the quiz UI renders one button per option
+  // regardless of array length, so this never breaks the round, it
+  // just occasionally asks an easier question with 2-3 choices.
+  _uniqueOptions(correct, candidates, count){
+    const options = [correct];
+    const shuffled = this._shuffle(candidates);
+    for (const c of shuffled) {
+      if (options.length >= count) break;
+      if (!options.includes(c)) options.push(c);
+    }
+    return this._shuffle(options);
+  },
+
+  // Builds ONE question of a random type about a random known character.
+  _buildQuestion(subject, pool){
+    const types = ['title','origin','ability','element'];
+    const type = types[Math.floor(Math.random()*types.length)];
+
+    if (type === 'title') {
+      const distractors = this._sample(pool, 3, subject).map(c=>c.title);
+      const options = this._shuffle([subject.title, ...distractors]);
+      return {
+        portrait: subject,
+        prompt: `Who is known as "${subject.title}"?`,
+        options: options.map(t => pool.find(c=>c.title===t)?.name || subject.name),
+        correct: subject.name,
+        // Show a DIFFERENT character's portrait would give away nothing since
+        // the question is about the title — show the subject's own portrait
+        // only after answering. Before answering, use a mystery placeholder.
+        mystery: true
+      };
+    }
+
+    if (type === 'origin') {
+      const candidates = pool.filter(c=>c.id!==subject.id).map(c=>c.origin);
+      const options = this._uniqueOptions(subject.origin, candidates, 4);
+      return {
+        portrait: subject,
+        prompt: `Where does ${subject.name} originate from?`,
+        options,
+        correct: subject.origin,
+        mystery: false
+      };
+    }
+
+    if (type === 'ability') {
+      const ability = subject.abilities[Math.floor(Math.random()*subject.abilities.length)];
+      const otherAbilities = pool.filter(c=>c.id!==subject.id).flatMap(c=>c.abilities.map(a=>a.name));
+      const distractors = this._shuffle([...new Set(otherAbilities)]).slice(0,3);
+      const options = this._shuffle([ability.name, ...distractors]);
+      return {
+        portrait: subject,
+        prompt: `Which ability belongs to ${subject.name}?`,
+        options,
+        correct: ability.name,
+        mystery: false
+      };
+    }
+
+    // element
+    const candidates = pool.filter(c=>c.id!==subject.id).map(c=>c.element);
+    const options = this._uniqueOptions(subject.element, candidates, 4);
+    return {
+      portrait: subject,
+      prompt: `What element is ${subject.name} attuned to?`,
+      options: this._shuffle(options),
+      correct: subject.element,
+      mystery: false
+    };
+  },
+
+  _generateRound(){
+    const pool = this._pool();
+    const subjects = this._shuffle(pool).slice(0, this.ROUND_LENGTH);
+    // If fewer unique characters than ROUND_LENGTH, allow repeats
+    while (subjects.length < this.ROUND_LENGTH && pool.length > 0) {
+      subjects.push(pool[Math.floor(Math.random()*pool.length)]);
+    }
+    this.questions = subjects.map(s => this._buildQuestion(s, pool));
+  },
+
+  start(){
+    if (State.unlocked.length < this.MIN_CHARACTERS) return;
+    this._generateRound();
+    this.current = 0;
+    this.score = 0;
+    this.answered = false;
+    this._showScreen('quiz');
+    this._renderQuestion();
+  },
+
+  _showScreen(name){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    $('screen-'+name).classList.add('active');
+    window.scrollTo(0,0);
+  },
+
+  _renderQuestion(){
+    this.answered = false;
+    const q = this.questions[this.current];
+    const n = this.questions.length;
+
+    $('qp-label').textContent = `Question ${this.current+1}/${n}`;
+    $('qp-fill').style.width = ((this.current)/n*100)+'%';
+    $('qp-score').textContent = `${this.score} correct`;
+    $('q-feedback').textContent = '';
+    $('q-feedback').className = 'q-feedback';
+
+    // Portrait: mystery placeholder for "title" questions (would give away
+    // the answer), real portrait otherwise
+    if (q.mystery) {
+      $('q-portrait').innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#12102a;font-size:2rem;">❓</div>`;
+    } else {
+      $('q-portrait').innerHTML = Art.html(q.portrait, '100%', '100%');
+    }
+
+    $('q-prompt').textContent = q.prompt;
+
+    const choicesEl = $('q-choices');
+    choicesEl.innerHTML = '';
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'q-choice';
+      btn.textContent = opt;
+      btn.onclick = () => this._answer(opt, btn);
+      choicesEl.appendChild(btn);
+    });
+  },
+
+  _answer(chosen, btnEl){
+    if (this.answered) return;
+    this.answered = true;
+    const q = this.questions[this.current];
+    const correct = chosen === q.correct;
+
+    document.querySelectorAll('.q-choice').forEach(b => {
+      b.classList.add('disabled');
+      if (b.textContent === q.correct) b.classList.add('correct');
+      else if (b === btnEl) b.classList.add('wrong');
+      else b.classList.add('dim');
+    });
+
+    if (correct) {
+      this.score++;
+      $('q-feedback').textContent = '✓ Correct — the Chronicle remembers truly.';
+      $('q-feedback').className = 'q-feedback correct-txt';
+    } else {
+      $('q-feedback').textContent = `✗ Not quite — it was "${q.correct}".`;
+      $('q-feedback').className = 'q-feedback wrong-txt';
+    }
+
+    // Reveal true portrait for mystery (title) questions after answering
+    if (q.mystery) {
+      $('q-portrait').innerHTML = Art.html(q.portrait, '100%', '100%');
+    }
+
+    setTimeout(() => this._next(), 1350);
+  },
+
+  _next(){
+    this.current++;
+    if (this.current >= this.questions.length) {
+      this._finish();
+    } else {
+      this._renderQuestion();
+    }
+  },
+
+  _finish(){
+    const n = this.questions.length;
+    const perfect = this.score === n;
+    const reward = this.score * this.GEM_PER_CORRECT + (perfect ? this.PERFECT_BONUS : 0);
+
+    State.gems += reward;
+    State.save();
+    allGems();
+
+    $('qp-fill').style.width = '100%';
+    $('results-num').textContent = this.score;
+    $('results-reward').textContent = `💎 +${reward} gems` + (perfect ? '  ·  Perfect bonus!' : '');
+
+    let msg, icon, title;
+    const pct = this.score / n;
+    if (pct === 1) {
+      icon = '✦'; title = 'Perfect Recall';
+      msg = 'Not a single legend forgotten. The Archivist is impressed.';
+    } else if (pct >= 0.75) {
+      icon = '📜'; title = 'Well Remembered';
+      msg = 'Most of the Chronicle holds true in your memory.';
+    } else if (pct >= 0.5) {
+      icon = '📖'; title = 'A Fair Attempt';
+      msg = 'Some stories are clearer to you than others. Keep reading.';
+    } else {
+      icon = '🕯️'; title = 'Dim Memory';
+      msg = 'The Chronicle has much more to teach you yet.';
+    }
+    $('results-icon').textContent = icon;
+    $('results-title').textContent = title;
+    $('results-msg').textContent = msg;
+
+    this._showScreen('results');
+  }
+};
+
+(function boot(){
+  allGems();
+  Trivia.init();
+})();
+</script>
+</body>
+</html>
