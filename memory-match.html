@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="./mythikalogo.PNG">
+<link rel="icon" type="image/jpeg" href="./mythikalogo.PNG">
+<title>MYTHIKA — Memory Match</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;700&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#080810;--ink2:#0f0f1a;--ink3:#16162a;
+  --paper:#f0ecdf;--gold:#c9a84c;--gold2:#e8c96a;--gold3:#fff6d0;
+  --silver:#9ba8b5;--green:#4ade80;--red:#ef4444;--blue:#60a5fa;
+  --purple:#7c3aed;--purple2:#c4b5fd;
+  --r5:5px;--r10:10px;--r16:16px;--r24:24px;
+  --fd:'Cinzel Decorative',serif;--fc:'Cinzel',serif;
+  --fb:'Zen Kaku Gothic New',sans-serif;--fm:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:var(--fb);background:var(--ink);color:var(--paper);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;}
+button{font-family:var(--fb);cursor:pointer;border:none;background:none;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,.3);border-radius:2px;}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+.screen{display:none;flex-direction:column;min-height:100vh;position:relative;z-index:1;}
+.screen.active{display:flex;}
+
+.topnav{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.1rem;flex-shrink:0;border-bottom:1px solid rgba(201,168,76,.18);background:rgba(8,8,16,.97);backdrop-filter:blur(14px);position:sticky;top:0;z-index:50;}
+.tn-back{font-size:.72rem;font-family:var(--fc);letter-spacing:.06em;color:rgba(240,236,223,.45);transition:color .2s;text-decoration:none;}
+.tn-back:hover{color:var(--paper);}
+.tn-brand{font-family:var(--fd);font-size:.95rem;letter-spacing:.13em;color:var(--gold);text-shadow:0 0 16px rgba(201,168,76,.4);}
+.tn-gems{font-size:.72rem;font-weight:700;color:var(--gold2);font-family:var(--fm);display:flex;align-items:center;gap:3px;}
+
+/* ══════════ START / DIFFICULTY SCREEN ══════════ */
+#screen-start{background:radial-gradient(ellipse 70% 55% at 50% 0%,rgba(74,222,128,.08) 0%,transparent 65%),var(--ink);}
+.start-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;gap:1.2rem;text-align:center;}
+.start-icon{font-size:2.8rem;filter:drop-shadow(0 0 18px rgba(74,222,128,.35));}
+.start-title{font-family:var(--fd);font-size:clamp(1.5rem,7vw,2.1rem);letter-spacing:.11em;color:var(--paper);}
+.start-title span{color:#86efac;}
+.start-sub{font-size:.74rem;color:rgba(240,236,223,.45);font-family:var(--fc);line-height:1.7;max-width:310px;font-style:italic;}
+
+.diff-list{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:320px;margin-top:.5rem;}
+.diff-card{
+  background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:.9rem 1.1rem;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:.85rem;text-align:left;
+}
+.diff-card:hover{border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.06);transform:translateY(-2px);}
+.diff-card.locked-diff{opacity:.35;cursor:default;pointer-events:none;}
+.diff-emoji{font-size:1.5rem;width:36px;text-align:center;flex-shrink:0;}
+.diff-name{font-family:var(--fd);font-size:.82rem;letter-spacing:.06em;color:var(--paper);margin-bottom:2px;}
+.diff-detail{font-size:.62rem;color:rgba(240,236,223,.4);font-family:var(--fc);}
+.diff-need{margin-left:auto;font-size:.56rem;font-family:var(--fm);color:rgba(252,165,165,.7);white-space:nowrap;flex-shrink:0;}
+
+/* ══════════ BOARD SCREEN ══════════ */
+#screen-board{background:var(--ink);}
+.board-stats-bar{display:flex;align-items:center;justify-content:center;gap:1.6rem;padding:.65rem 1.1rem;border-bottom:1px solid rgba(74,222,128,.15);flex-shrink:0;}
+.bstat{text-align:center;}
+.bstat-val{font-family:var(--fd);font-size:1.05rem;color:#86efac;line-height:1.1;}
+.bstat-lbl{font-size:.54rem;color:rgba(240,236,223,.35);font-family:var(--fc);letter-spacing:.06em;text-transform:uppercase;}
+
+.board-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:1rem;}
+.board-grid{display:grid;gap:8px;width:100%;max-width:460px;}
+
+.mm-card{
+  aspect-ratio:2/3;perspective:600px;cursor:pointer;
+}
+.mm-card-inner{
+  width:100%;height:100%;position:relative;
+  transform-style:preserve-3d;transition:transform .4s cubic-bezier(.4,0,.2,1);
+}
+.mm-card.flipped .mm-card-inner,
+.mm-card.matched .mm-card-inner{transform:rotateY(180deg);}
+.mm-face{position:absolute;inset:0;border-radius:8px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;}
+.mm-back{
+  background:linear-gradient(145deg,#12102a,#0a0818,#12102a);
+  border:1.5px solid rgba(201,168,76,.3);
+  display:flex;align-items:center;justify-content:center;
+}
+.mm-back svg{width:55%;height:55%;opacity:.5;}
+.mm-front{
+  transform:rotateY(180deg);border:1.5px solid rgba(74,222,128,.4);
+  background:#06060f;
+}
+.mm-front img{width:100%;height:100%;object-fit:cover;display:block;}
+.mm-front svg{width:100%;height:100%;}
+.mm-card.matched .mm-front{border-color:var(--gold);box-shadow:0 0 12px rgba(201,168,76,.4);}
+.mm-card.matched{cursor:default;}
+.mm-card.mismatch .mm-front{border-color:var(--red);}
+
+/* ══════════ RESULTS SCREEN ══════════ */
+#screen-results{background:radial-gradient(ellipse 70% 55% at 50% 20%,rgba(74,222,128,.1) 0%,transparent 65%),var(--ink);}
+.results-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;gap:1rem;text-align:center;}
+.results-icon{font-size:2.6rem;}
+.results-title{font-family:var(--fd);font-size:1.25rem;letter-spacing:.08em;color:var(--gold);}
+.results-stats-row{display:flex;gap:1.8rem;margin-top:.2rem;}
+.rstat-val{font-family:var(--fd);font-size:1.5rem;color:#86efac;}
+.rstat-lbl{font-size:.6rem;color:rgba(240,236,223,.4);font-family:var(--fc);letter-spacing:.05em;text-transform:uppercase;}
+.results-msg{font-size:.75rem;color:rgba(240,236,223,.55);font-family:var(--fc);font-style:italic;max-width:280px;line-height:1.7;margin-top:.3rem;}
+.results-reward{display:flex;align-items:center;gap:6px;font-family:var(--fm);font-size:.9rem;color:var(--gold2);background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);border-radius:20px;padding:6px 18px;margin-top:.3rem;}
+.results-actions{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:260px;margin-top:.8rem;}
+.btn-again3{background:linear-gradient(135deg,#166534,#4ade80);color:var(--ink);font-family:var(--fd);font-size:.8rem;letter-spacing:.1em;padding:12px 20px;border-radius:var(--r5);transition:all .2s;}
+.btn-again3:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(74,222,128,.35);}
+.btn-home3{background:rgba(255,255,255,.06);border:1px solid rgba(201,168,76,.25);color:var(--gold);font-family:var(--fc);font-size:.75rem;letter-spacing:.07em;padding:11px 18px;border-radius:var(--r5);transition:all .2s;display:block;text-align:center;text-decoration:none;}
+.btn-home3:hover{background:rgba(201,168,76,.1);}
+</style>
+</head>
+<body>
+
+<!-- ═══════ START / DIFFICULTY ═══════ -->
+<div class="screen active" id="screen-start">
+  <nav class="topnav">
+    <a class="tn-back" href="mythika-gacha.html">← Chronicle</a>
+    <div class="tn-brand">MEMORY MATCH</div>
+    <div class="tn-gems">💎<span id="gc-start">0</span></div>
+  </nav>
+  <div class="start-body">
+    <div class="start-icon">🎴</div>
+    <div class="start-title">Faces of the <span>Chronicle</span></div>
+    <div class="start-sub">Flip the cards. Find the matching pairs among the spirits you've gathered.</div>
+    <div class="diff-list" id="diff-list"></div>
+  </div>
+</div>
+
+<!-- ═══════ BOARD ═══════ -->
+<div class="screen" id="screen-board">
+  <nav class="topnav">
+    <a class="tn-back" href="#" onclick="MemoryMatch.quitToStart();return false;">← Quit</a>
+    <div class="tn-brand">MEMORY MATCH</div>
+    <div class="tn-gems">💎<span id="gc-board">0</span></div>
+  </nav>
+  <div class="board-stats-bar">
+    <div class="bstat"><div class="bstat-val" id="bstat-moves">0</div><div class="bstat-lbl">Moves</div></div>
+    <div class="bstat"><div class="bstat-val" id="bstat-time">0:00</div><div class="bstat-lbl">Time</div></div>
+    <div class="bstat"><div class="bstat-val" id="bstat-pairs">0/0</div><div class="bstat-lbl">Pairs</div></div>
+  </div>
+  <div class="board-wrap">
+    <div class="board-grid" id="board-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════ RESULTS ═══════ -->
+<div class="screen" id="screen-results">
+  <nav class="topnav">
+    <a class="tn-back" href="mythika-gacha.html">← Chronicle</a>
+    <div class="tn-brand">MEMORY MATCH</div>
+    <div class="tn-gems">💎<span id="gc-results">0</span></div>
+  </nav>
+  <div class="results-body">
+    <div class="results-icon" id="results-icon">🎴</div>
+    <div class="results-title" id="results-title">Board Cleared</div>
+    <div class="results-stats-row">
+      <div><div class="rstat-val" id="res-moves">0</div><div class="rstat-lbl">Moves</div></div>
+      <div><div class="rstat-val" id="res-time">0:00</div><div class="rstat-lbl">Time</div></div>
+    </div>
+    <div class="results-msg" id="results-msg">—</div>
+    <div class="results-reward" id="results-reward">💎 +0 gems</div>
+    <div class="results-actions">
+      <button class="btn-again3" onclick="MemoryMatch.quitToStart()">🎴 Play Again</button>
+      <a class="btn-home3" href="mythika-gacha.html">← Return to the Chronicle</a>
+    </div>
+  </div>
+</div>
+
+<!-- Shared modules — same roster, save data, and art rendering as
+     every other Mythika game. Load order matches every other page. -->
+<script src="shared/roster.js"></script>
+<script src="shared/state.js"></script>
+<script src="shared/art.js"></script>
+<script src="shared/ui-helpers.js"></script>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+function allGems(){['gc-start','gc-board','gc-results'].forEach(id=>{const e=$(id);if(e)e.textContent=State.gems;});}
+
+/* ════════════════════════════════════
+   MODULE: MemoryMatch
+════════════════════════════════════ */
+const MemoryMatch = {
+  DIFFICULTIES: [
+    {key:'easy',   name:'Easy',   emoji:'🌱', pairs:6,  cols:4, gemBase:15, detail:'6 pairs · 12 cards'},
+    {key:'medium', name:'Medium', emoji:'⚔️', pairs:8,  cols:4, gemBase:25, detail:'8 pairs · 16 cards'},
+    {key:'hard',   name:'Hard',   emoji:'🔥', pairs:10, cols:5, gemBase:40, detail:'10 pairs · 20 cards'},
+  ],
+
+  diff: null,
+  cards: [],          // {charId, matched}
+  flippedIdx: [],      // indices currently face-up, awaiting match check
+  moves: 0,
+  matchedPairs: 0,
+  startTime: 0,
+  timerHandle: null,
+  busy: false,         // true while resolving a mismatch flip-back, blocks new flips
+  _session: 0,         // incremented on every new game; guards deferred callbacks
+                        // (mismatch flip-back, finish delay) from acting on a game
+                        // that has since been quit and replaced by a new one
+
+  init(){
+    allGems();
+    const unlockedCount = State.unlocked.length;
+    const list = $('diff-list');
+    list.innerHTML = '';
+    this.DIFFICULTIES.forEach(d => {
+      const canPlay = unlockedCount >= d.pairs;
+      const el = document.createElement('div');
+      el.className = 'diff-card' + (canPlay ? '' : ' locked-diff');
+      el.innerHTML = `
+        <div class="diff-emoji">${d.emoji}</div>
+        <div>
+          <div class="diff-name">${d.name}</div>
+          <div class="diff-detail">${d.detail}</div>
+        </div>
+        ${canPlay ? '' : `<div class="diff-need">Need ${d.pairs} cards</div>`}
+      `;
+      if (canPlay) el.onclick = () => this.startGame(d);
+      list.appendChild(el);
+    });
+  },
+
+  startGame(diff){
+    this._session++;
+    this.diff = diff;
+    const pool = ROSTER.filter(c => State.unlocked.includes(c.id));
+    const chosen = [...pool].sort(() => Math.random() - 0.5).slice(0, diff.pairs);
+
+    const cards = [];
+    chosen.forEach(char => {
+      cards.push({ charId: char.id, matched: false });
+      cards.push({ charId: char.id, matched: false });
+    });
+    this.cards = cards.sort(() => Math.random() - 0.5);
+
+    this.flippedIdx = [];
+    this.moves = 0;
+    this.matchedPairs = 0;
+    this.busy = false;
+    this.startTime = Date.now();
+
+    this._showScreen('board');
+    this._renderBoard();
+    this._updateStats();
+    this._startTimer();
+  },
+
+  _showScreen(name){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    $('screen-'+name).classList.add('active');
+    window.scrollTo(0,0);
+  },
+
+  _startTimer(){
+    clearInterval(this.timerHandle);
+    this.timerHandle = setInterval(() => this._updateStats(), 1000);
+  },
+
+  _stopTimer(){
+    clearInterval(this.timerHandle);
+    this.timerHandle = null;
+  },
+
+  _elapsedSeconds(){
+    return Math.floor((Date.now() - this.startTime) / 1000);
+  },
+
+  _formatTime(sec){
+    const m = Math.floor(sec/60), s = sec%60;
+    return `${m}:${s.toString().padStart(2,'0')}`;
+  },
+
+  _updateStats(){
+    $('bstat-moves').textContent = this.moves;
+    $('bstat-time').textContent = this._formatTime(this._elapsedSeconds());
+    $('bstat-pairs').textContent = `${this.matchedPairs}/${this.diff.pairs}`;
+  },
+
+  _renderBoard(){
+    const grid = $('board-grid');
+    grid.style.gridTemplateColumns = `repeat(${this.diff.cols}, 1fr)`;
+    grid.innerHTML = '';
+    this.cards.forEach((card, i) => {
+      const el = document.createElement('div');
+      el.className = 'mm-card';
+      el.id = 'mm-card-'+i;
+      el.innerHTML = `
+        <div class="mm-card-inner">
+          <div class="mm-face mm-back">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="42" stroke="rgba(201,168,76,.4)" stroke-width="1.2" fill="none"/>
+              <polygon points="50,15 61,38 86,38 66,54 74,78 50,63 26,78 34,54 14,38 39,38" fill="none" stroke="rgba(201,168,76,.5)" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="mm-face mm-front" id="mm-front-${i}"></div>
+        </div>`;
+      el.onclick = () => this.flip(i);
+      grid.appendChild(el);
+    });
+  },
+
+  flip(i){
+    if (this.busy) return;
+    const cardEl = $('mm-card-'+i);
+    const card = this.cards[i];
+    if (card.matched) return;
+    if (this.flippedIdx.includes(i)) return;
+    if (this.flippedIdx.length >= 2) return;
+
+    // Render the character art the first time this card is flipped
+    const front = $('mm-front-'+i);
+    if (!front.dataset.rendered) {
+      const char = ROSTER.find(c => c.id === card.charId);
+      front.innerHTML = Art.html(char, '100%', '100%');
+      front.dataset.rendered = '1';
+    }
+
+    cardEl.classList.add('flipped');
+    this.flippedIdx.push(i);
+
+    if (this.flippedIdx.length === 2) {
+      this.moves++;
+      this._updateStats();
+      this._checkMatch();
+    }
+  },
+
+  _checkMatch(){
+    const [a, b] = this.flippedIdx;
+    const cardA = this.cards[a], cardB = this.cards[b];
+
+    if (cardA.charId === cardB.charId) {
+      // Match — lock both face-up permanently
+      cardA.matched = true;
+      cardB.matched = true;
+      $('mm-card-'+a).classList.add('matched');
+      $('mm-card-'+b).classList.add('matched');
+      this.flippedIdx = [];
+      this.matchedPairs++;
+      this._updateStats();
+
+      if (this.matchedPairs === this.diff.pairs) {
+        this._stopTimer();
+        const sessionAtCall = this._session;
+        setTimeout(() => {
+          if (sessionAtCall !== this._session) return; // stale — a new game started since
+          this._finish();
+        }, 500);
+      }
+    } else {
+      // Mismatch — briefly show red border, then flip both back
+      this.busy = true;
+      $('mm-card-'+a).classList.add('mismatch');
+      $('mm-card-'+b).classList.add('mismatch');
+      const sessionAtCall = this._session;
+      setTimeout(() => {
+        if (sessionAtCall !== this._session) return; // stale — a new game started since
+        $('mm-card-'+a).classList.remove('flipped','mismatch');
+        $('mm-card-'+b).classList.remove('flipped','mismatch');
+        this.flippedIdx = [];
+        this.busy = false;
+      }, 800);
+    }
+  },
+
+  _finish(){
+    const elapsed = this._elapsedSeconds();
+    const perfectMoves = this.diff.pairs; // best possible: every flip pair is a match
+    const efficiency = perfectMoves / this.moves; // 1.0 = perfect, lower = more misses
+
+    let bonus = 0;
+    let rating, icon;
+    if (this.moves === perfectMoves) {
+      bonus = 25; rating = 'Flawless Memory'; icon = '✦';
+    } else if (efficiency >= 0.7) {
+      bonus = 12; rating = 'Sharp Recall'; icon = '🎴';
+    } else if (efficiency >= 0.5) {
+      bonus = 5; rating = 'Steady Work'; icon = '📜';
+    } else {
+      bonus = 0; rating = 'Cleared, Eventually'; icon = '🕯️';
+    }
+
+    const reward = this.diff.gemBase + bonus;
+    State.gems += reward;
+    State.save();
+    allGems();
+
+    $('results-icon').textContent = icon;
+    $('results-title').textContent = rating;
+    $('res-moves').textContent = this.moves;
+    $('res-time').textContent = this._formatTime(elapsed);
+    $('results-reward').textContent = `💎 +${reward} gems`;
+    $('results-msg').textContent = this.moves === perfectMoves
+      ? 'Every pair found on the first try. The Chronicle is astonished.'
+      : `Cleared in ${this.moves} moves — the minimum possible was ${perfectMoves}.`;
+
+    this._showScreen('results');
+  },
+
+  quitToStart(){
+    this._session++;
+    this._stopTimer();
+    this.busy = false;
+    this.flippedIdx = [];
+    this._showScreen('start');
+    this.init();
+  }
+};
+
+(function boot(){
+  allGems();
+  MemoryMatch.init();
+})();
+</script>
+</body>
+</html>
