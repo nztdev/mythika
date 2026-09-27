@@ -203,6 +203,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .game-card.unlocked-game{cursor:pointer;border-color:rgba(124,92,252,.28);}
 .game-card.unlocked-game:hover{background:rgba(124,92,252,.08);border-color:rgba(124,92,252,.6);transform:translateY(-2px);}
 .game-card.locked-game{opacity:.42;}
+.game-card.preview-game{cursor:pointer;border-color:rgba(239,68,68,.25);}
+.game-card.preview-game:hover{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.5);transform:translateY(-2px);}
+.game-preview-badge{margin-left:auto;font-size:.54rem;font-family:var(--fm);letter-spacing:.06em;text-transform:uppercase;background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3);border-radius:20px;padding:3px 10px;flex-shrink:0;white-space:nowrap;}
 .game-icon{font-size:1.8rem;flex-shrink:0;width:44px;text-align:center;}
 .game-name{font-family:var(--fd);font-size:.85rem;letter-spacing:.07em;color:var(--paper);margin-bottom:3px;}
 .game-detail{font-size:.65rem;color:rgba(240,236,223,.42);font-family:var(--fc);line-height:1.5;}
@@ -1193,13 +1196,13 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
         </div>
         <div class="game-go">▶</div>
       </div>
-      <div class="game-card locked-game">
+      <div class="game-card preview-game" onclick="location.href='chess.html'">
         <div class="game-icon">♟️</div>
         <div class="game-info">
           <div class="game-name">Chess</div>
-          <div class="game-detail">A 3D board where your spirits become the pieces.</div>
+          <div class="game-detail">A 3D board where your spirits become the pieces. Board and pieces render — rules and the AI opponent are still being built.</div>
         </div>
-        <div class="game-lock">🔒 Soon</div>
+        <div class="game-preview-badge">👁 Preview</div>
       </div>
     </div>
   </div>
