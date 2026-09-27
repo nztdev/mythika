@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="./mythikalogo.PNG">
+<link rel="icon" type="image/jpeg" href="./mythikalogo.PNG">
+<title>MYTHIKA — Chess (Preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;700&family=DM+Mono&display=swap" rel="stylesheet">
+
+<!-- Import map: resolves the bare "three" specifier that OrbitControls.js
+     (and any future three.js addon) imports internally. This is a native
+     browser feature — no bundler, no build step. -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "./lib/three.module.js"
+  }
+}
+</script>
+
+<style>
+:root{
+  --ink:#080810;--ink2:#0f0f1a;
+  --paper:#f0ecdf;--gold:#c9a84c;--gold2:#e8c96a;
+  --fd:'Cinzel Decorative',serif;--fc:'Cinzel',serif;
+  --fb:'Zen Kaku Gothic New',sans-serif;--fm:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--fb);background:var(--ink);color:var(--paper);-webkit-tap-highlight-color:transparent;}
+
+.topnav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.8rem 1.1rem;border-bottom:1px solid rgba(201,168,76,.18);
+  background:rgba(8,8,16,.97);backdrop-filter:blur(14px);
+  position:fixed;top:0;left:0;right:0;z-index:50;
+}
+.tn-back{font-size:.72rem;font-family:var(--fc);letter-spacing:.06em;color:rgba(240,236,223,.45);text-decoration:none;}
+.tn-back:hover{color:var(--paper);}
+.tn-brand{font-family:var(--fd);font-size:.95rem;letter-spacing:.13em;color:var(--gold);text-shadow:0 0 16px rgba(201,168,76,.4);}
+.tn-badge{
+  font-size:.56rem;font-family:var(--fm);letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3);
+  padding:3px 9px;border-radius:20px;
+}
+
+#scene-container{position:fixed;inset:0;z-index:1;}
+#scene-container canvas{display:block;width:100%;height:100%;}
+
+#loading-overlay{
+  position:fixed;inset:0;z-index:20;background:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;
+  transition:opacity .5s ease;
+}
+#loading-overlay.hide{opacity:0;pointer-events:none;}
+.load-spin{width:36px;height:36px;border:3px solid rgba(201,168,76,.18);border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-text{font-family:var(--fc);font-size:.75rem;letter-spacing:.08em;color:rgba(240,236,223,.5);}
+
+#error-overlay{
+  display:none;position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.95);
+  flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;text-align:center;
+}
+#error-overlay.show{display:flex;}
+.error-title{font-family:var(--fd);font-size:1.1rem;color:#fca5a5;}
+.error-body{font-size:.78rem;color:rgba(240,236,223,.6);font-family:var(--fc);max-width:320px;line-height:1.7;}
+
+.note-banner{
+  position:fixed;bottom:0;left:0;right:0;z-index:15;
+  background:rgba(8,8,16,.95);border-top:1px solid rgba(201,168,76,.2);
+  padding:.7rem 1.1rem;text-align:center;
+  font-size:.68rem;font-family:var(--fc);color:rgba(240,236,223,.5);line-height:1.6;
+}
+.note-banner strong{color:var(--gold2);}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="tn-back" href="mythika-gacha.html">← Chronicle</a>
+  <div class="tn-brand">CHESS</div>
+  <div class="tn-badge">Preview Build</div>
+</nav>
+
+<div id="scene-container"></div>
+
+<div id="loading-overlay">
+  <div class="load-spin"></div>
+  <div class="load-text">Setting the board...</div>
+</div>
+
+<div id="error-overlay">
+  <div class="error-title">The board could not be summoned</div>
+  <div class="error-body" id="error-detail">Your browser may not support WebGL, which this game requires. Try a different browser or device.</div>
+</div>
+
+<div class="note-banner">
+  <strong>Visual preview only</strong> — piece movement, rules, and the AI opponent are still being built. Drag to orbit, pinch/scroll to zoom.
+</div>
+
+<!-- Shared modules — same roster, save data, and art rendering as
+     every other Mythika game, plus the chess-specific role mapping. -->
+<script src="shared/roster.js"></script>
+<script src="shared/state.js"></script>
+<script src="shared/art.js"></script>
+<script src="shared/ui-helpers.js"></script>
+<script src="shared/chess-roles.js"></script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from './lib/OrbitControls.js';
+
+/* ════════════════════════════════════════════════════════════════
+   CHESS BOARD — VISUAL PROOF OF CONCEPT
+   ════════════════════════════════════════════════════════════════
+   This validates the core rendering approach before any game rules
+   are built on top of it: lathe-geometry piece bodies (the same
+   technique real wooden chess sets are turned with) carrying a
+   circular portrait medallion of the character skinning that piece.
+
+   Deliberately NOT included yet (see project plan): move legality,
+   turn structure, check/checkmate detection, the Stockfish AI
+   integration, or a loadout-editing UI. This file only proves the
+   board and pieces render correctly and perform acceptably.
+   ════════════════════════════════════════════════════════════════ */
+
+const CONFIG = {
+  boardSize: 8,
+  squareSize: 1,
+  lightSquareColor: 0xe8dcc0,
+  darkSquareColor: 0x2a2440,
+  playerAccent: 0xc9a84c,   // gold — the player's piece trim
+  shadowAccent: 0x6b5b95,   // muted violet — the AI "Chronicle Shadow" trim
+};
+
+let scene, camera, renderer, controls;
+let textureLoader;
+
+function initScene(){
+  const container = document.getElementById('scene-container');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x080810);
+  scene.fog = new THREE.Fog(0x080810, 12, 26);
+
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
+  camera.position.set(0, 7.5, 8.5);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  container.appendChild(renderer.domElement);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(0, 0.3, 0);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.minDistance = 5;
+  controls.maxDistance = 16;
+  controls.maxPolarAngle = Math.PI * 0.48; // don't let the camera dip below the board
+  controls.update();
+
+  textureLoader = new THREE.TextureLoader();
+
+  setupLighting();
+  buildBoard();
+  buildAllPieces();
+
+  window.addEventListener('resize', onResize);
+  animate();
+}
+
+function setupLighting(){
+  const ambient = new THREE.AmbientLight(0x4a4470, 0.55);
+  scene.add(ambient);
+
+  // Warm key light, matching the app's gold-glow aesthetic
+  const key = new THREE.DirectionalLight(0xfff0c8, 1.3);
+  key.position.set(5, 10, 4);
+  key.castShadow = true;
+  key.shadow.mapSize.set(1024, 1024);
+  key.shadow.camera.left = -8; key.shadow.camera.right = 8;
+  key.shadow.camera.top = 8; key.shadow.camera.bottom = -8;
+  scene.add(key);
+
+  // Cool rim light from the opposite side for depth
+  const rim = new THREE.DirectionalLight(0x8888ff, 0.4);
+  rim.position.set(-6, 4, -6);
+  scene.add(rim);
+}
+
+function buildBoard(){
+  const boardGroup = new THREE.Group();
+  const n = CONFIG.boardSize, s = CONFIG.squareSize;
+  const offset = (n * s) / 2 - s/2;
+
+  // Base plinth beneath the playing surface
+  const plinthGeo = new THREE.BoxGeometry(n*s + 0.6, 0.35, n*s + 0.6);
+  const plinthMat = new THREE.MeshStandardMaterial({ color: 0x1a1628, roughness: 0.6, metalness: 0.2 });
+  const plinth = new THREE.Mesh(plinthGeo, plinthMat);
+  plinth.position.y = -0.375;
+  plinth.receiveShadow = true;
+  boardGroup.add(plinth);
+
+  for (let row = 0; row < n; row++){
+    for (let col = 0; col < n; col++){
+      const isLight = (row + col) % 2 === 0;
+      const geo = new THREE.BoxGeometry(s, 0.15, s);
+      const mat = new THREE.MeshStandardMaterial({
+        color: isLight ? CONFIG.lightSquareColor : CONFIG.darkSquareColor,
+        roughness: 0.5, metalness: 0.1,
+      });
+      const square = new THREE.Mesh(geo, mat);
+      square.position.set(col*s - offset, -0.075, row*s - offset);
+      square.receiveShadow = true;
+      square.userData = { isBoardSquare: true, row, col };
+      boardGroup.add(square);
+    }
+  }
+
+  scene.add(boardGroup);
+}
+
+/* ── LATHE PROFILES ──
+   Each profile is an array of THREE.Vector2(radius, height) points,
+   revolved 360° around the Y axis. This is the same principle real
+   turned wooden chess pieces are manufactured with. Proportions are
+   deliberately distinct per role so silhouette alone hints at piece
+   type even before the portrait medallion is read. */
+const PROFILES = {
+  pawn: [
+    [0.30,0.00],[0.32,0.04],[0.22,0.10],[0.16,0.28],[0.20,0.34],
+    [0.14,0.46],[0.20,0.58],[0.24,0.60],[0.24,0.66],[0.00,0.70],
+  ],
+  rook: [
+    [0.32,0.00],[0.34,0.04],[0.24,0.10],[0.22,0.55],[0.30,0.62],
+    [0.30,0.72],[0.24,0.76],[0.24,0.80],[0.00,0.80],
+  ],
+  bishop: [
+    [0.30,0.00],[0.32,0.04],[0.20,0.12],[0.15,0.40],[0.20,0.60],
+    [0.12,0.78],[0.16,0.92],[0.10,0.98],[0.13,1.04],[0.00,1.10],
+  ],
+  knight: [
+    [0.31,0.00],[0.33,0.04],[0.23,0.12],[0.19,0.30],[0.26,0.50],
+    [0.30,0.62],[0.22,0.74],[0.24,0.84],[0.00,0.90],
+  ],
+  queen: [
+    [0.34,0.00],[0.36,0.04],[0.22,0.14],[0.17,0.50],[0.24,0.74],
+    [0.16,0.98],[0.20,1.14],[0.10,1.26],[0.14,1.32],[0.00,1.40],
+  ],
+  king: [
+    [0.36,0.00],[0.38,0.04],[0.24,0.14],[0.18,0.54],[0.25,0.80],
+    [0.17,1.06],[0.22,1.24],[0.24,1.40],[0.18,1.46],[0.00,1.50],
+  ],
+};
+
+function makeLatheMesh(profileKey, material){
+  const pts = PROFILES[profileKey].map(([r,y]) => new THREE.Vector2(r,y));
+  const geo = new THREE.LatheGeometry(pts, 24);
+  geo.computeVertexNormals();
+  const mesh = new THREE.Mesh(geo, material);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+// A small crossed-box topper, unique to the King, so its silhouette
+// is unmistakable even at a glance or in a mismatched lighting angle.
+function makeKingCross(material){
+  const group = new THREE.Group();
+  const barGeo1 = new THREE.BoxGeometry(0.05, 0.16, 0.05);
+  const barGeo2 = new THREE.BoxGeometry(0.14, 0.05, 0.05);
+  const bar1 = new THREE.Mesh(barGeo1, material);
+  const bar2 = new THREE.Mesh(barGeo2, material);
+  bar1.position.y = 1.58;
+  bar2.position.y = 1.58;
+  bar1.castShadow = bar2.castShadow = true;
+  group.add(bar1, bar2);
+  return group;
+}
+
+// Builds a circular portrait medallion mounted on the piece's "chest"
+// height. `card` is a ROSTER character for player pieces, or null for
+// the opponent's uniform Shadow pieces (which get a generic sigil
+// instead of a portrait — see makeShadowMedallionTexture).
+function makeMedallion(card, mountHeight){
+  const geo = new THREE.CircleGeometry(0.155, 24);
+  let material;
+
+  if (card){
+    // Fallback texture shown immediately, swapped for the real portrait
+    // once it loads — mirrors Art.showFallback()'s graceful-degradation
+    // philosophy in the 2D app, just via TextureLoader's callbacks here.
+    const fallbackTex = makeFallbackMedallionTexture(card);
+    material = new THREE.MeshStandardMaterial({ map: fallbackTex, roughness: 0.4, metalness: 0.3 });
+    textureLoader.load(
+      Art.url(card),
+      (tex) => { tex.colorSpace = THREE.SRGBColorSpace; material.map = tex; material.needsUpdate = true; },
+      undefined,
+      () => { /* stays on fallback texture — never breaks the piece */ }
+    );
+  } else {
+    material = new THREE.MeshStandardMaterial({ map: makeShadowMedallionTexture(), roughness: 0.5, metalness: 0.25 });
+  }
+
+  const disc = new THREE.Mesh(geo, material);
+  disc.position.y = mountHeight;
+  disc.position.z = 0.001; // avoid z-fighting with a backing ring
+  disc.castShadow = true;
+
+  // Thin gold ring frame behind the medallion for a "sealed crest" look
+  const ringGeo = new THREE.RingGeometry(0.155, 0.185, 24);
+  const ringMat = new THREE.MeshStandardMaterial({ color: CONFIG.playerAccent, roughness: 0.3, metalness: 0.7, side: THREE.DoubleSide });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.position.y = mountHeight;
+
+  const group = new THREE.Group();
+  group.add(ring, disc);
+  return group;
+}
+
+// Small canvas-drawn placeholder shown before a character's real
+// portrait finishes loading, or if it fails — colour comes from the
+// character's own `palette` field so it never looks broken/generic.
+function makeFallbackMedallionTexture(card){
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const ctx = c.getContext('2d');
+  const color = card.palette?.[0] || '#c9a84c';
+  ctx.fillStyle = '#06060f';
+  ctx.fillRect(0,0,128,128);
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(64,64,50,0,Math.PI*2);
+  ctx.fill();
+  return new THREE.CanvasTexture(c);
+}
+
+// Uniform sigil medallion for every opponent "Chronicle Shadow" piece —
+// deliberately the same for all of them, reinforcing that the AI's
+// pieces are faceless shadows, not spirits the player has met.
+let _shadowTexCache = null;
+function makeShadowMedallionTexture(){
+  if (_shadowTexCache) return _shadowTexCache;
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#0a0818';
+  ctx.fillRect(0,0,128,128);
+  ctx.strokeStyle = 'rgba(139,124,246,0.7)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(64,64,40,0,Math.PI*2);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(139,124,246,0.5)';
+  ctx.beginPath();
+  ctx.arc(64,64,10,0,Math.PI*2);
+  ctx.fill();
+  _shadowTexCache = new THREE.CanvasTexture(c);
+  return _shadowTexCache;
+}
+
+const MEDALLION_HEIGHT = {
+  pawn: 0.36, rook: 0.40, bishop: 0.52, knight: 0.42, queen: 0.66, king: 0.72,
+};
+
+// Builds one complete piece: lathe body + team-colour material +
+// (king only) cross topper + portrait medallion. `card` is null for
+// AI Shadow pieces.
+function buildPiece(role, isPlayerSide, card){
+  const group = new THREE.Group();
+  const bodyColor = isPlayerSide ? 0x241d3a : 0x1c1830;
+  const trimColor = isPlayerSide ? CONFIG.playerAccent : CONFIG.shadowAccent;
+
+  const bodyMat = new THREE.MeshStandardMaterial({ color: bodyColor, roughness: 0.55, metalness: 0.35 });
+  const body = makeLatheMesh(role, bodyMat);
+  group.add(body);
+
+  if (role === 'king'){
+    const trimMat = new THREE.MeshStandardMaterial({ color: trimColor, roughness: 0.3, metalness: 0.8 });
+    group.add(makeKingCross(trimMat));
+  }
+
+  const medallion = makeMedallion(isPlayerSide ? card : null, MEDALLION_HEIGHT[role]);
+  group.add(medallion);
+
+  return group;
+}
+
+/* ── STARTING POSITION ──
+   Standard chess starting layout. Row 0-1 = player's side (nearest
+   camera), row 6-7 = opponent Shadow side. Columns 0-7 = a-h files. */
+function buildAllPieces(){
+  const n = CONFIG.boardSize, s = CONFIG.squareSize;
+  const offset = (n * s) / 2 - s/2;
+  const posFor = (row, col) => ({ x: col*s - offset, z: row*s - offset });
+
+  const backRank = ['rook','knight','bishop','queen','king','bishop','knight','rook'];
+
+  // Player loadout — auto-suggested from unlocked characters if
+  // possible; falls back to `null` cards (still visually renders,
+  // just with the shadow-style generic medallion) if the player
+  // hasn't unlocked 16 characters yet, so this preview never breaks.
+  const loadout = ChessRoles.suggestLoadout(State.unlocked) || {
+    king:null, queen:null, bishops:[null,null], knights:[null,null], rooks:[null,null], pawns:Array(8).fill(null)
+  };
+  const playerBack = {
+    rook: [...loadout.rooks], knight: [...loadout.knights], bishop: [...loadout.bishops],
+    queen: loadout.queen, king: loadout.king,
+  };
+  const rookQ = playerBack.rook.shift(), rookK = playerBack.rook.shift();
+  const knightQ = playerBack.knight.shift(), knightK = playerBack.knight.shift();
+  const bishopQ = playerBack.bishop.shift(), bishopK = playerBack.bishop.shift();
+  const playerBackOrdered = [rookQ, knightQ, bishopQ, playerBack.queen, playerBack.king, bishopK, knightK, rookK];
+
+  // Row 0: player back rank
+  backRank.forEach((role, col) => {
+    const p = posFor(0, col);
+    const piece = buildPiece(role, true, playerBackOrdered[col]);
+    piece.position.set(p.x, 0, p.z);
+    scene.add(piece);
+  });
+  // Row 1: player pawns
+  loadout.pawns.forEach((card, col) => {
+    const p = posFor(1, col);
+    const piece = buildPiece('pawn', true, card);
+    piece.position.set(p.x, 0, p.z);
+    scene.add(piece);
+  });
+
+  // Row 6: opponent Shadow pawns
+  for (let col = 0; col < 8; col++){
+    const p = posFor(6, col);
+    const piece = buildPiece('pawn', false, null);
+    piece.position.set(p.x, 0, p.z);
+    scene.add(piece);
+  }
+  // Row 7: opponent Shadow back rank
+  backRank.forEach((role, col) => {
+    const p = posFor(7, col);
+    const piece = buildPiece(role, false, null);
+    piece.position.set(p.x, 0, p.z);
+    // Shadow pieces face the player — rotate 180°
+    piece.rotation.y = Math.PI;
+    scene.add(piece);
+  });
+}
+
+function onResize(){
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+/* ── BOOT ── */
+try {
+  initScene();
+  setTimeout(() => {
+    document.getElementById('loading-overlay').classList.add('hide');
+  }, 400);
+} catch (err) {
+  console.error('Chess scene failed to initialise:', err);
+  document.getElementById('loading-overlay').classList.add('hide');
+  document.getElementById('error-overlay').classList.add('show');
+  document.getElementById('error-detail').textContent =
+    'Something went wrong setting up the 3D board: ' + (err?.message || 'unknown error') +
+    '. Your browser may not support WebGL.';
+}
+</script>
+</body>
+</html>
