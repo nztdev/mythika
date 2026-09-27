@@ -8,7 +8,10 @@ working even if a third-party CDN goes down or changes.
 - Version: 0.186.1
 - License: MIT
 - Source: https://github.com/mrdoob/three.js
-- Files: `lib/three.module.js`, `lib/OrbitControls.js`
+- Files: `lib/three.module.js`, `lib/three.core.js`, `lib/OrbitControls.js`
+- (`three.core.js` is not optional — `three.module.js` imports its
+  entire class list from it via a relative `./three.core.js` path.
+  Both files must be kept side by side in `lib/` for either to work.)
 - MIT is permissive — no obligations beyond keeping this notice.
 
 ## Stockfish — chess AI opponent
