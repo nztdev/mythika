@@ -13,8 +13,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;700&family=DM+Mono&display=swap" rel="stylesheet">
 
 <!-- Import map: resolves the bare "three" specifier that OrbitControls.js
-     (and any future three.js addon) imports internally. This is a native
-     browser feature — no bundler, no build step. -->
+     (and any future three.js addon) imports internally. Native browser
+     feature — no bundler, no build step. -->
 <script type="importmap">
 {
   "imports": {
@@ -33,6 +33,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;overflow:hidden;}
 body{font-family:var(--fb);background:var(--ink);color:var(--paper);-webkit-tap-highlight-color:transparent;}
+button{font-family:var(--fb);cursor:pointer;border:none;background:none;}
 
 .topnav{
   display:flex;align-items:center;justify-content:space-between;
@@ -50,7 +51,7 @@ body{font-family:var(--fb);background:var(--ink);color:var(--paper);-webkit-tap-
 }
 
 #scene-container{position:fixed;inset:0;z-index:1;}
-#scene-container canvas{display:block;width:100%;height:100%;}
+#scene-container canvas{display:block;width:100%;height:100%;touch-action:none;}
 
 #loading-overlay{
   position:fixed;inset:0;z-index:20;background:var(--ink);
@@ -77,6 +78,55 @@ body{font-family:var(--fb);background:var(--ink);color:var(--paper);-webkit-tap-
   font-size:.68rem;font-family:var(--fc);color:rgba(240,236,223,.5);line-height:1.6;
 }
 .note-banner strong{color:var(--gold2);}
+
+/* ── Turn indicator ── */
+#turn-indicator{
+  position:fixed;top:3.6rem;left:50%;transform:translateX(-50%);z-index:10;
+  background:rgba(8,8,16,.85);border:1px solid rgba(201,168,76,.25);border-radius:20px;
+  padding:6px 18px;font-family:var(--fc);font-size:.72rem;letter-spacing:.07em;
+  color:rgba(240,236,223,.8);backdrop-filter:blur(8px);transition:all .25s;white-space:nowrap;
+}
+#turn-indicator.your-turn{border-color:rgba(74,222,128,.4);color:#86efac;}
+#turn-indicator.opp-turn{border-color:rgba(139,124,246,.4);color:#c4b5fd;}
+#turn-indicator.in-check{border-color:rgba(239,68,68,.6);color:#fca5a5;animation:checkPulse 1s ease-in-out infinite;}
+@keyframes checkPulse{0%,100%{opacity:1}50%{opacity:.55}}
+
+/* ── Promotion picker ── */
+#promo-overlay{
+  display:none;position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.8);
+  align-items:center;justify-content:center;
+}
+#promo-overlay.show{display:flex;}
+.promo-box{
+  background:linear-gradient(160deg,rgba(18,14,32,.98),rgba(8,8,16,.98));
+  border:1px solid rgba(201,168,76,.3);border-radius:16px;padding:1.3rem 1.1rem;
+  text-align:center;
+}
+.promo-title{font-family:var(--fd);font-size:.9rem;color:var(--gold);letter-spacing:.07em;margin-bottom:1rem;}
+.promo-choices{display:flex;gap:.6rem;}
+.promo-choice{
+  width:64px;height:64px;border-radius:10px;background:rgba(255,255,255,.06);
+  border:1.5px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;
+  font-size:1.7rem;transition:all .18s;color:var(--paper);
+}
+.promo-choice:hover{border-color:rgba(201,168,76,.6);background:rgba(201,168,76,.12);transform:translateY(-2px);}
+.promo-hint{margin-top:.8rem;font-size:.6rem;font-family:var(--fc);color:rgba(240,236,223,.35);}
+
+/* ── Game over overlay ── */
+#gameover-overlay{
+  display:none;position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.88);
+  flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;text-align:center;
+}
+#gameover-overlay.show{display:flex;}
+.go-icon{font-size:2.6rem;}
+.go-title{font-family:var(--fd);font-size:1.3rem;color:var(--gold);letter-spacing:.07em;}
+.go-sub{font-size:.78rem;color:rgba(240,236,223,.55);font-family:var(--fc);font-style:italic;max-width:300px;line-height:1.6;}
+.go-btn{
+  margin-top:.5rem;background:linear-gradient(135deg,#b8932e,#e8c96a);color:var(--ink);
+  font-family:var(--fd);font-size:.78rem;letter-spacing:.1em;padding:11px 26px;border-radius:5px;
+  transition:all .2s;
+}
+.go-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(201,168,76,.4);}
 </style>
 </head>
 <body>
@@ -99,34 +149,58 @@ body{font-family:var(--fb);background:var(--ink);color:var(--paper);-webkit-tap-
   <div class="error-body" id="error-detail">Your browser may not support WebGL, which this game requires. Try a different browser or device.</div>
 </div>
 
-<div class="note-banner">
-  <strong>Visual preview only</strong> — piece movement, rules, and the AI opponent are still being built. Drag to orbit, pinch/scroll to zoom.
+<div id="turn-indicator">Your move</div>
+
+<div class="note-banner" id="note-banner">
+  <strong>Pass-and-play preview</strong> — tap a piece, then tap a glowing square to move it. Full chess rules apply. The AI opponent is still being built, so both sides are human-controlled for now. Drag to orbit, pinch/scroll to zoom.
 </div>
 
-<!-- Shared modules — same roster, save data, and art rendering as
-     every other Mythika game, plus the chess-specific role mapping. -->
+<div id="promo-overlay">
+  <div class="promo-box">
+    <div class="promo-title">Promote to...</div>
+    <div class="promo-choices">
+      <button class="promo-choice" data-type="queen">♛</button>
+      <button class="promo-choice" data-type="rook">♜</button>
+      <button class="promo-choice" data-type="bishop">♝</button>
+      <button class="promo-choice" data-type="knight">♞</button>
+    </div>
+    <div class="promo-hint">Tap outside to cancel</div>
+  </div>
+</div>
+
+<div id="gameover-overlay">
+  <div class="go-icon" id="go-icon">♛</div>
+  <div class="go-title" id="go-title">Checkmate</div>
+  <div class="go-sub" id="go-sub">—</div>
+  <button class="go-btn" onclick="ChessGame.restart()">↻ Play Again</button>
+</div>
+
+<!-- Shared modules — same roster, save data, and art rendering as every
+     other Mythika game, plus the chess role mapping and rules engine. -->
 <script src="shared/roster.js"></script>
 <script src="shared/state.js"></script>
 <script src="shared/art.js"></script>
 <script src="shared/ui-helpers.js"></script>
 <script src="shared/chess-roles.js"></script>
+<script src="shared/chess-engine.js"></script>
 
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from './lib/OrbitControls.js';
 
 /* ════════════════════════════════════════════════════════════════
-   CHESS BOARD — VISUAL PROOF OF CONCEPT
+   CHESS — 3D BOARD + INTERACTION
    ════════════════════════════════════════════════════════════════
-   This validates the core rendering approach before any game rules
-   are built on top of it: lathe-geometry piece bodies (the same
-   technique real wooden chess sets are turned with) carrying a
-   circular portrait medallion of the character skinning that piece.
+   The rules engine (shared/chess-engine.js) is the single source of
+   truth for what is legal. This file only does three things with it:
+     1. draws the position (lathe pieces carrying portrait medallions)
+     2. turns taps into engine queries ("what can this piece do?")
+     3. animates whichever move the engine confirms
 
-   Deliberately NOT included yet (see project plan): move legality,
-   turn structure, check/checkmate detection, the Stockfish AI
-   integration, or a loadout-editing UI. This file only proves the
-   board and pieces render correctly and perform acceptably.
+   COORDINATES: the engine's row 0 is the player's back rank and row 7
+   is the Shadow's. squareToWorld() places row 0 NEAREST the camera
+   (+z) so you always play from your own end of the board, with the
+   a-file on your left, exactly like sitting at a real board.
    ════════════════════════════════════════════════════════════════ */
 
 const CONFIG = {
@@ -134,13 +208,48 @@ const CONFIG = {
   squareSize: 1,
   lightSquareColor: 0xe8dcc0,
   darkSquareColor: 0x2a2440,
-  playerAccent: 0xc9a84c,   // gold — the player's piece trim
-  shadowAccent: 0x6b5b95,   // muted violet — the AI "Chronicle Shadow" trim
+  playerAccent: 0xc9a84c,   // gold — the player's medallion studs / king cross
+  shadowAccent: 0x6b5b95,   // muted violet — the "Chronicle Shadow" side
+  moveDurationMs: 380,
+  moveLift: 0.45,
 };
+const N = CONFIG.boardSize, S = CONFIG.squareSize;
+const OFFSET = (N * S) / 2 - S / 2;
 
-let scene, camera, renderer, controls;
-let textureLoader;
+function squareToWorld(row, col){
+  return { x: col * S - OFFSET, z: OFFSET - row * S };
+}
 
+let scene, camera, renderer, controls, textureLoader, raycaster;
+const pointer = new THREE.Vector2();
+
+// [row][col] lookup grids, kept in lockstep with the engine's board so
+// any move, capture or highlight is an O(1) lookup, never a scene search.
+const squareMeshes = Array.from({length:N}, () => Array(N).fill(null));
+const pieceMeshes  = Array.from({length:N}, () => Array(N).fill(null));
+
+let gameState = null;            // ChessEngine game state (source of truth)
+let selected = null;             // {row,col} of the selected piece
+let legalMovesForSelected = [];  // Move[] from the engine for that piece
+let highlightMeshes = [];        // destination markers for the selection
+let selectionRing = null, checkRing = null;
+let animating = false;           // true while a move's animation plays
+let gameOver = false;
+let pendingPromotionMoves = null; // the 4 promotion variants while the picker is open
+let pointerStart = null;
+const activeTweens = [];
+
+// Shared marker geometry/materials — created once, reused for every selection
+const QUIET_GEO   = new THREE.CircleGeometry(0.14, 24).rotateX(-Math.PI/2);
+const CAPTURE_GEO = new THREE.RingGeometry(0.34, 0.45, 32).rotateX(-Math.PI/2);
+const SELECT_GEO  = new THREE.RingGeometry(0.36, 0.47, 32).rotateX(-Math.PI/2);
+const CHECK_GEO   = new THREE.RingGeometry(0.40, 0.52, 32).rotateX(-Math.PI/2);
+const QUIET_MAT   = new THREE.MeshBasicMaterial({ color: 0x4ade80, transparent: true, opacity: 0.85, depthWrite: false });
+const CAPTURE_MAT = new THREE.MeshBasicMaterial({ color: 0xef4444, transparent: true, opacity: 0.9,  depthWrite: false });
+const SELECT_MAT  = new THREE.MeshBasicMaterial({ color: 0xe8c96a, transparent: true, opacity: 0.95, depthWrite: false });
+const CHECK_MAT   = new THREE.MeshBasicMaterial({ color: 0xff3b3b, transparent: true, opacity: 0.95, depthWrite: false });
+
+/* ── SCENE ── */
 function initScene(){
   const container = document.getElementById('scene-container');
 
@@ -148,8 +257,7 @@ function initScene(){
   scene.background = new THREE.Color(0x080810);
   scene.fog = new THREE.Fog(0x080810, 12, 26);
 
-  camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
-  camera.position.set(0, 7.5, 8.5);
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.5, 120);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -163,23 +271,70 @@ function initScene(){
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
   controls.minDistance = 5;
-  controls.maxDistance = 16;
-  controls.maxPolarAngle = Math.PI * 0.48; // don't let the camera dip below the board
-  controls.update();
+  controls.maxPolarAngle = Math.PI * 0.48; // never dip below the board
+  fitCameraToBoard(false);
 
   textureLoader = new THREE.TextureLoader();
+  raycaster = new THREE.Raycaster();
 
   setupLighting();
   buildBoard();
+
+  selectionRing = new THREE.Mesh(SELECT_GEO, SELECT_MAT);
+  selectionRing.visible = false;
+  scene.add(selectionRing);
+  checkRing = new THREE.Mesh(CHECK_GEO, CHECK_MAT);
+  checkRing.visible = false;
+  scene.add(checkRing);
+
   buildAllPieces();
+  updateTurnIndicator('active', null);
+
+  // A drag orbits the camera; only a short, still press counts as a tap.
+  renderer.domElement.addEventListener('pointerdown', onPointerDown);
+  renderer.domElement.addEventListener('pointerup', onPointerUp);
+
+  document.querySelectorAll('.promo-choice').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); choosePromotion(btn.dataset.type); });
+  });
+  const promoOverlay = document.getElementById('promo-overlay');
+  promoOverlay.addEventListener('click', e => { if (e.target === promoOverlay) cancelPromotion(); });
 
   window.addEventListener('resize', onResize);
   animate();
 }
 
+/* ── CAMERA FRAMING ──
+   A fixed camera position cannot work across screen shapes: on a
+   portrait phone, a board that fits a desktop window is more than twice
+   as wide as the screen. So the camera distance is derived from the
+   aspect ratio, which keeps the board's full width visible.
+   The elevation is steep (52°) on purpose: from a shallow angle a tall
+   piece (the king, 1.6 high) hides the pawn directly behind it and
+   makes that pawn untappable. */
+const CAMERA_ELEVATION = 52 * Math.PI / 180;
+function fitCameraToBoard(keepDirection){
+  const aspect = window.innerWidth / window.innerHeight;
+  const tanV = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const halfBoard = (N * S) / 2 + 0.7;                  // board + plinth + margin
+  const distForWidth  = halfBoard / (tanV * aspect);    // whole width visible
+  const distForHeight = 12.4;                           // comfortable margin for the UI bars
+  const dist = Math.min(40, Math.max(distForWidth, distForHeight));
+
+  const dir = keepDirection
+    ? camera.position.clone().sub(controls.target).normalize()
+    : new THREE.Vector3(0, Math.sin(CAMERA_ELEVATION), Math.cos(CAMERA_ELEVATION));
+  camera.position.copy(controls.target).addScaledVector(dir, dist);
+
+  controls.maxDistance = Math.max(16, dist * 1.5);
+  // Keep the fog behind the board however far the camera sits
+  scene.fog.near = dist + 6;
+  scene.fog.far  = dist + 24;
+  controls.update();
+}
+
 function setupLighting(){
-  const ambient = new THREE.AmbientLight(0x4a4470, 0.55);
-  scene.add(ambient);
+  scene.add(new THREE.AmbientLight(0x4a4470, 0.55));
 
   // Warm key light, matching the app's gold-glow aesthetic
   const key = new THREE.DirectionalLight(0xfff0c8, 1.3);
@@ -198,42 +353,40 @@ function setupLighting(){
 
 function buildBoard(){
   const boardGroup = new THREE.Group();
-  const n = CONFIG.boardSize, s = CONFIG.squareSize;
-  const offset = (n * s) / 2 - s/2;
 
-  // Base plinth beneath the playing surface
-  const plinthGeo = new THREE.BoxGeometry(n*s + 0.6, 0.35, n*s + 0.6);
+  const plinthGeo = new THREE.BoxGeometry(N*S + 0.6, 0.35, N*S + 0.6);
   const plinthMat = new THREE.MeshStandardMaterial({ color: 0x1a1628, roughness: 0.6, metalness: 0.2 });
   const plinth = new THREE.Mesh(plinthGeo, plinthMat);
   plinth.position.y = -0.375;
   plinth.receiveShadow = true;
   boardGroup.add(plinth);
 
-  for (let row = 0; row < n; row++){
-    for (let col = 0; col < n; col++){
-      const isLight = (row + col) % 2 === 0;
-      const geo = new THREE.BoxGeometry(s, 0.15, s);
+  for (let row = 0; row < N; row++){
+    for (let col = 0; col < N; col++){
+      // Standard colouring: a1 (row 0, col 0) is a DARK square
+      const isLight = (row + col) % 2 === 1;
+      const geo = new THREE.BoxGeometry(S, 0.15, S);
       const mat = new THREE.MeshStandardMaterial({
         color: isLight ? CONFIG.lightSquareColor : CONFIG.darkSquareColor,
         roughness: 0.5, metalness: 0.1,
       });
       const square = new THREE.Mesh(geo, mat);
-      square.position.set(col*s - offset, -0.075, row*s - offset);
+      const p = squareToWorld(row, col);
+      square.position.set(p.x, -0.075, p.z);
       square.receiveShadow = true;
       square.userData = { isBoardSquare: true, row, col };
+      squareMeshes[row][col] = square;
       boardGroup.add(square);
     }
   }
-
   scene.add(boardGroup);
 }
 
 /* ── LATHE PROFILES ──
-   Each profile is an array of THREE.Vector2(radius, height) points,
-   revolved 360° around the Y axis. This is the same principle real
-   turned wooden chess pieces are manufactured with. Proportions are
-   deliberately distinct per role so silhouette alone hints at piece
-   type even before the portrait medallion is read. */
+   Each profile is an array of [radius, height] points revolved around
+   the Y axis — the same principle real turned wooden chess pieces are
+   made with. Proportions differ per role so the silhouette alone hints
+   at piece type before the portrait medallion is read. */
 const PROFILES = {
   pawn: [
     [0.30,0.00],[0.32,0.04],[0.22,0.10],[0.16,0.28],[0.20,0.34],
@@ -261,8 +414,24 @@ const PROFILES = {
   ],
 };
 
-function makeLatheMesh(profileKey, material){
-  const pts = PROFILES[profileKey].map(([r,y]) => new THREE.Vector2(r,y));
+// Body radius of a role's lathe profile at a given height (linear
+// interpolation along the profile). Used to seat the medallion ON the
+// piece's surface rather than somewhere inside it.
+function profileRadiusAt(role, y){
+  const pts = PROFILES[role];
+  for (let i = 0; i < pts.length - 1; i++){
+    const [r0, y0] = pts[i], [r1, y1] = pts[i+1];
+    if (y >= y0 && y <= y1){
+      const span = y1 - y0;
+      if (span < 1e-6) return Math.max(r0, r1);
+      return r0 + (r1 - r0) * ((y - y0) / span);
+    }
+  }
+  return 0.2;
+}
+
+function makeLatheMesh(role, material){
+  const pts = PROFILES[role].map(([r,y]) => new THREE.Vector2(r,y));
   const geo = new THREE.LatheGeometry(pts, 24);
   geo.computeVertexNormals();
   const mesh = new THREE.Mesh(geo, material);
@@ -271,14 +440,12 @@ function makeLatheMesh(profileKey, material){
   return mesh;
 }
 
-// A small crossed-box topper, unique to the King, so its silhouette
-// is unmistakable even at a glance or in a mismatched lighting angle.
+// Crossed-box topper unique to the King, so its silhouette is
+// unmistakable from any angle.
 function makeKingCross(material){
   const group = new THREE.Group();
-  const barGeo1 = new THREE.BoxGeometry(0.05, 0.16, 0.05);
-  const barGeo2 = new THREE.BoxGeometry(0.14, 0.05, 0.05);
-  const bar1 = new THREE.Mesh(barGeo1, material);
-  const bar2 = new THREE.Mesh(barGeo2, material);
+  const bar1 = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.16, 0.05), material);
+  const bar2 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.05, 0.05), material);
   bar1.position.y = 1.58;
   bar2.position.y = 1.58;
   bar1.castShadow = bar2.castShadow = true;
@@ -286,49 +453,80 @@ function makeKingCross(material){
   return group;
 }
 
-// Builds a circular portrait medallion mounted on the piece's "chest"
-// height. `card` is a ROSTER character for player pieces, or null for
-// the opponent's uniform Shadow pieces (which get a generic sigil
-// instead of a portrait — see makeShadowMedallionTexture).
-function makeMedallion(card, mountHeight){
-  const geo = new THREE.CircleGeometry(0.155, 24);
-  let material;
+const MEDALLION_HEIGHT = {
+  pawn: 0.36, rook: 0.40, bishop: 0.52, knight: 0.42, queen: 0.66, king: 0.72,
+};
+const MEDALLION_RADIUS = 0.125;
+const BOSS_RADIUS = 0.15;
 
+// Crop a portrait to a centred-top square so a tall card image isn't
+// squashed into the round medallion (faces sit in the upper part).
+function fitPortraitToDisc(tex){
+  const img = tex.image;
+  const w = img && (img.naturalWidth || img.width);
+  const h = img && (img.naturalHeight || img.height);
+  if (!w || !h) return;
+  if (h > w){ const k = w / h; tex.repeat.set(1, k); tex.offset.set(0, (1 - k) * 0.85); }
+  else if (w > h){ const k = h / w; tex.repeat.set(k, 1); tex.offset.set((1 - k) / 2, 0); }
+}
+
+// A circular portrait medallion seated on the piece's chest: a short
+// stud (the "boss") bridges the curved body to a flat portrait disc, so
+// the medallion reads as a crest pinned to the piece, not a floating
+// plate. `card` is a ROSTER character for the player's pieces, or null
+// for the Shadow side (which gets one uniform sigil).
+function makeMedallion(card, role, isPlayerSide){
+  const mountY = MEDALLION_HEIGHT[role];
+  const bodyR = profileRadiusAt(role, mountY);
+  const zFront = bodyR + 0.025;
+  const zBack  = bodyR - 0.08;     // tucked inside the body
+
+  const accent = isPlayerSide ? CONFIG.playerAccent : CONFIG.shadowAccent;
+  const bossGeo = new THREE.CylinderGeometry(BOSS_RADIUS, BOSS_RADIUS, zFront - zBack, 24);
+  bossGeo.rotateX(Math.PI / 2);    // axis along +z so its flat face points at the viewer
+  const boss = new THREE.Mesh(bossGeo, new THREE.MeshStandardMaterial({ color: accent, roughness: 0.3, metalness: 0.8 }));
+  boss.position.set(0, mountY, (zFront + zBack) / 2);
+  boss.castShadow = true;
+
+  let map, material;
   if (card){
-    // Fallback texture shown immediately, swapped for the real portrait
-    // once it loads — mirrors Art.showFallback()'s graceful-degradation
-    // philosophy in the 2D app, just via TextureLoader's callbacks here.
-    const fallbackTex = makeFallbackMedallionTexture(card);
-    material = new THREE.MeshStandardMaterial({ map: fallbackTex, roughness: 0.4, metalness: 0.3 });
+    map = makeFallbackMedallionTexture(card);
+    material = new THREE.MeshStandardMaterial({
+      map, emissive: new THREE.Color(0xffffff), emissiveMap: map, emissiveIntensity: 0.4,
+      roughness: 0.45, metalness: 0.1,
+    });
+    // Swap in the real portrait once it loads; the colour fallback
+    // above is what shows meanwhile, or permanently if the art is missing.
     textureLoader.load(
       Art.url(card),
-      (tex) => { tex.colorSpace = THREE.SRGBColorSpace; material.map = tex; material.needsUpdate = true; },
+      (tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        fitPortraitToDisc(tex);
+        material.map = tex;
+        material.emissiveMap = tex;
+        material.needsUpdate = true;
+      },
       undefined,
-      () => { /* stays on fallback texture — never breaks the piece */ }
+      () => { /* keep the fallback — a missing image never breaks a piece */ }
     );
   } else {
-    material = new THREE.MeshStandardMaterial({ map: makeShadowMedallionTexture(), roughness: 0.5, metalness: 0.25 });
+    map = makeShadowMedallionTexture();
+    material = new THREE.MeshStandardMaterial({
+      map, emissive: new THREE.Color(0x8b7cf6), emissiveMap: map, emissiveIntensity: 0.5,
+      roughness: 0.5, metalness: 0.2,
+    });
   }
 
-  const disc = new THREE.Mesh(geo, material);
-  disc.position.y = mountHeight;
-  disc.position.z = 0.001; // avoid z-fighting with a backing ring
-  disc.castShadow = true;
-
-  // Thin gold ring frame behind the medallion for a "sealed crest" look
-  const ringGeo = new THREE.RingGeometry(0.155, 0.185, 24);
-  const ringMat = new THREE.MeshStandardMaterial({ color: CONFIG.playerAccent, roughness: 0.3, metalness: 0.7, side: THREE.DoubleSide });
-  const ring = new THREE.Mesh(ringGeo, ringMat);
-  ring.position.y = mountHeight;
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(MEDALLION_RADIUS, 28), material);
+  disc.position.set(0, mountY, zFront + 0.002);
 
   const group = new THREE.Group();
-  group.add(ring, disc);
+  group.add(boss, disc);
   return group;
 }
 
-// Small canvas-drawn placeholder shown before a character's real
-// portrait finishes loading, or if it fails — colour comes from the
-// character's own `palette` field so it never looks broken/generic.
+// Colour placeholder shown before a portrait loads (or if it never does),
+// taken from the character's own palette so it never looks generic.
 function makeFallbackMedallionTexture(card){
   const c = document.createElement('canvas');
   c.width = c.height = 128;
@@ -340,12 +538,13 @@ function makeFallbackMedallionTexture(card){
   ctx.beginPath();
   ctx.arc(64,64,50,0,Math.PI*2);
   ctx.fill();
-  return new THREE.CanvasTexture(c);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 
-// Uniform sigil medallion for every opponent "Chronicle Shadow" piece —
-// deliberately the same for all of them, reinforcing that the AI's
-// pieces are faceless shadows, not spirits the player has met.
+// One uniform sigil for every Shadow piece — deliberately identical,
+// reinforcing that the opposing side is faceless.
 let _shadowTexCache = null;
 function makeShadowMedallionTexture(){
   if (_shadowTexCache) return _shadowTexCache;
@@ -354,113 +553,391 @@ function makeShadowMedallionTexture(){
   const ctx = c.getContext('2d');
   ctx.fillStyle = '#0a0818';
   ctx.fillRect(0,0,128,128);
-  ctx.strokeStyle = 'rgba(139,124,246,0.7)';
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = 'rgba(139,124,246,0.8)';
+  ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.arc(64,64,40,0,Math.PI*2);
   ctx.stroke();
-  ctx.fillStyle = 'rgba(139,124,246,0.5)';
+  ctx.fillStyle = 'rgba(139,124,246,0.6)';
   ctx.beginPath();
   ctx.arc(64,64,10,0,Math.PI*2);
   ctx.fill();
   _shadowTexCache = new THREE.CanvasTexture(c);
+  _shadowTexCache.colorSpace = THREE.SRGBColorSpace;
   return _shadowTexCache;
 }
 
-const MEDALLION_HEIGHT = {
-  pawn: 0.36, rook: 0.40, bishop: 0.52, knight: 0.42, queen: 0.66, king: 0.72,
-};
-
-// Builds one complete piece: lathe body + team-colour material +
-// (king only) cross topper + portrait medallion. `card` is null for
-// AI Shadow pieces.
+// One complete piece: lathe body + (king) cross + portrait medallion.
+// The group remembers who it is, so a promotion can rebuild it as a new
+// role while keeping the same character's portrait.
 function buildPiece(role, isPlayerSide, card){
   const group = new THREE.Group();
   const bodyColor = isPlayerSide ? 0x241d3a : 0x1c1830;
   const trimColor = isPlayerSide ? CONFIG.playerAccent : CONFIG.shadowAccent;
 
-  const bodyMat = new THREE.MeshStandardMaterial({ color: bodyColor, roughness: 0.55, metalness: 0.35 });
-  const body = makeLatheMesh(role, bodyMat);
+  const body = makeLatheMesh(role, new THREE.MeshStandardMaterial({ color: bodyColor, roughness: 0.55, metalness: 0.35 }));
   group.add(body);
 
   if (role === 'king'){
-    const trimMat = new THREE.MeshStandardMaterial({ color: trimColor, roughness: 0.3, metalness: 0.8 });
-    group.add(makeKingCross(trimMat));
+    group.add(makeKingCross(new THREE.MeshStandardMaterial({ color: trimColor, roughness: 0.3, metalness: 0.8 })));
   }
 
-  const medallion = makeMedallion(isPlayerSide ? card : null, MEDALLION_HEIGHT[role]);
-  group.add(medallion);
-
+  group.add(makeMedallion(isPlayerSide ? card : null, role, isPlayerSide));
+  group.userData = { isPiece: true, role, isPlayerSide, card: card || null, row: -1, col: -1 };
   return group;
 }
 
-/* ── STARTING POSITION ──
-   Standard chess starting layout. Row 0-1 = player's side (nearest
-   camera), row 6-7 = opponent Shadow side. Columns 0-7 = a-h files. */
+function placePiece(role, isPlayerSide, card, row, col){
+  const piece = buildPiece(role, isPlayerSide, card);
+  const p = squareToWorld(row, col);
+  piece.position.set(p.x, 0, p.z);
+  piece.userData.row = row;
+  piece.userData.col = col;
+  pieceMeshes[row][col] = piece;
+  scene.add(piece);
+  return piece;
+}
+
+/* ── STARTING POSITION ── */
 function buildAllPieces(){
-  const n = CONFIG.boardSize, s = CONFIG.squareSize;
-  const offset = (n * s) / 2 - s/2;
-  const posFor = (row, col) => ({ x: col*s - offset, z: row*s - offset });
+  gameState = ChessEngine.createInitialGame();
 
   const backRank = ['rook','knight','bishop','queen','king','bishop','knight','rook'];
 
-  // Player loadout — auto-suggested from unlocked characters if
-  // possible; falls back to `null` cards (still visually renders,
-  // just with the shadow-style generic medallion) if the player
-  // hasn't unlocked 16 characters yet, so this preview never breaks.
+  // Player loadout — auto-suggested from unlocked characters; falls
+  // back to null cards (generic medallions) below 16 unlocked, so the
+  // board always works.
   const loadout = ChessRoles.suggestLoadout(State.unlocked) || {
     king:null, queen:null, bishops:[null,null], knights:[null,null], rooks:[null,null], pawns:Array(8).fill(null)
   };
-  const playerBack = {
-    rook: [...loadout.rooks], knight: [...loadout.knights], bishop: [...loadout.bishops],
-    queen: loadout.queen, king: loadout.king,
-  };
-  const rookQ = playerBack.rook.shift(), rookK = playerBack.rook.shift();
-  const knightQ = playerBack.knight.shift(), knightK = playerBack.knight.shift();
-  const bishopQ = playerBack.bishop.shift(), bishopK = playerBack.bishop.shift();
-  const playerBackOrdered = [rookQ, knightQ, bishopQ, playerBack.queen, playerBack.king, bishopK, knightK, rookK];
+  const [rookA, rookH] = loadout.rooks;
+  const [knightB, knightG] = loadout.knights;
+  const [bishopC, bishopF] = loadout.bishops;
+  const playerBack = [rookA, knightB, bishopC, loadout.queen, loadout.king, bishopF, knightG, rookH];
 
-  // Row 0: player back rank
-  backRank.forEach((role, col) => {
-    const p = posFor(0, col);
-    const piece = buildPiece(role, true, playerBackOrdered[col]);
-    piece.position.set(p.x, 0, p.z);
-    scene.add(piece);
-  });
-  // Row 1: player pawns
-  loadout.pawns.forEach((card, col) => {
-    const p = posFor(1, col);
-    const piece = buildPiece('pawn', true, card);
-    piece.position.set(p.x, 0, p.z);
-    scene.add(piece);
-  });
+  backRank.forEach((role, col) => placePiece(role, true, playerBack[col], 0, col));
+  loadout.pawns.forEach((card, col) => placePiece('pawn', true, card, 1, col));
 
-  // Row 6: opponent Shadow pawns
-  for (let col = 0; col < 8; col++){
-    const p = posFor(6, col);
-    const piece = buildPiece('pawn', false, null);
-    piece.position.set(p.x, 0, p.z);
-    scene.add(piece);
-  }
-  // Row 7: opponent Shadow back rank
-  backRank.forEach((role, col) => {
-    const p = posFor(7, col);
-    const piece = buildPiece(role, false, null);
-    piece.position.set(p.x, 0, p.z);
-    // Shadow pieces face the player — rotate 180°
-    piece.rotation.y = Math.PI;
-    scene.add(piece);
-  });
+  for (let col = 0; col < N; col++) placePiece('pawn', false, null, 6, col);
+  backRank.forEach((role, col) => placePiece(role, false, null, 7, col));
 }
 
+/* ── PICKING (tap → square) ── */
+function pickSquareAt(clientX, clientY){
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.x =  ((clientX - rect.left) / rect.width)  * 2 - 1;
+  pointer.y = -((clientY - rect.top)  / rect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+
+  const targets = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+    if (pieceMeshes[r][c]) targets.push(pieceMeshes[r][c]);
+    targets.push(squareMeshes[r][c]);
+  }
+  const hits = raycaster.intersectObjects(targets, true);
+  for (const h of hits){
+    let o = h.object;
+    while (o){
+      if (o.userData && (o.userData.isPiece || o.userData.isBoardSquare)){
+        return { row: o.userData.row, col: o.userData.col };
+      }
+      o = o.parent;
+    }
+  }
+  return null;
+}
+
+function onPointerDown(e){
+  pointerStart = { x: e.clientX, y: e.clientY, t: performance.now() };
+}
+function onPointerUp(e){
+  if (!pointerStart) return;
+  const dx = e.clientX - pointerStart.x, dy = e.clientY - pointerStart.y;
+  const dt = performance.now() - pointerStart.t;
+  pointerStart = null;
+  if (Math.hypot(dx, dy) > 10 || dt > 700) return; // a drag (orbit), not a tap
+  handleTap(e.clientX, e.clientY);
+}
+
+function handleTap(clientX, clientY){
+  if (animating || gameOver || pendingPromotionMoves) return;
+  const sq = pickSquareAt(clientX, clientY);
+  if (sq) onSquareTapped(sq.row, sq.col);
+}
+
+/* ── SELECTION ── */
+function onSquareTapped(row, col){
+  if (animating || gameOver || pendingPromotionMoves) return;
+
+  if (selected){
+    if (selected.row === row && selected.col === col){ clearSelection(); return; }
+    const movesHere = legalMovesForSelected.filter(m => m.to.row === row && m.to.col === col);
+    if (movesHere.length){
+      // A promoting pawn has four variants for the same square — ask which.
+      if (movesHere[0].isPromotion) openPromotionPicker(movesHere);
+      else executeMove(movesHere[0]);
+      return;
+    }
+  }
+
+  const piece = gameState.board[row][col];
+  if (piece && piece.side === gameState.turn) selectSquare(row, col);
+  else clearSelection();
+}
+
+function selectSquare(row, col){
+  clearSelection();
+  selected = { row, col };
+  legalMovesForSelected = ChessEngine.getLegalMoves(gameState, row, col);
+
+  const p = squareToWorld(row, col);
+  selectionRing.position.set(p.x, 0.012, p.z);
+  selectionRing.visible = true;
+
+  const seen = new Set();
+  for (const m of legalMovesForSelected){
+    const key = m.to.row * N + m.to.col;
+    if (seen.has(key)) continue; // promotion variants share a square
+    seen.add(key);
+    addMarker(m.to.row, m.to.col, !!m.captured);
+  }
+}
+
+function addMarker(row, col, isCapture){
+  const marker = new THREE.Mesh(isCapture ? CAPTURE_GEO : QUIET_GEO, isCapture ? CAPTURE_MAT : QUIET_MAT);
+  const p = squareToWorld(row, col);
+  marker.position.set(p.x, 0.02, p.z);
+  scene.add(marker);
+  highlightMeshes.push(marker);
+}
+
+function clearSelection(){
+  for (const m of highlightMeshes) scene.remove(m);
+  highlightMeshes = [];
+  if (selectionRing) selectionRing.visible = false;
+  selected = null;
+  legalMovesForSelected = [];
+}
+
+/* ── PROMOTION PICKER ── */
+function openPromotionPicker(moves){
+  pendingPromotionMoves = moves;
+  document.getElementById('promo-overlay').classList.add('show');
+}
+function choosePromotion(type){
+  if (!pendingPromotionMoves) return;
+  const move = pendingPromotionMoves.find(m => m.promotionType === type);
+  pendingPromotionMoves = null;
+  document.getElementById('promo-overlay').classList.remove('show');
+  if (move) executeMove(move);
+}
+function cancelPromotion(){
+  pendingPromotionMoves = null;
+  document.getElementById('promo-overlay').classList.remove('show');
+  clearSelection();
+}
+
+/* ── EXECUTING A MOVE ── */
+function executeMove(move){
+  if (animating) return;
+  clearSelection();
+  animating = true;
+  checkRing.visible = false;
+
+  const movingSide = gameState.turn;
+  gameState = ChessEngine.makeMove(gameState, move);
+
+  const moving = pieceMeshes[move.from.row][move.from.col];
+
+  // En passant captures the pawn BESIDE the destination (same row the
+  // mover started on), not the piece on the destination square.
+  const capRow = move.isEnPassant ? move.from.row : move.to.row;
+  const capturedMesh = move.captured ? pieceMeshes[capRow][move.to.col] : null;
+  if (capturedMesh) pieceMeshes[capRow][move.to.col] = null;
+
+  pieceMeshes[move.from.row][move.from.col] = null;
+  pieceMeshes[move.to.row][move.to.col] = moving;
+  moving.userData.row = move.to.row;
+  moving.userData.col = move.to.col;
+
+  const tweens = [{ obj: moving, to: squareToWorld(move.to.row, move.to.col), lift: CONFIG.moveLift }];
+
+  // Castling moves the rook too, in the same animation.
+  if (move.isCastle){
+    const row = move.from.row;
+    const rookFromCol = move.isCastle === 'king' ? 7 : 0;
+    const rookToCol   = move.isCastle === 'king' ? 5 : 3;
+    const rook = pieceMeshes[row][rookFromCol];
+    pieceMeshes[row][rookFromCol] = null;
+    pieceMeshes[row][rookToCol] = rook;
+    rook.userData.col = rookToCol;
+    tweens.push({ obj: rook, to: squareToWorld(row, rookToCol), lift: CONFIG.moveLift * 0.6 });
+  }
+
+  startTweens(tweens, () => finishMove(move, movingSide, capturedMesh));
+}
+
+function finishMove(move, movingSide, capturedMesh){
+  if (capturedMesh) scene.remove(capturedMesh);
+
+  if (move.isPromotion){
+    // Rebuild the pawn as its new role, keeping the same character's portrait
+    const old = pieceMeshes[move.to.row][move.to.col];
+    scene.remove(old);
+    const promoted = buildPiece(move.promotionType, old.userData.isPlayerSide, old.userData.card);
+    const p = squareToWorld(move.to.row, move.to.col);
+    promoted.position.set(p.x, 0, p.z);
+    promoted.userData.row = move.to.row;
+    promoted.userData.col = move.to.col;
+    pieceMeshes[move.to.row][move.to.col] = promoted;
+    scene.add(promoted);
+  }
+
+  animating = false;
+  evaluatePosition();
+}
+
+/* ── TWEENS ── */
+function startTweens(list, onAllDone){
+  let remaining = list.length;
+  const now = performance.now();
+  for (const t of list){
+    activeTweens.push({
+      obj: t.obj,
+      fromX: t.obj.position.x, fromZ: t.obj.position.z,
+      toX: t.to.x, toZ: t.to.z,
+      lift: t.lift, start: now, duration: CONFIG.moveDurationMs,
+      onDone: () => { remaining--; if (remaining === 0) onAllDone(); },
+    });
+  }
+}
+
+function updateAnimations(now){
+  for (let i = activeTweens.length - 1; i >= 0; i--){
+    const tw = activeTweens[i];
+    const t = Math.max(0, Math.min(1, (now - tw.start) / tw.duration));
+    const e = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; // ease in-out
+    tw.obj.position.x = tw.fromX + (tw.toX - tw.fromX) * e;
+    tw.obj.position.z = tw.fromZ + (tw.toZ - tw.fromZ) * e;
+    tw.obj.position.y = Math.sin(Math.PI * t) * tw.lift;       // a small hop
+    if (t >= 1){
+      tw.obj.position.y = 0;
+      activeTweens.splice(i, 1);
+      tw.onDone();
+    }
+  }
+}
+
+/* ── GAME STATE EVALUATION ── */
+// Only bare kings, or a lone knight/bishop against a bare king, can't
+// force mate. (Same-colour-bishop endings etc. are not special-cased.)
+function isInsufficientMaterial(board){
+  const rest = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+    const p = board[r][c];
+    if (p && p.type !== 'king') rest.push(p.type);
+  }
+  if (rest.length === 0) return true;
+  if (rest.length === 1 && (rest[0] === 'bishop' || rest[0] === 'knight')) return true;
+  return false;
+}
+
+function evaluatePosition(){
+  const status = ChessEngine.getGameStatus(gameState);
+  const turn = gameState.turn;
+  let over = null;
+
+  if (status === 'checkmate'){
+    over = {
+      icon: '♛', title: 'Checkmate',
+      sub: turn === 'opponent' ? 'Your side wins — the Shadows fall.' : 'The Shadow side wins.',
+    };
+  } else if (status === 'stalemate'){
+    over = { icon: '⚖', title: 'Stalemate', sub: 'A draw — no legal moves, but no check.' };
+  } else if (gameState.halfmoveClock >= 100){
+    over = { icon: '⚖', title: 'Draw', sub: 'Fifty moves without a capture or pawn move.' };
+  } else if (isInsufficientMaterial(gameState.board)){
+    over = { icon: '⚖', title: 'Draw', sub: 'Neither side has enough material to force checkmate.' };
+  }
+
+  if (status === 'check' || status === 'checkmate'){
+    const k = ChessEngine.findKing(gameState.board, turn);
+    if (k){
+      const p = squareToWorld(k.row, k.col);
+      checkRing.position.set(p.x, 0.016, p.z);
+      checkRing.visible = true;
+    }
+  } else {
+    checkRing.visible = false;
+  }
+
+  updateTurnIndicator(status, over);
+
+  if (over){
+    gameOver = true;
+    // Let the final move land visibly before the overlay covers it
+    setTimeout(() => { if (gameOver) showGameOver(over); }, 800);
+  }
+}
+
+function updateTurnIndicator(status, over){
+  const el = document.getElementById('turn-indicator');
+  el.className = '';
+  if (over){
+    el.textContent = over.title;
+    el.classList.add(status === 'checkmate' ? 'in-check' : 'opp-turn');
+    return;
+  }
+  const mine = gameState.turn === 'player';
+  const label = mine ? 'Your move' : "Shadow's move";
+  if (status === 'check'){
+    el.textContent = 'Check! — ' + label;
+    el.classList.add('in-check');
+  } else {
+    el.textContent = label;
+    el.classList.add(mine ? 'your-turn' : 'opp-turn');
+  }
+}
+
+function showGameOver(over){
+  document.getElementById('go-icon').textContent = over.icon;
+  document.getElementById('go-title').textContent = over.title;
+  document.getElementById('go-sub').textContent = over.sub;
+  document.getElementById('gameover-overlay').classList.add('show');
+}
+
+function restartGame(){
+  activeTweens.length = 0;
+  animating = false;
+  gameOver = false;
+  pendingPromotionMoves = null;
+  clearSelection();
+  checkRing.visible = false;
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+    if (pieceMeshes[r][c]){ scene.remove(pieceMeshes[r][c]); pieceMeshes[r][c] = null; }
+  }
+  document.getElementById('gameover-overlay').classList.remove('show');
+  document.getElementById('promo-overlay').classList.remove('show');
+  buildAllPieces();
+  updateTurnIndicator('active', null);
+}
+window.ChessGame = { restart: restartGame };
+
+/* ── LOOP ── */
 function onResize(){
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  fitCameraToBoard(true);   // re-frame (e.g. phone rotated)
 }
 
 function animate(){
   requestAnimationFrame(animate);
+  const now = performance.now();
+  updateAnimations(now);
+  // Gentle pulse on the legal-move markers so they read as tappable
+  const pulse = 1 + 0.12 * Math.sin(now / 180);
+  for (const m of highlightMeshes) m.scale.set(pulse, 1, pulse);
   controls.update();
   renderer.render(scene, camera);
 }
