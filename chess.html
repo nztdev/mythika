@@ -152,7 +152,7 @@ button{font-family:var(--fb);cursor:pointer;border:none;background:none;}
 <div id="turn-indicator">Your move</div>
 
 <div class="note-banner" id="note-banner">
-  <strong>Pass-and-play preview</strong> — tap a piece, then tap a glowing square to move it. Full chess rules apply. The AI opponent is still being built, so both sides are human-controlled for now. Drag to orbit, pinch/scroll to zoom.
+  <strong>Pass-and-play preview</strong> · tap a piece, then a glowing square · AI opponent coming soon
 </div>
 
 <div id="promo-overlay">
@@ -305,25 +305,61 @@ function initScene(){
 }
 
 /* ── CAMERA FRAMING ──
-   A fixed camera position cannot work across screen shapes: on a
-   portrait phone, a board that fits a desktop window is more than twice
-   as wide as the screen. So the camera distance is derived from the
-   aspect ratio, which keeps the board's full width visible.
-   The elevation is steep (52°) on purpose: from a shallow angle a tall
-   piece (the king, 1.6 high) hides the pawn directly behind it and
-   makes that pawn untappable. */
+   A fixed camera cannot work across screen shapes: on a portrait phone a
+   board that fits a desktop window is over twice as wide as the screen.
+   So the distance is SOLVED, not guessed: we binary-search the closest
+   camera distance at which the board's real projected corners (plus the
+   tops of tall back-rank pieces) land inside the free area between the
+   top bar and the bottom banner. Solving from the actual projection,
+   rather than a formula, accounts for perspective (the near corners look
+   bigger than the centre) and for whatever orbit angle the player left
+   the camera at.
+   The default elevation is steep (52°) on purpose: from a shallow angle
+   a tall piece (the king, 1.6 high) hides the pawn directly behind it
+   and makes that pawn untappable. */
 const CAMERA_ELEVATION = 52 * Math.PI / 180;
-function fitCameraToBoard(keepDirection){
-  const aspect = window.innerWidth / window.innerHeight;
-  const tanV = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-  const halfBoard = (N * S) / 2 + 0.7;                  // board + plinth + margin
-  const distForWidth  = halfBoard / (tanV * aspect);    // whole width visible
-  const distForHeight = 12.4;                           // comfortable margin for the UI bars
-  const dist = Math.min(40, Math.max(distForWidth, distForHeight));
 
+// Free screen area (in NDC) not covered by the top bar / turn pill or the
+// bottom banner, measured from the live page so it follows text wrapping.
+function usableBand(){
+  const H = window.innerHeight;
+  const pill = document.getElementById('turn-indicator').getBoundingClientRect();
+  const banner = document.getElementById('note-banner').getBoundingClientRect();
+  let topPx = pill.bottom, bottomPx = H - banner.top;
+  if (!(topPx > 0 && topPx < H * 0.5)) topPx = 92;       // fallback if layout isn't measurable yet
+  if (!(bottomPx > 0 && bottomPx < H * 0.5)) bottomPx = 64;
+  const pad = 10;
+  return { xMax: 0.95, yMax: 1 - 2 * (topPx + pad) / H, yMin: -1 + 2 * (bottomPx + pad) / H };
+}
+
+function fitCameraToBoard(keepDirection){
   const dir = keepDirection
     ? camera.position.clone().sub(controls.target).normalize()
     : new THREE.Vector3(0, Math.sin(CAMERA_ELEVATION), Math.cos(CAMERA_ELEVATION));
+  const band = usableBand();
+  const half = (N * S) / 2 + 0.3;                       // board edge + a little plinth
+
+  const probes = [];
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) probes.push(new THREE.Vector3(sx * half, 0, sz * half));
+  for (const sx of [-1, 1]) probes.push(new THREE.Vector3(sx * half, 1.7, -half)); // tall far-rank pieces
+
+  const v = new THREE.Vector3();
+  const fits = (d) => {
+    camera.position.copy(controls.target).addScaledVector(dir, d);
+    camera.lookAt(controls.target);
+    camera.updateMatrixWorld(true);
+    for (const p of probes){
+      v.copy(p).project(camera);
+      if (Math.abs(v.x) > band.xMax || v.y > band.yMax || v.y < band.yMin) return false;
+    }
+    return true;
+  };
+
+  let lo = 6, hi = 70;
+  if (fits(hi)){
+    for (let i = 0; i < 24; i++){ const mid = (lo + hi) / 2; if (fits(mid)) hi = mid; else lo = mid; }
+  }
+  const dist = Math.max(hi, 9);                          // never closer than 9: keeps perspective gentle
   camera.position.copy(controls.target).addScaledVector(dir, dist);
 
   controls.maxDistance = Math.max(16, dist * 1.5);
@@ -943,7 +979,27 @@ function animate(){
 }
 
 /* ── BOOT ── */
+// A missing script (typo'd path, file not uploaded) used to surface as a
+// vague "ReferenceError" blamed on WebGL. Check up front and say exactly
+// which file is missing instead.
+function missingDependencies(){
+  const missing = [];
+  if (typeof ROSTER === 'undefined')      missing.push('shared/roster.js');
+  if (typeof State === 'undefined')       missing.push('shared/state.js');
+  if (typeof Art === 'undefined')         missing.push('shared/art.js');
+  if (typeof ChessRoles === 'undefined')  missing.push('shared/chess-roles.js');
+  if (typeof ChessEngine === 'undefined') missing.push('shared/chess-engine.js');
+  return missing;
+}
+
 try {
+  const missing = missingDependencies();
+  if (missing.length){
+    const e = new Error('Missing file' + (missing.length > 1 ? 's' : '') + ': ' + missing.join(', ') +
+      '. Make sure ' + (missing.length > 1 ? 'they are' : 'it is') + ' uploaded to your site at exactly that path.');
+    e.isMissingFiles = true;
+    throw e;
+  }
   initScene();
   setTimeout(() => {
     document.getElementById('loading-overlay').classList.add('hide');
@@ -952,9 +1008,10 @@ try {
   console.error('Chess scene failed to initialise:', err);
   document.getElementById('loading-overlay').classList.add('hide');
   document.getElementById('error-overlay').classList.add('show');
-  document.getElementById('error-detail').textContent =
-    'Something went wrong setting up the 3D board: ' + (err?.message || 'unknown error') +
-    '. Your browser may not support WebGL.';
+  document.getElementById('error-detail').textContent = err.isMissingFiles
+    ? err.message
+    : 'Something went wrong setting up the 3D board: ' + (err?.message || 'unknown error') +
+      '. Your browser may not support WebGL.';
 }
 </script>
 </body>
