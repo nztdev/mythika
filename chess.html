@@ -206,13 +206,26 @@ import { OrbitControls } from './lib/OrbitControls.js';
 const CONFIG = {
   boardSize: 8,
   squareSize: 1,
-  lightSquareColor: 0xe8dcc0,
-  darkSquareColor: 0x2a2440,
+  // Mid-tone squares on purpose: white pieces need squares darker than
+  // themselves and black pieces need squares lighter than themselves, on
+  // BOTH colours. A near-black board made black pieces vanish.
+  lightSquareColor: 0xb9a074,
+  darkSquareColor: 0x5c4b72,
   playerAccent: 0xc9a84c,   // gold — the player's medallion studs / king cross
   shadowAccent: 0x6b5b95,   // muted violet — the "Chronicle Shadow" side
   moveDurationMs: 380,
   moveLift: 0.45,
 };
+// Piece materials per team. These are materials (colour + sheen), not flat
+// colours, so they read as ivory and polished obsidian rather than paint.
+// SIDE_STYLE is the single place that decides who wears what; a team-colour
+// picker will only need to change these two entries.
+const TEAM_STYLES = {
+  ivory:    { body: 0xe9e1cd, roughness: 0.42, metalness: 0.10, trim: 0xc9a84c },
+  obsidian: { body: 0x17141f, roughness: 0.32, metalness: 0.45, trim: 0x8b7cf6 },
+};
+const SIDE_STYLE = { player: 'ivory', opponent: 'obsidian' };
+
 const N = CONFIG.boardSize, S = CONFIG.squareSize;
 const OFFSET = (N * S) / 2 - S / 2;
 
@@ -608,14 +621,15 @@ function makeShadowMedallionTexture(){
 // role while keeping the same character's portrait.
 function buildPiece(role, isPlayerSide, card){
   const group = new THREE.Group();
-  const bodyColor = isPlayerSide ? 0x241d3a : 0x1c1830;
-  const trimColor = isPlayerSide ? CONFIG.playerAccent : CONFIG.shadowAccent;
+  const style = TEAM_STYLES[isPlayerSide ? SIDE_STYLE.player : SIDE_STYLE.opponent];
 
-  const body = makeLatheMesh(role, new THREE.MeshStandardMaterial({ color: bodyColor, roughness: 0.55, metalness: 0.35 }));
+  const body = makeLatheMesh(role, new THREE.MeshStandardMaterial({
+    color: style.body, roughness: style.roughness, metalness: style.metalness,
+  }));
   group.add(body);
 
   if (role === 'king'){
-    group.add(makeKingCross(new THREE.MeshStandardMaterial({ color: trimColor, roughness: 0.3, metalness: 0.8 })));
+    group.add(makeKingCross(new THREE.MeshStandardMaterial({ color: style.trim, roughness: 0.3, metalness: 0.8 })));
   }
 
   group.add(makeMedallion(isPlayerSide ? card : null, role, isPlayerSide));
