@@ -29,7 +29,8 @@
    ════════════════════════════════════════════════════════════════ */
 
 const ChessRoles = {
-  // Minimum unique unlocked characters needed to fill one full side.
+  // Pieces on one side. Owning this many spirits skins the whole side;
+  // with fewer, the best-fitting ones are used and the rest stay generic.
   MIN_CHARACTERS: 16,
 
   // Archetype → role affinity bonus. A character whose archetype
@@ -79,13 +80,16 @@ const ChessRoles = {
   // problem perfectly. The player can always override any slot
   // manually afterward.
   //
-  // Returns null if fewer than MIN_CHARACTERS are unlocked.
+  // Works with ANY number of unlocked characters, including none. The
+  // best-fitting characters take the most prominent pieces first (King,
+  // Queen, Bishops, Knights, Rooks, then Pawns); any piece left without a
+  // character is returned as null, which the board draws with a generic
+  // medallion. (This used to return null below 16 unlocked, which meant
+  // owning 15 spirits showed none of them.)
   suggestLoadout(unlockedIds){
-    const pool = ROSTER.filter(c => unlockedIds.includes(c.id));
-    if (pool.length < this.MIN_CHARACTERS) return null;
-
-    const remaining = [...pool];
+    const remaining = ROSTER.filter(c => unlockedIds.includes(c.id));
     const takeBest = (role) => {
+      if (!remaining.length) return null;
       remaining.sort((a,b) => this._score(b,role) - this._score(a,role));
       return remaining.shift();
     };
