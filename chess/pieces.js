@@ -39,10 +39,38 @@ export const PROFILES = {
   ],
 };
 
+/* ── SMOOTHING ──
+   The hand-placed control points above are deliberately few (easy to read
+   and tweak), but joined by straight lines they give a faceted silhouette.
+   Chaikin corner-cutting rounds them: each pass replaces every corner with
+   two points a quarter of the way along its neighbouring edges. Unlike a
+   spline it can never overshoot — radii stay between 0 and the widest
+   control point, heights never double back, and the base and tip are kept
+   exactly, so piece heights are unchanged. */
+function chaikin(points, passes){
+  let pts = points;
+  for (let i = 0; i < passes; i++){
+    const out = [pts[0]];
+    for (let j = 0; j < pts.length - 1; j++){
+      const [x0, y0] = pts[j], [x1, y1] = pts[j + 1];
+      out.push([0.75*x0 + 0.25*x1, 0.75*y0 + 0.25*y1],
+               [0.25*x0 + 0.75*x1, 0.25*y0 + 0.75*y1]);
+    }
+    out.push(pts[pts.length - 1]);
+    pts = out;
+  }
+  return pts;
+}
+const _smoothCache = {};
+export function smoothedProfile(role){
+  return (_smoothCache[role] ||= chaikin(PROFILES[role], 2));
+}
+const LATHE_SEGMENTS = 40;   // around the piece — round, not faceted, when seen from above
+
 // Body radius of a role's profile at a given height (linear interpolation).
 // Used to seat the medallion ON the piece's surface rather than inside it.
 export function profileRadiusAt(role, y){
-  const pts = PROFILES[role];
+  const pts = smoothedProfile(role);
   for (let i = 0; i < pts.length - 1; i++){
     const [r0, y0] = pts[i], [r1, y1] = pts[i+1];
     if (y >= y0 && y <= y1){
@@ -55,9 +83,10 @@ export function profileRadiusAt(role, y){
 }
 
 function makeLatheMesh(role, material){
-  const pts = PROFILES[role].map(([r,y]) => new THREE.Vector2(r,y));
-  const geo = new THREE.LatheGeometry(pts, 24);
-  geo.computeVertexNormals();
+  const pts = smoothedProfile(role).map(([r,y]) => new THREE.Vector2(r,y));
+  // LatheGeometry computes accurate smooth normals itself; recomputing them
+  // by face-averaging (as this used to) replaced them with a cruder result.
+  const geo = new THREE.LatheGeometry(pts, LATHE_SEGMENTS);
   const mesh = new THREE.Mesh(geo, material);
   mesh.castShadow = true;
   mesh.receiveShadow = true;
@@ -76,7 +105,7 @@ function makeKingCross(material){
   return group;
 }
 
-const MEDALLION_HEIGHT = {
+export const MEDALLION_HEIGHT = {
   pawn: 0.36, rook: 0.40, bishop: 0.52, knight: 0.42, queen: 0.66, king: 0.72,
 };
 const MEDALLION_RADIUS = 0.125;
@@ -151,19 +180,35 @@ function makeMedallion(card, role, isPlayerSide){
   return group;
 }
 
-// Colour placeholder shown before a portrait loads (or if it never does),
-// taken from the character's own palette so it never looks generic.
+// Element symbols — the same ones the Dex draws for characters without art
+// (kept in step with Art.fallback in shared/art.js).
+const ELEMENT_GLYPH = {
+  Storm:'⚡', Arcane:'✦', Lightning:'⚡', Wind:'🌀', Solar:'☀',
+  Water:'💧', Earth:'⛰', Fire:'🔥', Spirit:'👁', Divine:'✺',
+};
+
+// Shown before a portrait loads, or permanently if the art file is missing.
+// A bare colour disc looks broken, so this carries the character's element
+// symbol on their own palette colour, ringed in their accent colour.
 function makeFallbackMedallionTexture(card){
   const c = document.createElement('canvas');
   c.width = c.height = 128;
   const ctx = c.getContext('2d');
-  const color = card.palette?.[0] || '#c9a84c';
+  const base = card.palette?.[0] || '#c9a84c';
+  const ring = card.palette?.[2] || card.palette?.[1] || '#f0ecdf';
   ctx.fillStyle = '#06060f';
-  ctx.fillRect(0,0,128,128);
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(64,64,50,0,Math.PI*2);
-  ctx.fill();
+  ctx.fillRect(0, 0, 128, 128);
+  ctx.fillStyle = base;
+  ctx.beginPath(); ctx.arc(64, 64, 58, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = ring; ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.arc(64, 64, 55, 0, Math.PI * 2); ctx.stroke();
+  ctx.font = '60px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,0.55)';
+  ctx.shadowBlur = 6;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(ELEMENT_GLYPH[card.element] || '✦', 64, 68);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
