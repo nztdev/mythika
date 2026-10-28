@@ -17,6 +17,12 @@ export const CONFIG = {
   shadowAccent: 0x6b5b95,   // muted violet — the Shadow side's studs
   moveDurationMs: 380,
   moveLift: 0.45,
+  // Pacing of the computer's moves (ms) — a beat of "thinking" so its reply
+  // doesn't snap back instantly, and slower in the intro so it's watchable.
+  aiMoveDelayMs: 350,
+  demoMoveDelayMs: 500,
+  demoRestartDelayMs: 2500,   // pause before the intro starts a fresh demo game
+  demoMaxPlies: 110,          // restart a demo that wanders on (no repetition detection yet)
 };
 
 export const N = CONFIG.boardSize;

@@ -31,4 +31,18 @@ export const session = {
   animating: false,        // true while a move's animation plays
   gameOver: false,
   pendingPromotion: null,  // the 4 promotion variants while the picker is open
+  result: null,            // set when the position is game-over: {icon,title,sub}
+
+  // Who is playing, set by controller.js.
+  //   mode: 'intro' (AI vs AI demo) | 'menu' | 'pass' | 'ai'
+  //   controllers: who may move each side — 'human' | 'ai' | 'none'
+  match: {
+    mode: 'menu',
+    controllers: { player: 'none', opponent: 'none' },
+    difficulty: 'adept',
+    demoPlies: 0,
+    paused: false,
+  },
+  aiToken: 0,              // bumped whenever a match starts/ends: stale AI answers are discarded
+  onMoveFinished: null,    // called by game.js after every completed move
 };

@@ -127,6 +127,64 @@ button{font-family:var(--fb);cursor:pointer;border:none;background:none;}
   transition:all .2s;
 }
 .go-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(201,168,76,.4);}
+
+/* ── Intro ("tap to begin") ── */
+#intro-overlay{
+  display:none;position:fixed;inset:0;z-index:35;cursor:pointer;
+  background:linear-gradient(to bottom,rgba(8,8,16,.84) 0%,rgba(8,8,16,.12) 36%,rgba(8,8,16,.12) 62%,rgba(8,8,16,.88) 100%);
+  flex-direction:column;align-items:center;justify-content:space-between;
+  padding:5.5rem 1.5rem 4.2rem;text-align:center;
+}
+#intro-overlay.show{display:flex;}
+.intro-title{font-family:var(--fd);font-size:clamp(2.2rem,9vw,3.6rem);letter-spacing:.2em;color:var(--gold);text-shadow:0 0 28px rgba(201,168,76,.45);}
+.intro-sub{font-family:var(--fc);font-size:.8rem;letter-spacing:.14em;color:rgba(240,236,223,.55);margin-top:.6rem;font-style:italic;}
+.intro-prompt{font-family:var(--fd);font-size:1rem;letter-spacing:.22em;color:var(--paper);text-transform:uppercase;animation:promptPulse 1.8s ease-in-out infinite;}
+@keyframes promptPulse{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* ── Match menu ── */
+#menu-overlay{
+  display:none;position:fixed;inset:0;z-index:36;background:rgba(0,0,0,.72);
+  align-items:center;justify-content:center;padding:1rem;overflow-y:auto;
+}
+#menu-overlay.show{display:flex;}
+.menu-box{
+  width:100%;max-width:360px;background:linear-gradient(160deg,rgba(18,14,32,.98),rgba(8,8,16,.98));
+  border:1px solid rgba(201,168,76,.3);border-radius:16px;padding:1.4rem 1.2rem;
+}
+.menu-title{font-family:var(--fd);font-size:1rem;color:var(--gold);letter-spacing:.08em;text-align:center;margin-bottom:1rem;}
+.menu-notice{display:none;font-family:var(--fc);font-size:.68rem;color:#fca5a5;text-align:center;margin-bottom:.8rem;line-height:1.5;}
+.menu-label{font-family:var(--fc);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(240,236,223,.42);margin:.9rem 0 .4rem;}
+.seg-group{display:flex;gap:.4rem;}
+.seg{
+  flex:1;padding:.62rem .3rem;border-radius:9px;background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(255,255,255,.12);color:rgba(240,236,223,.7);
+  font-family:var(--fc);font-size:.7rem;letter-spacing:.04em;transition:all .15s;
+}
+.seg:hover{border-color:rgba(201,168,76,.45);}
+.seg.on{background:rgba(201,168,76,.16);border-color:var(--gold);color:var(--gold2);}
+.menu-start{
+  width:100%;margin-top:1.3rem;padding:.8rem;border-radius:6px;
+  background:linear-gradient(135deg,#b8932e,#e8c96a);color:var(--ink);
+  font-family:var(--fd);font-size:.82rem;letter-spacing:.14em;transition:all .2s;
+}
+.menu-start:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(201,168,76,.4);}
+.menu-start:disabled{opacity:.6;cursor:wait;transform:none;}
+
+/* ── In-game menu button ── */
+#menu-btn{
+  display:none;position:fixed;top:3.45rem;right:.9rem;z-index:11;
+  background:rgba(8,8,16,.85);border:1px solid rgba(201,168,76,.25);border-radius:20px;
+  padding:6px 14px;font-family:var(--fc);font-size:.68rem;letter-spacing:.06em;
+  color:rgba(240,236,223,.7);backdrop-filter:blur(8px);transition:all .2s;
+}
+#menu-btn:hover{color:var(--paper);border-color:rgba(201,168,76,.5);}
+#menu-btn.armed{border-color:rgba(239,68,68,.6);color:#fca5a5;}
+
+/* ── Game-over buttons ── */
+.go-actions{display:flex;gap:.7rem;margin-top:.5rem;}
+.go-actions .go-btn{margin-top:0;}
+.go-btn-alt{background:rgba(255,255,255,.07);color:var(--gold);border:1px solid rgba(201,168,76,.35);}
+.go-btn-alt:hover{box-shadow:none;background:rgba(201,168,76,.12);}
 </style>
 </head>
 <body>
@@ -151,9 +209,7 @@ button{font-family:var(--fb);cursor:pointer;border:none;background:none;}
 
 <div id="turn-indicator">Your move</div>
 
-<div class="note-banner" id="note-banner">
-  <strong>Pass-and-play preview</strong> · tap a piece, then a glowing square · AI opponent coming soon
-</div>
+<div class="note-banner" id="note-banner"><strong>Chess</strong></div>
 
 <div id="promo-overlay">
   <div class="promo-box">
@@ -172,8 +228,52 @@ button{font-family:var(--fb);cursor:pointer;border:none;background:none;}
   <div class="go-icon" id="go-icon">♛</div>
   <div class="go-title" id="go-title">Checkmate</div>
   <div class="go-sub" id="go-sub">—</div>
-  <button class="go-btn" onclick="ChessGame.restart()">↻ Play Again</button>
+  <div class="go-actions">
+    <button class="go-btn" onclick="ChessGame.restart()">↻ Play Again</button>
+    <button class="go-btn go-btn-alt" onclick="ChessGame.menu()">☰ Menu</button>
+  </div>
 </div>
+
+<div id="intro-overlay">
+  <div>
+    <div class="intro-title">CHESS</div>
+    <div class="intro-sub">Spirits against Shadows</div>
+  </div>
+  <div class="intro-prompt">Tap to begin</div>
+</div>
+
+<div id="menu-overlay">
+  <div class="menu-box">
+    <div class="menu-title">Choose your match</div>
+    <div class="menu-notice" id="menu-notice"></div>
+
+    <div class="menu-label">Opponent</div>
+    <div class="seg-group" data-group="opponent">
+      <button class="seg on" data-value="ai">The Shadow</button>
+      <button class="seg" data-value="pass">Pass &amp; Play</button>
+    </div>
+
+    <div id="menu-ai-options">
+      <div class="menu-label">Difficulty</div>
+      <div class="seg-group" data-group="difficulty">
+        <button class="seg" data-value="apprentice">Apprentice</button>
+        <button class="seg on" data-value="adept">Adept</button>
+        <button class="seg" data-value="master">Master</button>
+      </div>
+
+      <div class="menu-label">You move</div>
+      <div class="seg-group" data-group="side">
+        <button class="seg on" data-value="first">First</button>
+        <button class="seg" data-value="second">Second</button>
+        <button class="seg" data-value="random">Random</button>
+      </div>
+    </div>
+
+    <button class="menu-start" id="menu-start">Begin</button>
+  </div>
+</div>
+
+<button id="menu-btn">☰ Menu</button>
 
 <!-- Shared modules — same roster, save data, and art rendering as every
      other Mythika game, plus the chess role mapping and rules engine. -->
@@ -184,6 +284,18 @@ button{font-family:var(--fb);cursor:pointer;border:none;background:none;}
 <script src="shared/chess-roles.js"></script>
 <script src="shared/chess-engine.js"></script>
 
+<script>
+  // If any file in chess/ is missing, the module graph cannot start and the
+  // page would sit on the loading spinner forever. Say what is wrong instead.
+  setTimeout(function(){
+    if (window.ChessGame) return;
+    document.getElementById('loading-overlay').classList.add('hide');
+    document.getElementById('error-overlay').classList.add('show');
+    document.getElementById('error-detail').textContent =
+      'The chess code did not load. Make sure the whole chess/ folder was uploaded ' +
+      '(open the browser console to see which file is missing).';
+  }, 8000);
+</script>
 <script type="module" src="chess/main.js"></script>
 </body>
 </html>

@@ -66,3 +66,67 @@ export function showBootError(message){
   $('error-overlay').classList.add('show');
   $('error-detail').textContent = message;
 }
+
+/* ── Intro, menu and mode chrome ── */
+export function showIntro(){ $('intro-overlay').classList.add('show'); }
+export function hideIntro(){ $('intro-overlay').classList.remove('show'); }
+export function showMenu(){ $('menu-overlay').classList.add('show'); }
+export function hideMenu(){ $('menu-overlay').classList.remove('show'); }
+
+export function setMenuNotice(text){
+  const el = $('menu-notice');
+  el.textContent = text || '';
+  el.style.display = text ? 'block' : 'none';
+}
+export function setStartBusy(busy){
+  const b = $('menu-start');
+  b.disabled = !!busy;
+  b.textContent = busy ? 'Summoning the Shadow…' : 'Begin';
+}
+
+// The menu's segmented choices live in the HTML as buttons marked .on
+export function readMenuChoices(){
+  const out = { opponent: 'ai', difficulty: 'adept', side: 'first' };
+  document.querySelectorAll('.seg-group').forEach(g => {
+    const on = g.querySelector('.seg.on');
+    if (on) out[g.dataset.group] = on.dataset.value;
+  });
+  return out;
+}
+function refreshMenuVisibility(){
+  // Difficulty and who-moves-first only matter against the computer
+  $('menu-ai-options').style.display = readMenuChoices().opponent === 'pass' ? 'none' : 'block';
+}
+export function setMenuChoices(choices){
+  document.querySelectorAll('.seg-group').forEach(g => {
+    const want = choices[g.dataset.group];
+    if (!want) return;
+    g.querySelectorAll('.seg').forEach(b => b.classList.toggle('on', b.dataset.value === want));
+  });
+  refreshMenuVisibility();
+}
+
+export function bindMenuHandlers({ onIntroTap, onStart, onMenuButton }){
+  $('intro-overlay').addEventListener('click', onIntroTap);
+  $('menu-start').addEventListener('click', onStart);
+  $('menu-btn').addEventListener('click', onMenuButton);
+  document.querySelectorAll('.seg').forEach(btn => btn.addEventListener('click', () => {
+    btn.parentElement.querySelectorAll('.seg').forEach(b => b.classList.toggle('on', b === btn));
+    refreshMenuVisibility();
+  }));
+}
+
+export function setBanner(html){ $('note-banner').innerHTML = html; }
+export function setMenuButtonVisible(visible){ $('menu-btn').style.display = visible ? 'block' : 'none'; }
+// Leaving mid-game needs a second tap, so a stray touch can't lose a game
+export function setMenuButtonArmed(armed){
+  const b = $('menu-btn');
+  b.textContent = armed ? 'Leave game?' : '☰ Menu';
+  b.classList.toggle('armed', armed);
+}
+export function setStatus(text, cls){
+  const el = $('turn-indicator');
+  el.className = cls || '';
+  el.textContent = text;
+}
+export function setThinking(){ setStatus('Shadow is thinking…', 'opp-turn'); }

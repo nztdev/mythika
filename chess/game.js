@@ -12,7 +12,7 @@ import { buildPiece, placePiece } from './pieces.js';
 import { startTweens, clearTweens } from './anim.js';
 import { showCheckRing, hideCheckRing } from './overlays.js';
 import { clearSelection } from './selection.js';
-import { updateTurnIndicator, showGameOver, hideGameOver, closePromotionOverlay } from './ui.js';
+import { updateTurnIndicator, hideGameOver, closePromotionOverlay } from './ui.js';
 
 /* ── STARTING POSITION ── */
 export function setupPieces(){
@@ -95,6 +95,7 @@ function finishMove(move, capturedMesh){
 
   session.animating = false;
   evaluatePosition();
+  if (session.onMoveFinished) session.onMoveFinished();   // controller: next AI turn / game-over screen
 }
 
 /* ── GAME STATE EVALUATION ── */
@@ -139,17 +140,15 @@ export function evaluatePosition(){
 
   updateTurnIndicator(turn, status, over);
 
-  if (over){
-    session.gameOver = true;
-    // Let the final move land visibly before the overlay covers it
-    setTimeout(() => { if (session.gameOver) showGameOver(over); }, 800);
-  }
+  session.result = over;
+  if (over) session.gameOver = true;   // what to SHOW about it is the controller's decision
 }
 
 export function restartGame(){
   clearTweens();
   session.animating = false;
   session.gameOver = false;
+  session.result = null;
   session.pendingPromotion = null;
   clearSelection();
   hideCheckRing();

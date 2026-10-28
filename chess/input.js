@@ -53,8 +53,12 @@ export function attachInput(domElement){
   });
 }
 
+// Taps are ignored while an animation plays, after the game ends, while the
+// promotion picker is open, and whenever it is not a HUMAN's turn (the
+// computer is thinking, or we're on the intro/menu backdrop).
 function inputLocked(){
-  return session.animating || session.gameOver || !!session.pendingPromotion;
+  if (session.animating || session.gameOver || session.pendingPromotion) return true;
+  return session.match.controllers[session.game.turn] !== 'human';
 }
 
 export function handleTap(clientX, clientY){
