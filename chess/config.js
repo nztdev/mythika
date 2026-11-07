@@ -17,6 +17,7 @@ export const CONFIG = {
   shadowAccent: 0x6b5b95,   // muted violet — the Shadow side's studs
   moveDurationMs: 380,
   moveLift: 0.45,
+  skins3d: true,              // false = always use the plain pieces + portrait medallions
   // Pacing of the computer's moves (ms) — a beat of "thinking" so its reply
   // doesn't snap back instantly, and slower in the intro so it's watchable.
   aiMoveDelayMs: 350,

@@ -8,6 +8,7 @@
 import * as THREE from 'three';
 import { CONFIG, TEAM_STYLES, SIDE_STYLE, squareToWorld } from './config.js';
 import { session } from './session.js';
+import { requestSkin } from './skins.js';
 
 /* Each profile is an array of [radius, height] points revolved around the
    Y axis. Proportions differ per role so the silhouette alone hints at
@@ -256,6 +257,8 @@ export function buildPiece(role, isPlayerSide, card){
 
   group.add(makeMedallion(isPlayerSide ? card : null, role, isPlayerSide));
   group.userData = { isPiece: true, role, isPlayerSide, card: card || null, row: -1, col: -1 };
+  // Characters with a 3D model are upgraded from the medallion once it has loaded
+  if (isPlayerSide) requestSkin(group, role, card);
   return group;
 }
 

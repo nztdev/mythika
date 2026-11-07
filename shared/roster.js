@@ -90,6 +90,18 @@
              breaks from a missing image, so it's safe to add a
              character before its art exists.
 
+   model      OPTIONAL. Path to this character's 3D model, e.g.
+             'models/king_arthur.glb'. Chess shows the model standing
+             on a pedestal instead of the plain piece. Leave it out
+             and nothing changes; if the file is missing or fails to
+             load, the portrait medallion is used instead. Prepare
+             models with tools/optimize-model.mjs and check them with
+             tools/validate-model.mjs — the tests fail on a bad model.
+
+   modelCredit OPTIONAL. Who must be credited for the model, shown in
+             the chess menu, e.g. 'Meshy (CC BY 4.0)'. Required when
+             the model's licence asks for attribution.
+
    ────────────────────────────────────────────────────────────────
    BALANCE NOTE: total stat sum across (Power+Speed+Wisdom+Fortune)
    for existing characters ranges roughly 240–360 depending on
@@ -103,7 +115,8 @@ const ROSTER=[
    lore:'He drew the sword from the stone not through strength but through destiny — a boy who became the template for every righteous king who followed. He waits still, they say, to return when Britain needs him most.',
    element:'Solar',archetype:'Sovereign',stats:{Power:90,Speed:75,Wisdom:88,Fortune:92},
    abilities:[{name:'Excalibur',desc:'Strikes with divine light — deals double damage to shadow-type enemies.',type:'damage'},{name:'Round Table',desc:'Rallies all allies; each gains full HP restoration once per battle.',type:'heal'}],
-   palette:['#d4af37','#1e3a5f','#f0ecdf'],img:'art/king_arthur.jpg'},
+   palette:['#d4af37','#1e3a5f','#f0ecdf'],img:'art/king_arthur.jpg',
+   model:'models/king_arthur.glb',modelCredit:'Meshy (CC BY 4.0)'},
   {id:'hercules',name:'Hercules',title:'Son of Zeus, Champion of Twelve Labours',rarity:5,origin:'Greek Mythology',
    lore:'He strangled serpents in his crib, slew the Nemean Lion barehanded, and held up the sky on his shoulders to give Atlas a brief rest. His power was never the question. His wisdom always was.',
    element:'Earth',archetype:'Berserker',stats:{Power:99,Speed:70,Wisdom:60,Fortune:78},

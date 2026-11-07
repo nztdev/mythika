@@ -25,7 +25,7 @@ import { setupPieces } from './game.js';
 import { attachInput, choosePromotion, cancelPromotion } from './input.js';
 import { updateAnimations } from './anim.js';
 import { initController, startIntro, showMenu, rematch } from './controller.js';
-import { updateTurnIndicator, bindPromotionHandlers, hideLoadingOverlay, showBootError } from './ui.js';
+import { updateTurnIndicator, bindPromotionHandlers, hideLoadingOverlay, showBootError, setCredits } from './ui.js';
 
 // A missing script (typo'd path, file not uploaded) used to surface as a
 // vague ReferenceError blamed on WebGL. Check up front and name the file.
@@ -60,6 +60,11 @@ function boot(){
   startRenderLoop((now) => { updateAnimations(now); pulseMarkers(now); });
 
   initController();
+
+  // Models can require attribution (e.g. Meshy's free plan): show who to credit,
+  // straight from the roster, so it stays correct as models are added.
+  const credits = [...new Set(ROSTER.filter(c => c.model && c.modelCredit).map(c => c.modelCredit))];
+  setCredits(credits.length ? '3D models: ' + credits.join(', ') : '');
 }
 
 try {

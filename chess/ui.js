@@ -116,6 +116,7 @@ export function bindMenuHandlers({ onIntroTap, onStart, onMenuButton }){
   }));
 }
 
+export function setCredits(text){ const el = $('menu-credits'); if (el) el.textContent = text || ''; }
 export function setBanner(html){ $('note-banner').innerHTML = html; }
 export function setMenuButtonVisible(visible){ $('menu-btn').style.display = visible ? 'block' : 'none'; }
 // Leaving mid-game needs a second tap, so a stray touch can't lose a game
