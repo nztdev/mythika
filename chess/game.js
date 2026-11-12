@@ -8,7 +8,7 @@
    ════════════════════════════════════════════════════════════════ */
 import { CONFIG, N, squareToWorld } from './config.js';
 import { session } from './session.js';
-import { buildPiece, placePiece } from './pieces.js';
+import { buildPiece, placePiece, facingForCol } from './pieces.js';
 import { startTweens, clearTweens } from './anim.js';
 import { showCheckRing, hideCheckRing } from './overlays.js';
 import { clearSelection } from './selection.js';
@@ -84,7 +84,7 @@ function finishMove(move, capturedMesh){
     // Rebuild the pawn as its new role, keeping the same character's portrait
     const old = session.pieceMeshes[move.to.row][move.to.col];
     session.scene.remove(old);
-    const promoted = buildPiece(move.promotionType, old.userData.isPlayerSide, old.userData.card);
+    const promoted = buildPiece(move.promotionType, old.userData.isPlayerSide, old.userData.card, facingForCol(move.to.col));
     const p = squareToWorld(move.to.row, move.to.col);
     promoted.position.set(p.x, 0, p.z);
     promoted.userData.row = move.to.row;

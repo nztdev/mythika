@@ -102,6 +102,12 @@
              the chess menu, e.g. 'Meshy (CC BY 4.0)'. Required when
              the model's licence asks for attribution.
 
+   chessRole  OPTIONAL. 'king' | 'queen' | 'bishop' | 'knight' | 'rook' |
+             'pawn'. In chess this character always plays that piece
+             (when owned and the role still has room). Leave it out and
+             the game picks the best fit from the stats. Only pin
+             characters whose legend makes the role obvious.
+
    ────────────────────────────────────────────────────────────────
    BALANCE NOTE: total stat sum across (Power+Speed+Wisdom+Fortune)
    for existing characters ranges roughly 240–360 depending on
@@ -116,7 +122,7 @@ const ROSTER=[
    element:'Solar',archetype:'Sovereign',stats:{Power:90,Speed:75,Wisdom:88,Fortune:92},
    abilities:[{name:'Excalibur',desc:'Strikes with divine light — deals double damage to shadow-type enemies.',type:'damage'},{name:'Round Table',desc:'Rallies all allies; each gains full HP restoration once per battle.',type:'heal'}],
    palette:['#d4af37','#1e3a5f','#f0ecdf'],img:'art/king_arthur.jpg',
-   model:'models/king_arthur.glb',modelCredit:'Meshy (CC BY 4.0)'},
+   model:'models/king_arthur.glb',modelCredit:'Meshy (CC BY 4.0)',chessRole:'king'},
   {id:'hercules',name:'Hercules',title:'Son of Zeus, Champion of Twelve Labours',rarity:5,origin:'Greek Mythology',
    lore:'He strangled serpents in his crib, slew the Nemean Lion barehanded, and held up the sky on his shoulders to give Atlas a brief rest. His power was never the question. His wisdom always was.',
    element:'Earth',archetype:'Berserker',stats:{Power:99,Speed:70,Wisdom:60,Fortune:78},

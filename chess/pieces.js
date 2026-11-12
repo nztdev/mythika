@@ -18,21 +18,26 @@ export const PROFILES = {
     [0.30,0.00],[0.32,0.04],[0.22,0.10],[0.16,0.28],[0.20,0.34],
     [0.14,0.46],[0.20,0.58],[0.24,0.60],[0.24,0.66],[0.00,0.70],
   ],
+  // Rook: a straight-sided TOWER with a flared lip and a flat top (battlements are added on top)
   rook: [
-    [0.32,0.00],[0.34,0.04],[0.24,0.10],[0.22,0.55],[0.30,0.62],
-    [0.30,0.72],[0.24,0.76],[0.24,0.80],[0.00,0.80],
+    [0.34,0.00],[0.36,0.04],[0.27,0.12],[0.25,0.20],[0.25,0.58],
+    [0.32,0.66],[0.32,0.76],[0.30,0.80],[0.26,0.82],[0.00,0.82],   // chamfered rim, then the flat top
   ],
+  // Bishop: slim and tall, a collar, then a teardrop mitre that ends in a point (finial added on top)
   bishop: [
-    [0.30,0.00],[0.32,0.04],[0.20,0.12],[0.15,0.40],[0.20,0.60],
-    [0.12,0.78],[0.16,0.92],[0.10,0.98],[0.13,1.04],[0.00,1.10],
+    [0.30,0.00],[0.32,0.04],[0.22,0.12],[0.17,0.30],[0.17,0.50],
+    [0.24,0.62],[0.15,0.70],[0.19,0.84],[0.20,0.95],[0.14,1.08],
+    [0.06,1.18],[0.00,1.22],
   ],
+  // Knight: a short flat-topped plinth; the horse's head is a separate shape sitting on it
   knight: [
-    [0.31,0.00],[0.33,0.04],[0.23,0.12],[0.19,0.30],[0.26,0.50],
-    [0.30,0.62],[0.22,0.74],[0.24,0.84],[0.00,0.90],
+    [0.31,0.00],[0.33,0.04],[0.24,0.12],[0.20,0.30],[0.24,0.46],
+    [0.26,0.52],[0.00,0.52],
   ],
+  // Queen: tall, with a wide crown rim (crown points and orb added on top)
   queen: [
     [0.34,0.00],[0.36,0.04],[0.22,0.14],[0.17,0.50],[0.24,0.74],
-    [0.16,0.98],[0.20,1.14],[0.10,1.26],[0.14,1.32],[0.00,1.40],
+    [0.16,0.98],[0.22,1.12],[0.27,1.24],[0.22,1.27],[0.00,1.27],
   ],
   king: [
     [0.36,0.00],[0.38,0.04],[0.24,0.14],[0.18,0.54],[0.25,0.80],
@@ -107,7 +112,7 @@ function makeKingCross(material){
 }
 
 export const MEDALLION_HEIGHT = {
-  pawn: 0.36, rook: 0.40, bishop: 0.52, knight: 0.42, queen: 0.66, king: 0.72,
+  pawn: 0.36, rook: 0.40, bishop: 0.40, knight: 0.30, queen: 0.66, king: 0.72,
 };
 const MEDALLION_RADIUS = 0.125;
 const BOSS_RADIUS = 0.15;
@@ -178,6 +183,7 @@ function makeMedallion(card, role, isPlayerSide){
 
   const group = new THREE.Group();
   group.add(boss, disc);
+  group.userData.isMedallion = true;
   return group;
 }
 
@@ -239,21 +245,114 @@ function makeShadowMedallionTexture(){
   return _shadowTexCache;
 }
 
-// One complete piece: lathe body + (king) cross + portrait medallion. The
-// group remembers who it is, so a promotion can rebuild it as a new role
-// while keeping the same character's portrait.
-export function buildPiece(role, isPlayerSide, card){
+/* ── ROLE DETAILS ──
+   A lathe can only make round things, and round pieces differ only by small
+   proportions — rook, bishop and knight were hard to tell apart. These add the
+   shapes that make each role readable at a glance. */
+
+// Rook: a ring of battlements on the flat top
+function addRookBattlements(group, material){
+  const n = 6;
+  for (let i = 0; i < n; i++){
+    const a = (i / n) * Math.PI * 2;
+    const merlon = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.13, 0.08), material);
+    merlon.position.set(Math.cos(a) * 0.215, 0.82 + 0.065, Math.sin(a) * 0.215);
+    merlon.rotation.y = Math.PI / 2 - a;            // its thin side faces outward
+    merlon.castShadow = true;
+    group.add(merlon);
+  }
+}
+
+// Bishop: a collar ring and a finial ball
+function addBishopDetails(group, trimMat){
+  const collar = new THREE.Mesh(new THREE.TorusGeometry(0.235, 0.028, 8, 28), trimMat);
+  collar.rotation.x = Math.PI / 2; collar.position.y = 0.62; collar.castShadow = true;
+  const finial = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 10), trimMat);
+  finial.position.y = 1.25; finial.castShadow = true;
+  group.add(collar, finial);
+}
+
+// Queen: a crown of points with pearls, and a central orb
+function addQueenCrown(group, trimMat){
+  const n = 8;
+  for (let i = 0; i < n; i++){
+    const a = (i / n) * Math.PI * 2;
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.036, 0.13, 8), trimMat);
+    spike.position.set(Math.cos(a) * 0.235, 1.27 + 0.065, Math.sin(a) * 0.235);
+    const pearl = new THREE.Mesh(new THREE.SphereGeometry(0.026, 8, 6), trimMat);
+    pearl.position.set(Math.cos(a) * 0.235, 1.27 + 0.145, Math.sin(a) * 0.235);
+    spike.castShadow = pearl.castShadow = true;
+    group.add(spike, pearl);
+  }
+  const orb = new THREE.Mesh(new THREE.SphereGeometry(0.065, 12, 10), trimMat);
+  orb.position.y = 1.27 + 0.07; orb.castShadow = true;
+  group.add(orb);
+}
+
+// Knight: a horse's head in profile (a flat outline given thickness). `facing`
+// is +1 to look toward +x and -1 toward -x, so knights can look inward.
+const KNIGHT_HEAD = [
+  [-0.20, 0.00], [-0.24, 0.22], [-0.18, 0.42], [-0.10, 0.56], [-0.04, 0.64],
+  [ 0.02, 0.55], [ 0.08, 0.50], [ 0.20, 0.38], [ 0.30, 0.28], [ 0.31, 0.20],
+  [ 0.26, 0.14], [ 0.14, 0.17], [ 0.10, 0.08], [ 0.16, 0.00],
+];
+// Round a closed outline: each corner is replaced by two points a quarter of the
+// way along its neighbouring edges (the same idea as the lathe smoothing).
+function smoothClosed(points, passes){
+  let pts = points;
+  for (let p = 0; p < passes; p++){
+    const out = [];
+    for (let i = 0; i < pts.length; i++){
+      const [x0, y0] = pts[i], [x1, y1] = pts[(i + 1) % pts.length];
+      out.push([0.75*x0 + 0.25*x1, 0.75*y0 + 0.25*y1], [0.25*x0 + 0.75*x1, 0.25*y0 + 0.75*y1]);
+    }
+    pts = out;
+  }
+  return pts;
+}
+
+function addKnightHead(group, material, facing){
+  const shape = new THREE.Shape(smoothClosed(KNIGHT_HEAD, 2).map(([x, y]) => new THREE.Vector2(x, y)));
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.18, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.04, bevelSegments: 3, curveSegments: 4 });
+  geo.translate(0, 0, -0.09);                       // centre the thickness on the piece's axis
+  const head = new THREE.Mesh(geo, material);
+  head.castShadow = true; head.receiveShadow = true;
+
+  // Eyes, one each side, are what make a flat outline read as a horse
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x120d18, roughness: 0.3, metalness: 0.2 });
+  const eyes = [1, -1].map((side) => {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), eyeMat);
+    eye.position.set(0.10, 0.40, side * 0.135);
+    return eye;
+  });
+
+  const horse = new THREE.Group();
+  horse.add(head, ...eyes);
+  horse.scale.setScalar(0.98);
+  horse.position.y = 0.50;                          // sunk slightly into the plinth
+  horse.rotation.y = facing === 1 ? 0 : Math.PI;
+  group.add(horse);
+}
+
+// Knights on the left half of the board look right, on the right half look left
+export const facingForCol = (col) => (col < 4 ? 1 : -1);
+
+// One complete piece: lathe body + role details + portrait medallion. The group
+// remembers who it is, so a promotion can rebuild it as a new role while
+// keeping the same character's portrait.
+export function buildPiece(role, isPlayerSide, card, facing = 1){
   const group = new THREE.Group();
   const style = TEAM_STYLES[isPlayerSide ? SIDE_STYLE.player : SIDE_STYLE.opponent];
 
-  const body = makeLatheMesh(role, new THREE.MeshStandardMaterial({
-    color: style.body, roughness: style.roughness, metalness: style.metalness,
-  }));
-  group.add(body);
+  const bodyMat = new THREE.MeshStandardMaterial({ color: style.body, roughness: style.roughness, metalness: style.metalness });
+  const trimMat = new THREE.MeshStandardMaterial({ color: style.trim, roughness: 0.3, metalness: 0.8 });
+  group.add(makeLatheMesh(role, bodyMat));            // children[0] is always the lathe body
 
-  if (role === 'king'){
-    group.add(makeKingCross(new THREE.MeshStandardMaterial({ color: style.trim, roughness: 0.3, metalness: 0.8 })));
-  }
+  if (role === 'king')   group.add(makeKingCross(trimMat));
+  if (role === 'rook')   addRookBattlements(group, bodyMat);
+  if (role === 'bishop') addBishopDetails(group, trimMat);
+  if (role === 'queen')  addQueenCrown(group, trimMat);
+  if (role === 'knight') addKnightHead(group, bodyMat, facing);
 
   group.add(makeMedallion(isPlayerSide ? card : null, role, isPlayerSide));
   group.userData = { isPiece: true, role, isPlayerSide, card: card || null, row: -1, col: -1 };
@@ -264,7 +363,7 @@ export function buildPiece(role, isPlayerSide, card){
 
 // Build a piece, put it on a square, and register it in the lookup grid.
 export function placePiece(role, isPlayerSide, card, row, col){
-  const piece = buildPiece(role, isPlayerSide, card);
+  const piece = buildPiece(role, isPlayerSide, card, facingForCol(col));
   const p = squareToWorld(row, col);
   piece.position.set(p.x, 0, p.z);
   piece.userData.row = row;

@@ -80,28 +80,41 @@ const ChessRoles = {
   // problem perfectly. The player can always override any slot
   // manually afterward.
   //
-  // Works with ANY number of unlocked characters, including none. The
-  // best-fitting characters take the most prominent pieces first (King,
-  // Queen, Bishops, Knights, Rooks, then Pawns); any piece left without a
-  // character is returned as null, which the board draws with a generic
-  // medallion. (This used to return null below 16 unlocked, which meant
-  // owning 15 spirits showed none of them.)
+  // How many pieces of each kind one side has.
+  SLOTS: { king: 1, queen: 1, bishop: 2, knight: 2, rook: 2, pawn: 8 },
+
+  // Works with ANY number of unlocked characters, including none. Returns 16
+  // slots; a piece left without a character is null (drawn with a generic
+  // medallion).
+  //   1. A character that names its role (`chessRole` in roster.js) gets it,
+  //      if the player owns them and that role still has room — so King
+  //      Arthur is always the King. (Stats alone made him the Queen.)
+  //   2. Every other slot goes to the best-fitting remaining character, most
+  //      prominent role first (King, Queen, Bishops, Knights, Rooks, Pawns).
   suggestLoadout(unlockedIds){
     const remaining = ROSTER.filter(c => unlockedIds.includes(c.id));
+    const placed = { king: [], queen: [], bishop: [], knight: [], rook: [], pawn: [] };
+
+    for (const c of [...remaining]){
+      const role = c.chessRole;
+      if (role && placed[role] && placed[role].length < this.SLOTS[role]){
+        placed[role].push(c);
+        remaining.splice(remaining.indexOf(c), 1);
+      }
+    }
+
     const takeBest = (role) => {
       if (!remaining.length) return null;
       remaining.sort((a,b) => this._score(b,role) - this._score(a,role));
       return remaining.shift();
     };
-    const takeBestN = (role, n) => Array.from({length:n}, () => takeBest(role));
+    for (const role of ['king', 'queen', 'bishop', 'knight', 'rook', 'pawn']){
+      while (placed[role].length < this.SLOTS[role]) placed[role].push(takeBest(role));
+    }
 
     return {
-      king:    takeBest('king'),
-      queen:   takeBest('queen'),
-      bishops: takeBestN('bishop', 2),
-      knights: takeBestN('knight', 2),
-      rooks:   takeBestN('rook', 2),
-      pawns:   takeBestN('pawn', 8),
+      king: placed.king[0], queen: placed.queen[0],
+      bishops: placed.bishop, knights: placed.knight, rooks: placed.rook, pawns: placed.pawn,
     };
   }
 };
