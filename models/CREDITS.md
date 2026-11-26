@@ -3,6 +3,7 @@
 | File | Character | Made with | Licence |
 |---|---|---|---|
 | `king_arthur.glb` | King Arthur | [Meshy](https://www.meshy.ai) (free plan) | CC BY 4.0 — attribution required |
+| `cleopatra.glb` | Cleopatra VII | [Meshy](https://www.meshy.ai) (free plan) | CC BY 4.0 — attribution required |
 
 Meshy's free plan licenses its outputs under CC BY 4.0: commercial use is
 allowed, but Meshy must be credited. The chess menu shows this credit
