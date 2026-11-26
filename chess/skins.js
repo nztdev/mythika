@@ -144,6 +144,22 @@ export function swapToSkin(group, skin){
 
 export const skinsEnabled = () => CONFIG.skins3d !== false;
 
+// A phone can draw a few heavy figures easily but not a board full of them. Rather than
+// guess at the device, cap the total: once the budget is used, further figures simply keep
+// their portrait medallion. (First come, first served.)
+function triangleCount(obj){
+  let n = 0;
+  obj.traverse((o) => { if (o.isMesh){ const g = o.geometry; n += (g.index ? g.index.count : g.attributes.position.count) / 3; } });
+  return n;
+}
+const triCache = new WeakMap();
+const modelTriangles = (source) => { if (!triCache.has(source)) triCache.set(source, triangleCount(source)); return triCache.get(source); };
+function skinTrianglesOnBoard(){
+  let n = 0;
+  for (const row of session.pieceMeshes) for (const p of row) if (p && p.userData.skinTriangles) n += p.userData.skinTriangles;
+  return n;
+}
+
 // Called when a player's piece is built. Safe to call for any piece: it does
 // nothing unless the character has a model and 3D is on.
 export function requestSkin(group, role, card){
@@ -152,6 +168,9 @@ export function requestSkin(group, role, card){
     if (!source) return;
     // The piece may have been removed (restart, capture) or replaced (promotion) while the file loaded
     if (!group.parent || group.userData.role !== role) return;
+    const tris = modelTriangles(source);
+    if (skinTrianglesOnBoard() + tris > (CONFIG.skinTriangleBudget ?? Infinity)) return;   // over budget: keep the medallion
     swapToSkin(group, prepareSkin(source, role, group.userData.isPlayerSide));
+    group.userData.skinTriangles = tris;
   });
 }
