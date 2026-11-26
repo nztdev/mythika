@@ -147,7 +147,8 @@ const ROSTER=[
    lore:'She spoke nine languages, ruled the wealthiest kingdom alive, and bent Rome\'s greatest generals through pure wit. Reborn in Mythika as an Arcane Empress whose golden asp staff channels the undivided power of the Nile.',
    element:'Arcane',archetype:'Sovereign',stats:{Power:71,Speed:68,Wisdom:99,Fortune:95},
    abilities:[{name:'Nile\'s Blessing',desc:'Floods the field with golden mana — doubles resource gain for 3 turns.',type:'damage'},{name:'Asp of Ra',desc:'Afflicts one enemy: their buffs become debuffs.',type:'damage'}],
-   palette:['#d4af37','#1a3a2a','#8b0000'],img:'art/cleopatra.jpg'},
+   palette:['#d4af37','#1a3a2a','#8b0000'],img:'art/cleopatra.jpg',
+   model:'models/cleopatra.glb',modelCredit:'Meshy (CC BY 4.0)',chessRole:'queen'},
   // ── 4★ HEROES ──
   {id:'merlin',name:'Merlin',title:'Architect of the Once and Future',rarity:4,origin:'Arthurian Legend · Britain',
    lore:'He lived backwards through time, which is why he always seemed to know what was coming. It wasn\'t prophecy — it was memory. He has already seen how every story ends.',
